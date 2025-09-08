@@ -278,10 +278,10 @@ const ChatDiceInitiative = ({ onClose }) => {
   ];
 
   return (
-    <Card className="bg-gray-800 border-gray-700 text-white h-full flex flex-col">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg">Game Console</CardTitle>
-        <Button variant="ghost" size="sm" onClick={onClose}>
+    <Card className="fantasy-card text-white h-full flex flex-col shadow-lg shadow-green-500/10 fantasy-scrollbar">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-green-500/30">
+        <CardTitle className="text-lg dragon-stones-title">Game Console</CardTitle>
+        <Button variant="ghost" size="sm" onClick={onClose} className="fantasy-button-emerald p-1">
           <X className="w-4 h-4" />
         </Button>
       </CardHeader>
