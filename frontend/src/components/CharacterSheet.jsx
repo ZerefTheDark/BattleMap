@@ -221,7 +221,7 @@ const CharacterSheet = ({ token, onClose }) => {
             <TabsTrigger value="notes" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-red-400">📝 Notes</TabsTrigger>
           </TabsList>
           
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-0">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
             <TabsContent value="stats" className="space-y-4 mt-0 h-full overflow-y-auto">
               {/* Core Stats */}
               <div className="grid grid-cols-3 gap-3">
