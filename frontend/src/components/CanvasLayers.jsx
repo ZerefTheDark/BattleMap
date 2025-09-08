@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { useBattleMapStore } from '../store/battleMapStore';
+import { CanvasEffects } from '../utils/CanvasEffects';
 
 const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
   const backgroundCanvasRef = useRef(null);
