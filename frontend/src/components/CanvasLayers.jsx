@@ -237,6 +237,9 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
         const clickedToken = findTokenAt(worldPos.x, worldPos.y);
         if (clickedToken) {
           onTokenSelect(clickedToken.id);
+        } else {
+          // Unselect token if clicking on empty space
+          onTokenSelect(null);
         }
         break;
         
