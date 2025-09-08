@@ -284,18 +284,18 @@ const BattleMap = () => {
             )}
           </div>
 
-          {/* Right Side Panels */}
-          <div className="flex">
+          {/* Right Side Panels - Fixed positioning to prevent layout shifts */}
+          <div className="absolute top-0 right-0 h-full flex z-20 pointer-events-none">
             {/* Token Panel */}
             {showTokenPanel && (
-              <div className="w-80 h-full border-l-2 border-green-500/30">
+              <div className="w-80 h-full border-l-2 border-green-500/30 bg-gray-900 pointer-events-auto">
                 <TokenPanel onClose={() => setShowTokenPanel(false)} />
               </div>
             )}
 
             {/* Character Sheet */}
             {showCharacterSheet && selectedToken && (
-              <div className="w-96 h-full border-l-2 border-green-500/30">
+              <div className="w-96 h-full border-l-2 border-green-500/30 bg-gray-900 pointer-events-auto">
                 <CharacterSheet
                   token={selectedToken}
                   onClose={() => {
@@ -308,21 +308,21 @@ const BattleMap = () => {
 
             {/* Chat/Dice/Initiative Combined Panel */}
             {showChatPanel && (
-              <div className="w-96 h-full border-l-2 border-green-500/30">
+              <div className="w-96 h-full border-l-2 border-green-500/30 bg-gray-900 pointer-events-auto">
                 <ChatDiceInitiative onClose={() => setShowChatPanel(false)} />
               </div>
             )}
 
             {/* Submap Manager */}
             {showSubmapManager && (
-              <div className="w-80 h-full border-l-2 border-green-500/30">
+              <div className="w-80 h-full border-l-2 border-green-500/30 bg-gray-900 pointer-events-auto">
                 <SubmapManager onClose={() => setShowSubmapManager(false)} />
               </div>
             )}
 
             {/* Storage Panel */}
             {showStoragePanel && (
-              <div className="w-80 h-full border-l-2 border-green-500/30">
+              <div className="w-80 h-full border-l-2 border-green-500/30 bg-gray-900 pointer-events-auto">
                 <StoragePanel onClose={() => setShowStoragePanel(false)} />
               </div>
             )}
