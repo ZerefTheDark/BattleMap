@@ -9,7 +9,7 @@ const useBattleMapStore = create(
       setCamera: (camera) => set({ camera }),
 
       // Grid settings
-      gridSize: 50,
+      gridSize: 25,
       gridEnabled: true,
       setGridSize: (size) => set({ gridSize: size }),
       setGridEnabled: (enabled) => set({ gridEnabled: enabled }),
