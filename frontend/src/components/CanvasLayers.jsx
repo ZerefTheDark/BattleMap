@@ -239,15 +239,34 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     if (!canvas) return;
     
     const ctx = setupCanvas(canvas);
-    ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
     
+    // Clear canvas but preserve background
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
+    ctx.restore();
+    
+    ctx.save();
     applyTransform(ctx);
     
     // Draw fog of war
-    if (fogEnabled) {
+    if (fogEnabled && fogReveals.length > 0) {
       ctx.save();
       ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      ctx.fillRect(-4000, -4000, 8000, 8000);
+      
+      // Calculate visible area for fog
+      const rect = canvas.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const worldLeft = (-centerX) / camera.scale + camera.x;
+      const worldRight = (rect.width - centerX) / camera.scale + camera.x;
+      const worldTop = (-centerY) / camera.scale + camera.y;
+      const worldBottom = (rect.height - centerY) / camera.scale + camera.y;
+      
+      ctx.fillRect(worldLeft - 500, worldTop - 500, 
+                   (worldRight - worldLeft) + 1000, 
+                   (worldBottom - worldTop) + 1000);
       
       ctx.globalCompositeOperation = 'destination-out';
       fogReveals.forEach(reveal => {
@@ -262,7 +281,7 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     if (ruler.active && ruler.start && ruler.end) {
       ctx.save();
       ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 2 / camera.scale;
+      ctx.lineWidth = Math.max(2, 2 / camera.scale);
       ctx.setLineDash([10 / camera.scale, 5 / camera.scale]);
       
       ctx.beginPath();
@@ -277,7 +296,7 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
       const squares = Math.round(distance / gridSize);
       
       ctx.fillStyle = '#ef4444';
-      ctx.font = `${14 / camera.scale}px sans-serif`;
+      ctx.font = `${Math.max(12, 14 / camera.scale)}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.fillText(
         `${squares} sq (${Math.round(distance)}px)`,
@@ -287,7 +306,9 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
       
       ctx.restore();
     }
-  }, [fogEnabled, fogReveals, ruler, gridSize, camera.scale, setupCanvas, applyTransform]);
+    
+    ctx.restore();
+  }, [fogEnabled, fogReveals, ruler, gridSize, camera, setupCanvas, applyTransform, DPR]);
 
   // Find token at position
   const findTokenAt = useCallback((worldX, worldY) => {
