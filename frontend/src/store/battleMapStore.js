@@ -127,6 +127,8 @@ const useBattleMapStore = create(
         const state = get();
         const scenario = {
           version: 1,
+          name: `Battle Map ${new Date().toLocaleDateString()}`,
+          created: Date.now(),
           camera: state.camera,
           gridSize: state.gridSize,
           gridEnabled: state.gridEnabled,
@@ -139,6 +141,12 @@ const useBattleMapStore = create(
           submaps: state.submaps
         };
         
+        // Save to localStorage
+        const savedScenarios = JSON.parse(localStorage.getItem('saved_scenarios') || '[]');
+        savedScenarios.push(scenario);
+        localStorage.setItem('saved_scenarios', JSON.stringify(savedScenarios));
+        
+        // Also download as file
         const blob = new Blob([JSON.stringify(scenario, null, 2)], {
           type: 'application/json'
         });
@@ -172,6 +180,31 @@ const useBattleMapStore = create(
           }
         };
         reader.readAsText(file);
+      },
+
+      getSavedScenarios: () => {
+        return JSON.parse(localStorage.getItem('saved_scenarios') || '[]');
+      },
+
+      loadSavedScenario: (scenario) => {
+        set({
+          camera: scenario.camera || { x: 0, y: 0, scale: 1 },
+          gridSize: scenario.gridSize || 50,
+          gridEnabled: scenario.gridEnabled !== false,
+          backgroundImage: scenario.backgroundImage,
+          fogEnabled: scenario.fogEnabled || false,
+          fogReveals: scenario.fogReveals || [],
+          tokens: scenario.tokens || [],
+          chatMessages: scenario.chatMessages || [],
+          initiative: scenario.initiative || { round: 1, turn: 0, combatants: [] },
+          submaps: scenario.submaps || []
+        });
+      },
+
+      deleteSavedScenario: (index) => {
+        const savedScenarios = JSON.parse(localStorage.getItem('saved_scenarios') || '[]');
+        savedScenarios.splice(index, 1);
+        localStorage.setItem('saved_scenarios', JSON.stringify(savedScenarios));
       },
 
       newScenario: () => set({
