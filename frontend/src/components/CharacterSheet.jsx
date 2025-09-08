@@ -534,7 +534,7 @@ const CharacterSheet = ({ token, onClose }) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="spells" className="space-y-4 mt-0 h-full overflow-y-auto">
+            <TabsContent value="spells" className="space-y-4 mt-0 max-h-[600px] overflow-y-auto fantasy-scrollbar">
               {/* Spell Slots */}
               <Card className="bg-gray-800 border border-purple-500/30">
                 <CardHeader className="pb-2">
