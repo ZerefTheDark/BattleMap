@@ -224,30 +224,51 @@ const CharacterSheet = ({ token, onClose }) => {
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <TabsContent value="stats" className="space-y-4 mt-0">
               {/* Core Stats */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="stat-block-premium">
-                  <div className="character-stat-number">{token.ac || 10}</div>
-                  <div className="character-stat-label">ARMOR CLASS</div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 rounded-lg border-2" style={{
+                  background: 'linear-gradient(145deg, #374151, #1f2937)',
+                  borderColor: '#dc2626',
+                  boxShadow: '0 4px 10px rgba(220, 38, 38, 0.2)'
+                }}>
+                  <div className="text-2xl font-bold text-transparent bg-clip-text" style={{
+                    backgroundImage: 'linear-gradient(135deg, #fbbf24, #f59e0b)'
+                  }}>
+                    {token.ac || 10}
+                  </div>
+                  <div className="text-xs font-bold text-red-300 mt-1">ARMOR CLASS</div>
                 </div>
                 
-                <div className="stat-block-premium">
-                  <div className="character-stat-number">
+                <div className="text-center p-3 rounded-lg border-2" style={{
+                  background: 'linear-gradient(145deg, #374151, #1f2937)',
+                  borderColor: '#dc2626',
+                  boxShadow: '0 4px 10px rgba(220, 38, 38, 0.2)'
+                }}>
+                  <div className="text-xl font-bold text-white">
                     {token.hp?.current || 0} / {token.hp?.max || 0}
                   </div>
-                  <div className="character-stat-label">HIT POINTS</div>
-                  <div className="hp-bar-premium mt-2">
+                  <div className="text-xs font-bold text-red-300 mt-1">HIT POINTS</div>
+                  <div className="w-full bg-gray-700 rounded-full h-2 mt-2 border border-red-500/30">
                     <div 
-                      className="hp-bar-fill-premium"
+                      className="h-full rounded-full transition-all duration-300"
                       style={{ 
-                        width: `${token.hp ? (token.hp.current / token.hp.max) * 100 : 0}%` 
+                        width: `${token.hp ? (token.hp.current / token.hp.max) * 100 : 0}%`,
+                        background: 'linear-gradient(90deg, #dc2626, #ef4444, #f87171)'
                       }}
                     />
                   </div>
                 </div>
                 
-                <div className="stat-block-premium">
-                  <div className="character-stat-number">{token.speed || '30 ft'}</div>
-                  <div className="character-stat-label">SPEED</div>
+                <div className="text-center p-3 rounded-lg border-2" style={{
+                  background: 'linear-gradient(145deg, #374151, #1f2937)',
+                  borderColor: '#dc2626',
+                  boxShadow: '0 4px 10px rgba(220, 38, 38, 0.2)'
+                }}>
+                  <div className="text-2xl font-bold text-transparent bg-clip-text" style={{
+                    backgroundImage: 'linear-gradient(135deg, #fbbf24, #f59e0b)'
+                  }}>
+                    {token.speed?.replace('ft', '') || '30'}
+                  </div>
+                  <div className="text-xs font-bold text-red-300 mt-1">SPEED (FT)</div>
                 </div>
               </div>
 
