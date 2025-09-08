@@ -81,8 +81,13 @@ const BattleMap = () => {
         {/* Top Toolbar */}
         <div className="bg-gray-800 border-b border-gray-700 p-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-blue-400">Battle Map</h1>
-            <Badge variant="outline" className="text-xs">
+            <div className="flex flex-col">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+                The Dragon Stones
+              </h1>
+              <p className="text-sm text-gray-400 font-serif italic -mt-1">Chris Marshall</p>
+            </div>
+            <Badge variant="outline" className="text-xs border-green-500 text-green-400">
               {Math.round(camera.scale * 100)}%
             </Badge>
           </div>
