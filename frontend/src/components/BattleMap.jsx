@@ -19,13 +19,15 @@ import {
   Dice6,
   Map,
   Settings,
-  FileText
+  FileText,
+  Database
 } from 'lucide-react';
 import CanvasLayers from './CanvasLayers';
 import TokenPanel from './TokenPanel';
 import CharacterSheet from './CharacterSheet';
 import ChatDiceInitiative from './ChatDiceInitiative';
 import SubmapManager from './SubmapManager';
+import StoragePanel from './StoragePanel';
 import { useBattleMapStore } from '../store/battleMapStore';
 
 const BattleMap = () => {
