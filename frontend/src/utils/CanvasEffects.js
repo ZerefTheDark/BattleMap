@@ -113,7 +113,7 @@ export class CanvasEffects {
     ctx.stroke();
     
     // Major grid lines (every 5th line)
-    ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)';
     ctx.lineWidth = Math.max(1, 1 / camera.scale);
     ctx.beginPath();
     
