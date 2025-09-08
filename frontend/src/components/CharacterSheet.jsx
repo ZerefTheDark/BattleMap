@@ -195,8 +195,14 @@ const CharacterSheet = ({ token, onClose }) => {
             Save
           </Button>
           
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
-            <X className="w-4 h-4" />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose}
+            className="text-red-400 hover:text-red-300 hover:bg-red-900/30 border border-red-600/50 rounded-full w-8 h-8 p-0"
+            title="Close Character Sheet"
+          >
+            <X className="w-5 h-5" />
           </Button>
         </div>
       </CardHeader>
