@@ -138,9 +138,14 @@ const CharacterSheet = ({ token, onClose }) => {
           </div>
           
           <div>
-            <CardTitle className="text-lg dragon-stones-title">{token.name}</CardTitle>
-            <div className="text-sm text-gray-400">
-              {token.race || 'Unknown'} {token.class || 'Adventurer'} • Level {token.level || 1}
+            <CardTitle className="text-2xl font-bold text-transparent bg-clip-text" style={{
+              backgroundImage: 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)',
+              textShadow: '0 0 10px rgba(251, 191, 36, 0.5)'
+            }}>
+              {token.name}
+            </CardTitle>
+            <div className="text-sm font-medium" style={{ color: '#f87171' }}>
+              {token.race || 'Human'} {token.class || 'Fighter'} • Level {token.level || 1}
             </div>
           </div>
         </div>
