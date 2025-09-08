@@ -20,7 +20,9 @@ import {
   Map,
   Settings,
   FileText,
-  Database
+  Database,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import CanvasLayers from './CanvasLayers';
 import TokenPanel from './TokenPanel';
