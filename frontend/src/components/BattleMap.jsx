@@ -390,5 +390,11 @@ const BattleMap = () => {
                 <p>Storage Manager</p>
               </TooltipContent>
             </Tooltip>
+          </div>
+        </div>
+      </div>
+    </TooltipProvider>
+  );
+};
 };
 export default BattleMap;
