@@ -225,50 +225,6 @@ const BattleMap = () => {
 
         {/* Main Content Area */}
         <div className="flex-1 flex relative">
-          {/* Left Panels */}
-          <div className="flex">
-            {/* Token Panel */}
-            {showTokenPanel && (
-              <div className="w-80 h-full">
-                <TokenPanel onClose={() => setShowTokenPanel(false)} />
-              </div>
-            )}
-
-            {/* Character Sheet */}
-            {showCharacterSheet && selectedToken && (
-              <div className="w-96 h-full border-r-2 border-green-500/30">
-                <CharacterSheet
-                  token={selectedToken}
-                  onClose={() => {
-                    setShowCharacterSheet(false);
-                    // Keep token selected when closing character sheet
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Chat/Dice/Initiative Combined Panel */}
-            {showChatPanel && (
-              <div className="w-96 h-full">
-                <ChatDiceInitiative onClose={() => setShowChatPanel(false)} />
-              </div>
-            )}
-
-            {/* Submap Manager */}
-            {showSubmapManager && (
-              <div className="w-80 h-full border-r-2 border-green-500/30">
-                <SubmapManager onClose={() => setShowSubmapManager(false)} />
-              </div>
-            )}
-
-            {/* Storage Panel */}
-            {showStoragePanel && (
-              <div className="w-80 h-full border-r-2 border-green-500/30">
-                <StoragePanel onClose={() => setShowStoragePanel(false)} />
-              </div>
-            )}
-          </div>
-
           {/* Canvas Container - Fixed pointer events issue */}
           <div className="flex-1 relative overflow-hidden" style={{ pointerEvents: showChatPanel ? 'auto' : 'auto' }}>
             <CanvasLayers
@@ -283,6 +239,50 @@ const BattleMap = () => {
                 Scale: {Math.round(camera.scale * 100)}%
               </Badge>
             </div>
+          </div>
+
+          {/* Right Side Panels */}
+          <div className="flex">
+            {/* Token Panel */}
+            {showTokenPanel && (
+              <div className="w-80 h-full border-l-2 border-green-500/30">
+                <TokenPanel onClose={() => setShowTokenPanel(false)} />
+              </div>
+            )}
+
+            {/* Character Sheet */}
+            {showCharacterSheet && selectedToken && (
+              <div className="w-96 h-full border-l-2 border-green-500/30">
+                <CharacterSheet
+                  token={selectedToken}
+                  onClose={() => {
+                    setShowCharacterSheet(false);
+                    // Keep token selected when closing character sheet
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Chat/Dice/Initiative Combined Panel */}
+            {showChatPanel && (
+              <div className="w-96 h-full border-l-2 border-green-500/30">
+                <ChatDiceInitiative onClose={() => setShowChatPanel(false)} />
+              </div>
+            )}
+
+            {/* Submap Manager */}
+            {showSubmapManager && (
+              <div className="w-80 h-full border-l-2 border-green-500/30">
+                <SubmapManager onClose={() => setShowSubmapManager(false)} />
+              </div>
+            )}
+
+            {/* Storage Panel */}
+            {showStoragePanel && (
+              <div className="w-80 h-full border-l-2 border-green-500/30">
+                <StoragePanel onClose={() => setShowStoragePanel(false)} />
+              </div>
+            )}
           </div>
 
           {/* Side Panel Controls */}
