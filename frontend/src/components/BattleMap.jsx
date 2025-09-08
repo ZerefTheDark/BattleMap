@@ -4,6 +4,7 @@ import { Card } from './ui/card';
 import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
 import { Badge } from './ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { 
   Move, 
   Ruler, 
@@ -17,15 +18,14 @@ import {
   MessageSquare,
   Dice6,
   Map,
-  Settings
+  Settings,
+  FileText
 } from 'lucide-react';
 import CanvasLayers from './CanvasLayers';
 import TokenPanel from './TokenPanel';
 import CharacterSheet from './CharacterSheet';
-import DiceRoller from './DiceRoller';
-import ChatPanel from './ChatPanel';
-import InitiativeTracker from './InitiativeTracker';
-import SubmapModal from './SubmapModal';
+import ChatDiceInitiative from './ChatDiceInitiative';
+import SubmapManager from './SubmapManager';
 import { useBattleMapStore } from '../store/battleMapStore';
 
 const BattleMap = () => {
