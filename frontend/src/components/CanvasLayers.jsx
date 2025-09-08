@@ -161,7 +161,12 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     if (!canvas) return;
     
     const ctx = setupCanvas(canvas);
+    
+    // Clear with proper transform handling
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
+    ctx.restore();
     
     applyTransform(ctx);
     
