@@ -33,10 +33,8 @@ const BattleMap = () => {
   const [selectedTool, setSelectedTool] = useState('move');
   const [showTokenPanel, setShowTokenPanel] = useState(false);
   const [showCharacterSheet, setShowCharacterSheet] = useState(false);
-  const [showDiceRoller, setShowDiceRoller] = useState(false);
-  const [showChat, setShowChat] = useState(false);
-  const [showInitiative, setShowInitiative] = useState(false);
-  const [showSubmapModal, setShowSubmapModal] = useState(false);
+  const [showChatPanel, setShowChatPanel] = useState(false);
+  const [showSubmapManager, setShowSubmapManager] = useState(false);
   
   const {
     camera,
