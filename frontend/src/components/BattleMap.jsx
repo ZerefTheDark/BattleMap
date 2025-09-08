@@ -240,6 +240,22 @@ const BattleMap = () => {
                 Scale: {Math.round(camera.scale * 100)}%
               </Badge>
             </div>
+            
+            {/* Ruler Measurement Display */}
+            {ruler.active && ruler.start && ruler.end && (
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-red-600/90 text-white border border-red-400/50 text-lg px-4 py-2">
+                  {(() => {
+                    const dx = ruler.end.x - ruler.start.x;
+                    const dy = ruler.end.y - ruler.start.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const squares = Math.round(distance / gridSize);
+                    const feet = squares * 5;
+                    return `${feet} ft`;
+                  })()}
+                </Badge>
+              </div>
+            )}
           </div>
 
           {/* Right Side Panels */}
