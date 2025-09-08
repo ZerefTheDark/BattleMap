@@ -339,14 +339,14 @@ const ChatDiceInitiative = ({ onClose }) => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type message..."
-                    className="bg-gray-700 border-gray-600 text-sm"
+                    className="fantasy-input text-sm"
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                   />
                   <Button 
                     onClick={sendMessage} 
                     disabled={!newMessage.trim()}
                     size="sm"
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="fantasy-button-emerald"
                   >
                     <Send className="w-3 h-3" />
                   </Button>
