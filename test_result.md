@@ -452,11 +452,11 @@ frontend:
 
   - task: "Character Sheet Panels - Full Implementation"
     implemented: true
-    working: true
+    working: "NA"
     file: "/app/frontend/src/components/CharacterSheet.jsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: "NA"
         - agent: "testing"
@@ -464,6 +464,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "✅ PASSED - CRITICAL SUCCESS! Character sheet fully functional: 1) Button enabled when token selected 2) Panel opens on left with token name 3) All 6 tabs present: Stats, Actions, Spells, Items, Features, Notes 4) Portrait upload functionality 5) HP, AC, and stat fields working. Major improvement from previous missing state."
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Z-INDEX CONFLICT FIX TESTING: ✅ Decorative vine borders visible and working ✅ Character sheet button properly disabled when no token selected ✅ UI elements accessible without z-index interference ❌ CRITICAL BLOCKER: Token creation functionality broken - Create Token form does not appear when button clicked. Cannot test character sheet content visibility without ability to create/select tokens. Need main agent to fix token creation workflow before character sheet z-index fix can be verified."
 
   - task: "Local Storage Functionality"
     implemented: true
