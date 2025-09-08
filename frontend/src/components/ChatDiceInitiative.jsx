@@ -363,7 +363,7 @@ const ChatDiceInitiative = ({ onClose }) => {
                     <Button
                       key={sides}
                       onClick={() => rollDice(sides, 1, `d${sides}`)}
-                      className={`${color} hover:opacity-80 text-xs`}
+                      className={`dice-roll-premium text-xs ${color}`}
                       size="sm"
                     >
                       <Icon className="w-3 h-3 mr-1" />
