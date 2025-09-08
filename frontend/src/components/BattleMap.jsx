@@ -47,6 +47,7 @@ const BattleMap = () => {
     tokens,
     selectedTokenId,
     submaps,
+    ruler,
     setCamera,
     setGridSize,
     setGridEnabled,
