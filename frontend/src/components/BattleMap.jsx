@@ -370,10 +370,25 @@ const BattleMap = () => {
                 <p>Submap Manager</p>
               </TooltipContent>
             </Tooltip>
-          </div>
-        </div>
-      </div>
-    </TooltipProvider>
-  );
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={showStoragePanel ? 'default' : 'ghost'}
+                  className="p-3 rounded-none border-b border-gray-700"
+                  onClick={() => {
+                    setShowStoragePanel(!showStoragePanel);
+                    if (showTokenPanel) setShowTokenPanel(false);
+                    if (showCharacterSheet) setShowCharacterSheet(false);
+                    if (showChatPanel) setShowChatPanel(false);
+                    if (showSubmapManager) setShowSubmapManager(false);
+                  }}
+                >
+                  <Database className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p>Storage Manager</p>
+              </TooltipContent>
+            </Tooltip>
 };
 export default BattleMap;
