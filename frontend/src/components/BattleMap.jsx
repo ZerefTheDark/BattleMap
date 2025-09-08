@@ -79,7 +79,10 @@ const BattleMap = () => {
     <TooltipProvider>
       <div className="h-screen bg-gray-900 text-white flex flex-col">
         {/* Top Toolbar */}
-        <div className="bg-gray-800 border-b border-gray-700 p-3 flex items-center justify-between gap-4">
+        <div className="bg-gray-900 border-b-2 border-green-500 shadow-lg shadow-green-500/20 p-3 flex items-center justify-between gap-4 relative">
+          {/* Decorative thorns */}
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-yellow-500 via-green-500 to-yellow-500"></div>
+          <div className="absolute inset-x-0 bottom-0 h-px bg-green-400 shadow-green-400/50 shadow-sm"></div>>
           <div className="flex items-center gap-2">
             <div className="flex flex-col">
               <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
