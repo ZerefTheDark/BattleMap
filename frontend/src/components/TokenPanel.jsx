@@ -127,13 +127,13 @@ const TokenPanel = ({ onClose }) => {
               </div>
               
               <div>
-                <Label>Color</Label>
+                <Label className="character-stat-label">Color</Label>
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {tokenColors.map((color) => (
                     <button
                       key={color.value}
-                      className={`w-8 h-8 rounded-full border-2 ${
-                        newToken.color === color.value ? 'border-white' : 'border-gray-500'
+                      className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                        newToken.color === color.value ? 'border-yellow-400 shadow-lg shadow-yellow-400/30' : 'border-gray-500 hover:border-green-400'
                       }`}
                       style={{ backgroundColor: color.value }}
                       onClick={() => setNewToken({ ...newToken, color: color.value })}
