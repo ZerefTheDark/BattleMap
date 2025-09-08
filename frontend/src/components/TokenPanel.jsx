@@ -191,12 +191,12 @@ const TokenPanel = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="space-y-2 max-h-96 overflow-y-auto">
+        <div className="space-y-2 max-h-96 overflow-y-auto fantasy-scrollbar">
           {tokens.map((token) => (
             <Card
               key={token.id}
-              className={`bg-gray-700 border-gray-600 cursor-pointer transition-colors ${
-                selectedTokenId === token.id ? 'ring-2 ring-blue-500' : ''
+              className={`stat-block-premium cursor-pointer transition-all duration-300 ${
+                selectedTokenId === token.id ? 'ring-2 ring-yellow-400 shadow-lg shadow-yellow-400/20' : ''
               }`}
               onClick={() => selectToken(token.id)}
             >
