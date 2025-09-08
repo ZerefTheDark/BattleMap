@@ -84,6 +84,24 @@ const BattleMap = () => {
   return (
     <TooltipProvider>
       <div className="h-screen bg-gray-900 text-white flex flex-col relative">
+        {/* Decorative Vine Borders - Non-interfering */}
+        <div className="absolute top-0 left-0 right-0 h-5 z-10 pointer-events-none overflow-hidden">
+          <div className="text-center text-xs leading-5" style={{
+            background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.3) 0%, rgba(220, 38, 38, 0.3) 50%, rgba(16, 185, 129, 0.3) 100%)',
+            animation: 'vineGlow 3s ease-in-out infinite alternate'
+          }}>
+            🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-5 z-10 pointer-events-none overflow-hidden">
+          <div className="text-center text-xs leading-5" style={{
+            background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.3) 0%, rgba(220, 38, 38, 0.3) 50%, rgba(16, 185, 129, 0.3) 100%)',
+            animation: 'vineGlow 3s ease-in-out infinite alternate-reverse'
+          }}>
+            🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️
+          </div>
+        </div>
+
         {/* Top Toolbar */}
         <div className="bg-gray-900 border-b-2 border-green-500 shadow-lg shadow-green-500/20 p-3 flex items-center justify-between gap-4 relative">
           {/* Decorative thorns */}
