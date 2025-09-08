@@ -379,51 +379,36 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     });
   }, [camera, screenToWorld, setCamera]);
 
-  // Handle resize and initial setup
-  useEffect(() => {
-    const handleResize = () => {
-      // Force canvas resize before redrawing
-      if (backgroundCanvasRef.current) setupCanvas(backgroundCanvasRef.current);
-      if (gridCanvasRef.current) setupCanvas(gridCanvasRef.current);
-      if (tokensCanvasRef.current) setupCanvas(tokensCanvasRef.current);
-      if (toolsCanvasRef.current) setupCanvas(toolsCanvasRef.current);
-      
-      // Small delay to ensure canvas is resized
-      setTimeout(() => {
-        drawBackground();
-        drawGrid();
-        drawTokens();
-        drawTools();
-      }, 10);
-    };
-    
-    // Initial setup
-    handleResize();
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [setupCanvas, drawBackground, drawGrid, drawTokens, drawTools]);
+  // Consolidated rendering system with debounced redraw
+  const redrawAllLayers = useCallback(
+    debounce(() => {
+      drawBackground();
+      drawGrid();
+      drawTokens();
+      drawTools();
+    }, 16), // 60fps max
+    [drawBackground, drawGrid, drawTokens, drawTools]
+  );
 
-  // Redraw on state changes
+  // Single useEffect for all canvas updates
   useEffect(() => {
-    drawBackground();
-  }, [drawBackground]);
-  
-  useEffect(() => {
-    drawGrid();
-  }, [drawGrid]);
-  
-  useEffect(() => {
-    drawTokens();
-  }, [drawTokens]);
-  
-  useEffect(() => {
-    drawTools();
-  }, [drawTools]);
+    redrawAllLayers();
+  }, [
+    backgroundImage, 
+    gridEnabled, 
+    gridSize, 
+    camera, 
+    tokens, 
+    selectedTokenId, 
+    ruler, 
+    fogEnabled, 
+    fogReveals
+  ]);
 
-  // Ensure canvases are properly sized on mount
+  // Handle resize and initial setup (separate from renders)
   useEffect(() => {
-    const initializeCanvases = () => {
+    const handleResize = debounce(() => {
+      // Force canvas resize
       const canvases = [
         backgroundCanvasRef.current,
         gridCanvasRef.current,
@@ -432,36 +417,22 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
       ];
       
       canvases.forEach(canvas => {
-        if (canvas) {
-          // Force proper sizing
-          const container = canvas.parentElement;
-          if (container) {
-            const rect = container.getBoundingClientRect();
-            canvas.width = rect.width * DPR;
-            canvas.height = rect.height * DPR;
-            canvas.style.width = rect.width + 'px';
-            canvas.style.height = rect.height + 'px';
-            
-            const ctx = canvas.getContext('2d');
-            ctx.scale(DPR, DPR);
-          }
-        }
+        if (canvas) setupCanvas(canvas);
       });
       
-      // Redraw after sizing
-      setTimeout(() => {
-        drawBackground();
-        drawGrid();
-        drawTokens();
-        drawTools();
-      }, 50);
-    };
-
-    // Initialize with a delay to ensure DOM is ready
-    const timer = setTimeout(initializeCanvases, 100);
+      // Redraw after resize
+      setTimeout(redrawAllLayers, 20);
+    }, 100);
     
-    return () => clearTimeout(timer);
-  }, [DPR, drawBackground, drawGrid, drawTokens, drawTools]);
+    // Initial setup
+    handleResize();
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      redrawAllLayers.cancel && redrawAllLayers.cancel();
+    };
+  }, [setupCanvas, redrawAllLayers]);
 
   return (
     <div
