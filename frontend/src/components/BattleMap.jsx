@@ -254,6 +254,13 @@ const BattleMap = () => {
               </div>
             )}
 
+            {/* Submap Manager */}
+            {showSubmapManager && (
+              <div className="w-80 h-full border-r-2 border-green-500/30">
+                <SubmapManager onClose={() => setShowSubmapManager(false)} />
+              </div>
+            )}
+
             {/* Storage Panel */}
             {showStoragePanel && (
               <div className="w-80 h-full border-r-2 border-green-500/30">
