@@ -504,10 +504,12 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Character Sheet Panels - Full Implementation"
+  stuck_tasks:
+    - "Character Sheet Panels - Full Implementation"
   test_all: false
-  test_priority: "completed_priority_improvements"
+  test_priority: "stuck_first"
 
 agent_communication:
     - agent: "testing"
