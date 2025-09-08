@@ -147,15 +147,39 @@ const BattleMap = () => {
             
             <div className="flex items-center gap-2">
               <span className="text-sm">Grid:</span>
-              <Slider
-                value={[gridSize]}
-                onValueChange={(value) => setGridSize(value[0])}
-                max={100}
-                min={5}
-                step={2}
-                className="w-20"
-              />
-              <span className="text-xs text-gray-400">{gridSize}px</span>
+              <div className="flex items-center gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGridSize(Math.max(5, gridSize - 5))}
+                      className="h-6 w-6 p-0"
+                    >
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Decrease Grid Size</p>
+                  </TooltipContent>
+                </Tooltip>
+                <span className="text-xs text-gray-300 min-w-[40px] text-center">{gridSize}px</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGridSize(Math.min(100, gridSize + 5))}
+                      className="h-6 w-6 p-0"
+                    >
+                      <ChevronUp className="w-3 h-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Increase Grid Size</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
             
             <Tooltip>
