@@ -155,6 +155,10 @@ export class CanvasEffects {
     ctx.lineTo(ruler.end.x, ruler.end.y);
     ctx.stroke();
     
+    // Reset line dash and shadow
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
+    
     // Draw measurement points
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#ef4444';
