@@ -664,3 +664,113 @@
     font-size: 1.5rem;
   }
 }
+
+/* Thorny Vine Borders - Decorative Enhancement */
+.thorny-vine-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.thorny-vine-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--thorny-vine-pattern);
+  background-size: 40px 8px;
+  background-repeat: repeat-x;
+  z-index: 1;
+  animation: vineGrow 4s ease-in-out infinite alternate;
+}
+
+.thorny-vine-border::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--thorny-vine-pattern);
+  background-size: 40px 8px;
+  background-repeat: repeat-x;
+  transform: scaleY(-1);
+  z-index: 1;
+  animation: vineGrow 4s ease-in-out infinite alternate-reverse;
+}
+
+/* Side vine borders */
+.thorny-vine-border-full {
+  position: relative;
+  overflow: hidden;
+}
+
+.thorny-vine-border-full::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 4px solid transparent;
+  background: 
+    var(--thorny-vine-pattern) 0 0 / 40px 8px repeat-x,
+    var(--thorny-vine-pattern) 0 100% / 40px 8px repeat-x,
+    var(--thorny-vine-pattern) 0 0 / 8px 40px repeat-y,
+    var(--thorny-vine-pattern) 100% 0 / 8px 40px repeat-y;
+  background-origin: border-box;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+  animation: vineGlow 3s ease-in-out infinite alternate;
+}
+
+/* Bloody thorn accent */
+.thorny-vine-border-full::after {
+  content: '🩸';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  opacity: 0.6;
+  animation: bloodDrip 2s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes vineGrow {
+  0% { 
+    opacity: 0.5;
+    filter: hue-rotate(0deg) brightness(0.8);
+  }
+  100% { 
+    opacity: 0.8;
+    filter: hue-rotate(10deg) brightness(1.1);
+  }
+}
+
+@keyframes vineGlow {
+  0% { 
+    opacity: 0.6;
+    background-size: 40px 8px, 40px 8px, 8px 40px, 8px 40px;
+  }
+  100% { 
+    opacity: 0.9;
+    background-size: 42px 8px, 42px 8px, 8px 42px, 8px 42px;
+  }
+}
+
+@keyframes bloodDrip {
+  0% { 
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(0.8);
+    filter: brightness(0.8);
+  }
+  100% { 
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.1);
+    filter: brightness(1.3) saturate(1.2);
+  }
+}
