@@ -159,6 +159,38 @@ const TokenPanel = ({ onClose }) => {
           </Card>
         )}
 
+        {/* Saved Custom Tokens */}
+        <div className="border-t border-gray-700 pt-3">
+          <h3 className="text-sm font-semibold text-green-400 mb-2">Saved Token Templates</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {JSON.parse(localStorage.getItem('custom_tokens') || '[]').slice(-6).map((savedToken) => (
+              <Button
+                key={savedToken.id}
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs border-gray-600 hover:border-green-500"
+                onClick={() => {
+                  addToken({
+                    ...savedToken,
+                    x: 0,
+                    y: 0,
+                    hp: { current: 100, max: 100 },
+                    conditions: []
+                  });
+                }}
+              >
+                <div
+                  className={`w-3 h-3 mr-1 border ${
+                    savedToken.shape === 'circle' ? 'rounded-full' : 'rounded-sm'
+                  }`}
+                  style={{ backgroundColor: savedToken.color }}
+                />
+                {savedToken.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-2 max-h-96 overflow-y-auto">
           {tokens.map((token) => (
             <Card
