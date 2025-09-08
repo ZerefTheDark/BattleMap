@@ -434,14 +434,14 @@ const ChatDiceInitiative = ({ onClose }) => {
 
             <TabsContent value="initiative" className="h-full flex flex-col mt-2 space-y-3">
               {/* Round & Turn Info */}
-              <div className="flex justify-between items-center bg-gray-700 rounded p-2">
+              <div className="flex justify-between items-center stat-block-premium">
                 <div className="text-center">
-                  <div className="text-xs text-gray-400">Round</div>
-                  <div className="text-lg font-bold">{initiative.round}</div>
+                  <div className="character-stat-label">Round</div>
+                  <div className="character-stat-number text-lg">{initiative.round}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xs text-gray-400">Turn</div>
-                  <div className="text-lg font-bold">{initiative.turn + 1}</div>
+                  <div className="character-stat-label">Turn</div>
+                  <div className="character-stat-number text-lg">{initiative.turn + 1}</div>
                 </div>
               </div>
 
