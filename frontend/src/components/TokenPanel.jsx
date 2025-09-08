@@ -83,16 +83,16 @@ const TokenPanel = ({ onClose }) => {
         </Button>
 
         {showTokenCreator && (
-          <Card className="bg-gray-700 border-gray-600">
+          <Card className="fantasy-card">
             <CardContent className="p-4 space-y-3">
               <div>
-                <Label htmlFor="token-name">Name</Label>
+                <Label htmlFor="token-name" className="character-stat-label">Name</Label>
                 <Input
                   id="token-name"
                   value={newToken.name}
                   onChange={(e) => setNewToken({ ...newToken, name: e.target.value })}
                   placeholder="Token name"
-                  className="bg-gray-600 border-gray-500"
+                  className="fantasy-input"
                 />
               </div>
               
