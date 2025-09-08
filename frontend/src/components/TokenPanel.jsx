@@ -20,17 +20,33 @@ const TokenPanel = ({ onClose }) => {
 
   const handleCreateToken = () => {
     if (newToken.name.trim()) {
-      addToken({
+      const tokenToAdd = {
         ...newToken,
         x: 0,
         y: 0,
         hp: { current: 100, max: 100 },
         conditions: []
-      });
+      };
+      
+      addToken(tokenToAdd);
+      
+      // Save to custom tokens storage
+      const customTokens = JSON.parse(localStorage.getItem('custom_tokens') || '[]');
+      const customToken = {
+        id: Date.now().toString(),
+        name: newToken.name,
+        shape: newToken.shape,
+        size: newToken.size,
+        color: newToken.color,
+        created: Date.now()
+      };
+      customTokens.push(customToken);
+      localStorage.setItem('custom_tokens', JSON.stringify(customTokens));
+      
       setNewToken({
         name: '',
         shape: 'circle',
-        size: 50,
+        size: 25,
         color: '#3b82f6'
       });
       setShowTokenCreator(false);
