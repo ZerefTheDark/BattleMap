@@ -127,29 +127,57 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
   // Draw grid
   const drawGrid = useCallback(() => {
     const canvas = gridCanvasRef.current;
-    if (!canvas || !gridEnabled) return;
+    if (!canvas || !gridEnabled) {
+      if (canvas) {
+        const ctx = setupCanvas(canvas);
+        ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
+      }
+      return;
+    }
     
     const ctx = setupCanvas(canvas);
     ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
     
+    ctx.save();
     applyTransform(ctx);
     
     ctx.strokeStyle = '#374151';
-    ctx.lineWidth = 1 / camera.scale;
+    ctx.lineWidth = Math.max(0.5, 1 / camera.scale);
+    ctx.globalAlpha = 0.6;
     
-    const extent = 4000;
+    // Calculate visible area bounds
+    const rect = canvas.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const worldLeft = (0 - centerX) / camera.scale + camera.x;
+    const worldRight = (rect.width - centerX) / camera.scale + camera.x;
+    const worldTop = (0 - centerY) / camera.scale + camera.y;
+    const worldBottom = (rect.height - centerY) / camera.scale + camera.y;
+    
+    // Draw only visible grid lines
+    const startX = Math.floor(worldLeft / gridSize) * gridSize;
+    const endX = Math.ceil(worldRight / gridSize) * gridSize;
+    const startY = Math.floor(worldTop / gridSize) * gridSize;
+    const endY = Math.ceil(worldBottom / gridSize) * gridSize;
     
     ctx.beginPath();
-    for (let x = -extent; x <= extent; x += gridSize) {
-      ctx.moveTo(x, -extent);
-      ctx.lineTo(x, extent);
+    
+    // Vertical lines
+    for (let x = startX; x <= endX; x += gridSize) {
+      ctx.moveTo(x, startY);
+      ctx.lineTo(x, endY);
     }
-    for (let y = -extent; y <= extent; y += gridSize) {
-      ctx.moveTo(-extent, y);
-      ctx.lineTo(extent, y);
+    
+    // Horizontal lines
+    for (let y = startY; y <= endY; y += gridSize) {
+      ctx.moveTo(startX, y);
+      ctx.lineTo(endX, y);
     }
+    
     ctx.stroke();
-  }, [gridEnabled, gridSize, camera.scale, setupCanvas, applyTransform]);
+    ctx.restore();
+  }, [gridEnabled, gridSize, camera, setupCanvas, applyTransform, DPR]);
 
   // Draw tokens
   const drawTokens = useCallback(() => {
