@@ -434,6 +434,48 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     drawTools();
   }, [drawTools]);
 
+  // Ensure canvases are properly sized on mount
+  useEffect(() => {
+    const initializeCanvases = () => {
+      const canvases = [
+        backgroundCanvasRef.current,
+        gridCanvasRef.current,
+        tokensCanvasRef.current,
+        toolsCanvasRef.current
+      ];
+      
+      canvases.forEach(canvas => {
+        if (canvas) {
+          // Force proper sizing
+          const container = canvas.parentElement;
+          if (container) {
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width * DPR;
+            canvas.height = rect.height * DPR;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            
+            const ctx = canvas.getContext('2d');
+            ctx.scale(DPR, DPR);
+          }
+        }
+      });
+      
+      // Redraw after sizing
+      setTimeout(() => {
+        drawBackground();
+        drawGrid();
+        drawTokens();
+        drawTools();
+      }, 50);
+    };
+
+    // Initialize with a delay to ensure DOM is ready
+    const timer = setTimeout(initializeCanvases, 100);
+    
+    return () => clearTimeout(timer);
+  }, [DPR, drawBackground, drawGrid, drawTokens, drawTools]);
+
   return (
     <div
       ref={containerRef}
