@@ -14,7 +14,7 @@ const TokenPanel = ({ onClose }) => {
   const [newToken, setNewToken] = useState({
     name: '',
     shape: 'circle',
-    size: 50,
+    size: 25,
     color: '#3b82f6'
   });
 
