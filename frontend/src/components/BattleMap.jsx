@@ -256,8 +256,8 @@ const BattleMap = () => {
             )}
           </div>
 
-          {/* Canvas Container */}
-          <div className="flex-1 relative overflow-hidden">
+          {/* Canvas Container - Fixed pointer events issue */}
+          <div className="flex-1 relative overflow-hidden" style={{ pointerEvents: showChatPanel ? 'auto' : 'auto' }}>
             <CanvasLayers
               ref={canvasRef}
               selectedTool={selectedTool}
@@ -266,7 +266,7 @@ const BattleMap = () => {
             
             {/* Scale Badge */}
             <div className="absolute bottom-4 left-4">
-              <Badge className="bg-gray-800/80 text-white">
+              <Badge className="bg-gray-800/80 text-white border border-green-500/50">
                 Scale: {Math.round(camera.scale * 100)}%
               </Badge>
             </div>
