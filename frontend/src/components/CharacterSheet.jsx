@@ -209,36 +209,34 @@ const CharacterSheet = ({ token, onClose }) => {
             <TabsContent value="stats" className="space-y-4 mt-0">
               {/* Core Stats */}
               <div className="grid grid-cols-3 gap-4">
-                <Card className="bg-gray-800 border border-green-500/30">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-yellow-400 font-bold text-lg">{token.ac || 10}</div>
-                    <div className="text-xs text-gray-400">ARMOR CLASS</div>
-                  </CardContent>
-                </Card>
+                <div className="stat-block-premium">
+                  <div className="character-stat-number">{token.ac || 10}</div>
+                  <div className="character-stat-label">ARMOR CLASS</div>
+                </div>
                 
-                <Card className="bg-gray-800 border border-green-500/30">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-red-400 font-bold text-lg">
-                      {token.hp?.current || 0} / {token.hp?.max || 0}
-                    </div>
-                    <div className="text-xs text-gray-400">HIT POINTS</div>
-                    <Progress 
-                      value={token.hp ? (token.hp.current / token.hp.max) * 100 : 0} 
-                      className="h-2 mt-1"
+                <div className="stat-block-premium">
+                  <div className="character-stat-number">
+                    {token.hp?.current || 0} / {token.hp?.max || 0}
+                  </div>
+                  <div className="character-stat-label">HIT POINTS</div>
+                  <div className="hp-bar-premium mt-2">
+                    <div 
+                      className="hp-bar-fill-premium"
+                      style={{ 
+                        width: `${token.hp ? (token.hp.current / token.hp.max) * 100 : 0}%` 
+                      }}
                     />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
                 
-                <Card className="bg-gray-800 border border-green-500/30">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-blue-400 font-bold text-lg">{token.speed || '30 ft'}</div>
-                    <div className="text-xs text-gray-400">SPEED</div>
-                  </CardContent>
-                </Card>
+                <div className="stat-block-premium">
+                  <div className="character-stat-number">{token.speed || '30 ft'}</div>
+                  <div className="character-stat-label">SPEED</div>
+                </div>
               </div>
 
               {/* Ability Scores */}
-              <Card className="bg-gray-800 border border-green-500/30">
+              <Card className="fantasy-card">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm text-green-400">Ability Scores</CardTitle>
                 </CardHeader>
@@ -247,14 +245,14 @@ const CharacterSheet = ({ token, onClose }) => {
                     const score = token.abilities?.[ability] || 10;
                     const modifier = getModifier(score);
                     return (
-                      <div key={ability} className="text-center border border-gray-700 rounded p-2">
-                        <div className="text-xs text-gray-400 font-bold">{ability}</div>
-                        <div className="text-lg font-bold text-white">{getModifierString(score)}</div>
-                        <div className="text-xs text-gray-500">{score}</div>
+                      <div key={ability} className="ability-score">
+                        <div className="ability-name">{ability}</div>
+                        <div className="ability-modifier">{getModifierString(score)}</div>
+                        <div className="ability-base-score">{score}</div>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="w-full mt-1 h-6 text-xs"
+                          className="dice-roll-premium w-full mt-1 h-6 text-xs"
                           onClick={() => rollDice(20, modifier, `${ability} Check`)}
                         >
                           <Dice6 className="w-3 h-3" />
