@@ -96,21 +96,33 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     if (!canvas) return;
     
     const ctx = setupCanvas(canvas);
+    
+    // Clear entire canvas first
+    ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
+    
+    // Fill with dark background
     ctx.fillStyle = '#1f2937';
     ctx.fillRect(0, 0, canvas.width / DPR, canvas.height / DPR);
     
     if (backgroundImage) {
+      ctx.save();
       applyTransform(ctx);
       
       const img = new Image();
       img.onload = () => {
+        // Clear and redraw to ensure image appears
+        ctx.clearRect(-10000, -10000, 20000, 20000);
+        ctx.fillStyle = '#1f2937';
+        ctx.fillRect(-10000, -10000, 20000, 20000);
+        
         const imgWidth = backgroundImage.width;
         const imgHeight = backgroundImage.height;
         ctx.drawImage(img, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
       };
       img.src = backgroundImage.dataUrl;
+      ctx.restore();
     }
-  }, [backgroundImage, setupCanvas, applyTransform]);
+  }, [backgroundImage, setupCanvas, applyTransform, DPR]);
 
   // Draw grid
   const drawGrid = useCallback(() => {
