@@ -175,7 +175,7 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     });
   }, [tokens, selectedTokenId, camera.scale, setupCanvas, applyTransform, DPR]);
 
-  // Draw tools (ruler, fog)
+  // Draw tools with enhanced graphics
   const drawTools = useCallback(() => {
     const canvas = toolsCanvasRef.current;
     if (!canvas) return;
@@ -188,68 +188,22 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
     ctx.restore();
     
-    ctx.save();
     applyTransform(ctx);
     
-    // Draw fog of war
+    // Draw enhanced fog of war
     if (fogEnabled && fogReveals.length > 0) {
-      ctx.save();
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      
-      // Calculate visible area for fog
       const rect = canvas.getBoundingClientRect();
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      const worldLeft = (-centerX) / camera.scale + camera.x;
-      const worldRight = (rect.width - centerX) / camera.scale + camera.x;
-      const worldTop = (-centerY) / camera.scale + camera.y;
-      const worldBottom = (rect.height - centerY) / camera.scale + camera.y;
-      
-      ctx.fillRect(worldLeft - 500, worldTop - 500, 
-                   (worldRight - worldLeft) + 1000, 
-                   (worldBottom - worldTop) + 1000);
-      
-      ctx.globalCompositeOperation = 'destination-out';
-      fogReveals.forEach(reveal => {
-        ctx.beginPath();
-        ctx.arc(reveal.x, reveal.y, reveal.radius, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      ctx.restore();
-    }
-    
-    // Draw ruler
-    if (ruler.active && ruler.start && ruler.end) {
-      ctx.save();
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = Math.max(2, 2 / camera.scale);
-      ctx.setLineDash([10 / camera.scale, 5 / camera.scale]);
-      
-      ctx.beginPath();
-      ctx.moveTo(ruler.start.x, ruler.start.y);
-      ctx.lineTo(ruler.end.x, ruler.end.y);
-      ctx.stroke();
-      
-      // Draw distance
-      const dx = ruler.end.x - ruler.start.x;
-      const dy = ruler.end.y - ruler.start.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const squares = Math.round(distance / gridSize);
-      
-      ctx.fillStyle = '#ef4444';
-      ctx.font = `${Math.max(12, 14 / camera.scale)}px sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        `${squares} sq (${Math.round(distance)}px)`,
-        (ruler.start.x + ruler.end.x) / 2,
-        (ruler.start.y + ruler.end.y) / 2 - 10 / camera.scale
+      CanvasEffects.drawEnhancedFog(
+        ctx, 
+        fogReveals, 
+        camera, 
+        rect.width, 
+        rect.height
       );
-      
-      ctx.restore();
     }
     
-    ctx.restore();
+    // Draw enhanced ruler
+    CanvasEffects.drawEnhancedRuler(ctx, ruler, gridSize, camera.scale);
   }, [fogEnabled, fogReveals, ruler, gridSize, camera, setupCanvas, applyTransform, DPR]);
 
   // Find token at position
