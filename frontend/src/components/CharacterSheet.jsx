@@ -696,7 +696,7 @@ const CharacterSheet = ({ token, onClose }) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="features" className="space-y-4 mt-0">
+            <TabsContent value="features" className="space-y-4 mt-0 h-full overflow-y-auto">
               {/* Features and Traits */}
               <Card className="bg-gray-800 border border-green-500/30">
                 <CardHeader className="pb-2">
