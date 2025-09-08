@@ -93,8 +93,16 @@ const CharacterSheet = ({ token, onClose }) => {
   };
 
   return (
-    <Card className="character-sheet-premium fantasy-card h-full flex flex-col shadow-lg shadow-green-500/10 fantasy-scrollbar">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-green-500/30">
+    <Card className="h-full flex flex-col shadow-2xl fantasy-scrollbar" style={{
+      background: 'linear-gradient(145deg, #0a0a0a 0%, #1a0f0f 30%, #2a1a1a 70%, #0a0a0a 100%)',
+      border: '2px solid',
+      borderImage: 'linear-gradient(45deg, #dc2626, #f59e0b, #dc2626, #b91c1c) 1',
+      boxShadow: '0 0 30px rgba(220, 38, 38, 0.3), inset 0 1px 0 rgba(248, 113, 113, 0.1)'
+    }}>
+      <CardHeader className="flex flex-row items-center justify-between pb-3 px-4 py-3" style={{
+        background: 'linear-gradient(135deg, rgba(185, 28, 28, 0.2) 0%, rgba(220, 38, 38, 0.15) 50%, rgba(153, 27, 27, 0.2) 100%)',
+        borderBottom: '2px solid rgba(220, 38, 38, 0.4)'
+      }}>
         <div className="flex items-center gap-3">
           {/* Character Portrait */}
           <div className="relative">
