@@ -203,19 +203,22 @@ const CharacterSheet = ({ token, onClose }) => {
       
       <CardContent className="flex-1 overflow-hidden p-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="grid grid-cols-6 bg-gray-800 border-b border-green-500/30 rounded-none">
-            <TabsTrigger value="stats" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">
+          <TabsList className="grid grid-cols-6 rounded-none" style={{
+            background: 'linear-gradient(135deg, #1f2937, #374151)',
+            borderBottom: '2px solid #dc2626'
+          }}>
+            <TabsTrigger value="stats" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-red-400">
               <Shield className="w-3 h-3 mr-1" />
               Stats
             </TabsTrigger>
-            <TabsTrigger value="combat" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">
+            <TabsTrigger value="combat" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-red-400">
               <Sword className="w-3 h-3 mr-1" />
               Combat
             </TabsTrigger>
-            <TabsTrigger value="spells" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">✨</TabsTrigger>
-            <TabsTrigger value="inventory" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">🎒</TabsTrigger>
-            <TabsTrigger value="features" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">⭐</TabsTrigger>
-            <TabsTrigger value="notes" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">📝</TabsTrigger>
+            <TabsTrigger value="spells" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-red-400">✨ Spells</TabsTrigger>
+            <TabsTrigger value="inventory" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-red-400">🎒 Items</TabsTrigger>
+            <TabsTrigger value="features" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-red-400">⭐ Features</TabsTrigger>
+            <TabsTrigger value="notes" className="text-xs data-[state=active]:bg-red-600 data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-red-400">📝 Notes</TabsTrigger>
           </TabsList>
           
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
