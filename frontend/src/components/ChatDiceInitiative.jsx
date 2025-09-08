@@ -251,16 +251,16 @@ const ChatDiceInitiative = ({ onClose }) => {
 
       case 'system':
         return (
-          <div className="bg-gray-700/50 border border-gray-600/50 rounded p-2 mb-2 text-center">
-            <span className="text-gray-400 text-xs italic">{message.text}</span>
+          <div className="stat-block-premium text-center">
+            <span className="text-green-400 text-xs italic character-stat-label">{message.text}</span>
           </div>
         );
 
       default:
         return (
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded p-2 mb-2">
+          <div className="chat-message-premium">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-gray-300 text-sm">{message.who}</span>
+              <span className="font-medium text-green-300 text-sm">{message.who}</span>
             </div>
             <div className="text-xs text-gray-200">{message.text}</div>
           </div>
