@@ -306,16 +306,21 @@ const ChatDiceInitiative = ({ onClose }) => {
           <div className="flex-1 overflow-hidden">
             <TabsContent value="chat" className="h-full flex flex-col mt-2">
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto space-y-1 mb-3 min-h-0">
+              <div className="flex-1 overflow-y-auto space-y-2 mb-3 min-h-0 p-3 rounded-lg" style={{
+                background: 'linear-gradient(145deg, #0f0f0f, #1a1a1a)',
+                border: '1px solid rgba(220, 38, 38, 0.3)',
+                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.6)'
+              }}>
                 {chatMessages.length === 0 ? (
-                  <div className="text-center text-gray-500 py-4 text-sm">
-                    No messages yet
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 text-sm mb-2">⚔️ Welcome to the Adventure ⚔️</div>
+                    <div className="text-gray-500 text-xs">Chat messages will appear here</div>
                   </div>
                 ) : (
                   chatMessages.map((message, index) => (
-                    <div key={message.id || index}>
+                    <div key={message.id || index} className="group">
                       {renderMessage(message)}
-                      <div className="text-xs text-gray-500 text-right mb-1">
+                      <div className="text-xs text-gray-500 text-right mt-1 opacity-60 group-hover:opacity-100 transition-opacity">
                         {formatTimestamp(message.timestamp)}
                       </div>
                     </div>
