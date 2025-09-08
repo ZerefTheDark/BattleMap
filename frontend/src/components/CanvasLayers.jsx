@@ -2,6 +2,19 @@ import React, { useRef, useEffect, useCallback, forwardRef, useImperativeHandle 
 import { useBattleMapStore } from '../store/battleMapStore';
 import { CanvasEffects } from '../utils/CanvasEffects';
 
+// Debounce utility to prevent excessive redraws
+const debounce = (func, wait) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
   const backgroundCanvasRef = useRef(null);
   const gridCanvasRef = useRef(null);
