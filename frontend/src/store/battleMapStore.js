@@ -118,7 +118,14 @@ const useBattleMapStore = create(
       loadBackgroundImage: (dataUrl) => {
         const img = new Image();
         img.onload = () => {
-          set({ backgroundImage: { dataUrl, width: img.width, height: img.height } });
+          set({ 
+            backgroundImage: { 
+              dataUrl, 
+              width: img.width, 
+              height: img.height,
+              scale: 1.2 // 20% larger by default
+            } 
+          });
         };
         img.src = dataUrl;
       },
