@@ -422,10 +422,10 @@ const ChatDiceInitiative = ({ onClose }) => {
                     value={customRoll}
                     onChange={(e) => setCustomRoll(e.target.value)}
                     placeholder="2d6+3"
-                    className="bg-gray-700 border-gray-600 text-sm"
+                    className="fantasy-input text-sm"
                     onKeyDown={(e) => e.key === 'Enter' && rollCustom()}
                   />
-                  <Button onClick={rollCustom} size="sm" className="bg-green-600 hover:bg-green-700">
+                  <Button onClick={rollCustom} size="sm" className="fantasy-button-emerald">
                     Roll
                   </Button>
                 </div>
