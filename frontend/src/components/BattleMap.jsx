@@ -360,6 +360,7 @@ const BattleMap = () => {
                     if (showTokenPanel) setShowTokenPanel(false);
                     if (showCharacterSheet) setShowCharacterSheet(false);
                     if (showChatPanel) setShowChatPanel(false);
+                    if (showStoragePanel) setShowStoragePanel(false);
                   }}
                 >
                   <Map className="w-5 h-5" />
