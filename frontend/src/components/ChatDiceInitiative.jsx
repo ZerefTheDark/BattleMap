@@ -288,16 +288,16 @@ const ChatDiceInitiative = ({ onClose }) => {
       
       <CardContent className="flex-1 flex flex-col p-3 space-y-3">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-700">
-            <TabsTrigger value="chat" className="text-xs">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-700 border border-green-500/30">
+            <TabsTrigger value="chat" className="text-xs data-[state=active]:bg-green-600">
               <MessageSquare className="w-3 h-3 mr-1" />
               Chat
             </TabsTrigger>
-            <TabsTrigger value="dice" className="text-xs">
+            <TabsTrigger value="dice" className="text-xs data-[state=active]:bg-purple-600">
               <Dice6 className="w-3 h-3 mr-1" />
               Dice
             </TabsTrigger>
-            <TabsTrigger value="initiative" className="text-xs">
+            <TabsTrigger value="initiative" className="text-xs data-[state=active]:bg-yellow-600">
               <Settings className="w-3 h-3 mr-1" />
               Initiative
             </TabsTrigger>
