@@ -144,9 +144,9 @@ const BattleMap = () => {
               <Slider
                 value={[gridSize]}
                 onValueChange={(value) => setGridSize(value[0])}
-                max={200}
-                min={10}
-                step={5}
+                max={100}
+                min={5}
+                step={2}
                 className="w-20"
               />
               <span className="text-xs text-gray-400">{gridSize}px</span>
