@@ -304,7 +304,7 @@ const BattleMap = () => {
 
           {/* Right Side Panels - Fixed positioning with max width constraints */}
           <div 
-            className="absolute top-0 right-0 h-full flex z-20 pointer-events-none"
+            className="absolute top-0 right-0 h-full flex z-20 pointer-events-none panel-container"
             style={{ maxWidth: '70vw' }} // Maximum 70% of viewport width
           >
             {/* Token Panel */}
