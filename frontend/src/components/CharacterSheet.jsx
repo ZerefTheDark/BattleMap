@@ -719,7 +719,7 @@ const CharacterSheet = ({ token, onClose }) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="notes" className="space-y-4 mt-0 h-full overflow-y-auto">
+            <TabsContent value="notes" className="space-y-4 mt-0 max-h-[600px] overflow-y-auto fantasy-scrollbar">
               {/* Notes */}
               <Card className="bg-gray-800 border border-green-500/30">
                 <CardHeader className="pb-2">
