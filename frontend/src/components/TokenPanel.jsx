@@ -97,12 +97,12 @@ const TokenPanel = ({ onClose }) => {
               </div>
               
               <div>
-                <Label>Shape</Label>
+                <Label className="character-stat-label">Shape</Label>
                 <Select value={newToken.shape} onValueChange={(value) => setNewToken({ ...newToken, shape: value })}>
-                  <SelectTrigger className="bg-gray-600 border-gray-500">
+                  <SelectTrigger className="fantasy-input">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectContent className="fantasy-card">
                     <SelectItem value="circle">Circle</SelectItem>
                     <SelectItem value="square">Square</SelectItem>
                   </SelectContent>
