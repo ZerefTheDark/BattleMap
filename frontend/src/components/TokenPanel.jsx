@@ -110,7 +110,7 @@ const TokenPanel = ({ onClose }) => {
               </div>
               
               <div>
-                <Label>Size: {newToken.size}px</Label>
+                <Label className="character-stat-label">Size: {newToken.size}px</Label>
                 <Slider
                   value={[newToken.size]}
                   onValueChange={(value) => setNewToken({ ...newToken, size: value[0] })}
@@ -119,7 +119,7 @@ const TokenPanel = ({ onClose }) => {
                   step={2}
                   className="mt-2"
                 />
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <div className="flex justify-between text-xs text-green-400 mt-1">
                   <span>Tiny</span>
                   <span>Medium</span>
                   <span>Large</span>
