@@ -184,7 +184,7 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     ctx.restore();
   }, [gridEnabled, gridSize, camera, setupCanvas, applyTransform, DPR]);
 
-  // Draw tokens
+  // Draw tokens with enhanced graphics
   const drawTokens = useCallback(() => {
     const canvas = tokensCanvasRef.current;
     if (!canvas) return;
@@ -195,44 +195,14 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     applyTransform(ctx);
     
     tokens.forEach(token => {
-      ctx.save();
-      
-      // Draw token circle/square
-      ctx.fillStyle = token.color || '#3b82f6';
-      ctx.strokeStyle = token.id === selectedTokenId ? '#fbbf24' : '#1f2937';
-      ctx.lineWidth = 3 / camera.scale;
-      
-      if (token.shape === 'circle') {
-        ctx.beginPath();
-        ctx.arc(token.x, token.y, token.size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      } else {
-        ctx.fillRect(
-          token.x - token.size / 2,
-          token.y - token.size / 2,
-          token.size,
-          token.size
-        );
-        ctx.strokeRect(
-          token.x - token.size / 2,
-          token.y - token.size / 2,
-          token.size,
-          token.size
-        );
-      }
-      
-      // Draw token name
-      if (token.name) {
-        ctx.fillStyle = '#ffffff';
-        ctx.font = `${12 / camera.scale}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(token.name, token.x, token.y + token.size / 2 + 16 / camera.scale);
-      }
-      
-      ctx.restore();
+      CanvasEffects.drawEnhancedToken(
+        ctx, 
+        token, 
+        camera.scale, 
+        token.id === selectedTokenId
+      );
     });
-  }, [tokens, selectedTokenId, camera.scale, setupCanvas, applyTransform]);
+  }, [tokens, selectedTokenId, camera.scale, setupCanvas, applyTransform, DPR]);
 
   // Draw tools (ruler, fog)
   const drawTools = useCallback(() => {
