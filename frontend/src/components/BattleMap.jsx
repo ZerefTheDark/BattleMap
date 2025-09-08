@@ -354,6 +354,4 @@ const BattleMap = () => {
     </TooltipProvider>
   );
 };
-};
-
 export default BattleMap;
