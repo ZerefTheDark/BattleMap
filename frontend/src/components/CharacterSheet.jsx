@@ -7,189 +7,372 @@ import { Textarea } from './ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Badge } from './ui/badge';
 import { Switch } from './ui/switch';
-import { X, Plus, Trash2, Upload, Dice6 } from 'lucide-react';
+import { Slider } from './ui/slider';
+import { Progress } from './ui/progress';
+import { X, Plus, Trash2, Upload, Dice6, Save, FileText, Shield, Sword, Heart } from 'lucide-react';
 import { useBattleMapStore } from '../store/battleMapStore';
 
 const CharacterSheet = ({ token, onClose }) => {
   const { updateToken, addChatMessage } = useBattleMapStore();
-  const [activeTab, setActiveTab] = useState('summary');
+  const [activeTab, setActiveTab] = useState('stats');
 
   const handleUpdateToken = (updates) => {
     updateToken(token.id, updates);
   };
 
-  const rollAction = (action) => {
-    if (action.roll) {
-      // Simple dice rolling - can be expanded
-      const rollResult = Math.floor(Math.random() * 20) + 1;
-      addChatMessage({
-        type: 'roll',
-        who: token.name,
-        text: `${action.name}: ${rollResult}`,
-        formula: action.roll,
-        result: rollResult
-      });
-    }
+  const rollDice = (sides, bonus = 0, label = '') => {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    const total = roll + bonus;
+    
+    addChatMessage({
+      type: 'roll',
+      who: token.name,
+      formula: `1d${sides}${bonus !== 0 ? (bonus > 0 ? `+${bonus}` : bonus) : ''}`,
+      results: [roll],
+      total,
+      note: label
+    });
   };
 
-  const castSpell = (spell, level) => {
-    const spellSlots = token.spellSlots || {};
-    const levelSlots = spellSlots[level] || { used: 0, max: 0 };
-    
-    if (levelSlots.used < levelSlots.max) {
-      // Use spell slot
-      const newSlots = {
-        ...spellSlots,
-        [level]: { ...levelSlots, used: levelSlots.used + 1 }
+  const getModifier = (score) => {
+    return Math.floor((score - 10) / 2);
+  };
+
+  const getModifierString = (score) => {
+    const mod = getModifier(score);
+    return mod >= 0 ? `+${mod}` : `${mod}`;
+  };
+
+  const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+  const skills = [
+    { name: 'Acrobatics', ability: 'DEX' },
+    { name: 'Animal Handling', ability: 'WIS' },
+    { name: 'Arcana', ability: 'INT' },
+    { name: 'Athletics', ability: 'STR' },
+    { name: 'Deception', ability: 'CHA' },
+    { name: 'History', ability: 'INT' },
+    { name: 'Insight', ability: 'WIS' },
+    { name: 'Intimidation', ability: 'CHA' },
+    { name: 'Investigation', ability: 'INT' },
+    { name: 'Medicine', ability: 'WIS' },
+    { name: 'Nature', ability: 'INT' },
+    { name: 'Perception', ability: 'WIS' },
+    { name: 'Performance', ability: 'CHA' },
+    { name: 'Persuasion', ability: 'CHA' },
+    { name: 'Religion', ability: 'INT' },
+    { name: 'Sleight of Hand', ability: 'DEX' },
+    { name: 'Stealth', ability: 'DEX' },
+    { name: 'Survival', ability: 'WIS' }
+  ];
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const characterData = e.target.result;
+        // Store the uploaded character sheet data
+        handleUpdateToken({ 
+          uploadedSheet: characterData,
+          sheetFileName: file.name 
+        });
+        
+        // Save to localStorage for future use
+        const savedSheets = JSON.parse(localStorage.getItem('saved_character_sheets') || '[]');
+        savedSheets.push({
+          id: Date.now().toString(),
+          name: token.name,
+          fileName: file.name,
+          data: characterData,
+          created: Date.now()
+        });
+        localStorage.setItem('saved_character_sheets', JSON.stringify(savedSheets));
       };
-      handleUpdateToken({ spellSlots: newSlots });
-      
-      addChatMessage({
-        type: 'spell',
-        who: token.name,
-        text: `Cast ${spell.name} (Level ${level})`
-      });
+      reader.readAsDataURL(file);
     }
   };
 
   return (
-    <Card className="w-96 bg-gray-800 border-gray-700 text-white h-full overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">{token.name}</CardTitle>
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          <X className="w-4 h-4" />
-        </Button>
+    <Card className="bg-gray-900 border-2 border-green-500/50 text-white h-full flex flex-col shadow-lg shadow-green-500/10">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-green-500/30">
+        <div className="flex items-center gap-3">
+          {/* Character Portrait */}
+          <div className="relative">
+            <div className="w-16 h-16 rounded-lg bg-gray-800 border-2 border-yellow-500/50 flex items-center justify-center overflow-hidden">
+              {token.portrait ? (
+                <img src={token.portrait} alt="Portrait" className="w-full h-full object-cover" />
+              ) : (
+                <Upload className="w-6 h-6 text-gray-400" />
+              )}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              id={`portrait-${token.id}`}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (e) => handleUpdateToken({ portrait: e.target.result });
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute -bottom-1 -right-1 w-6 h-6 p-0 bg-green-600 hover:bg-green-700 rounded-full"
+              onClick={() => document.getElementById(`portrait-${token.id}`).click()}
+            >
+              <Plus className="w-3 h-3" />
+            </Button>
+          </div>
+          
+          <div>
+            <CardTitle className="text-lg text-yellow-400">{token.name}</CardTitle>
+            <div className="text-sm text-gray-400">
+              {token.race || 'Unknown'} {token.class || 'Adventurer'} • Level {token.level || 1}
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {/* Upload Character Sheet */}
+          <input
+            type="file"
+            accept=".json,.pdf,image/*"
+            className="hidden"
+            id={`sheet-upload-${token.id}`}
+            onChange={handleFileUpload}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => document.getElementById(`sheet-upload-${token.id}`).click()}
+            className="border-green-500/50 text-green-400 hover:bg-green-500/10"
+          >
+            <FileText className="w-3 h-3 mr-1" />
+            Upload Sheet
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // Save character data to localStorage
+              const characterData = {
+                id: token.id,
+                name: token.name,
+                data: token,
+                saved: Date.now()
+              };
+              const savedCharacters = JSON.parse(localStorage.getItem('saved_characters') || '[]');
+              const existingIndex = savedCharacters.findIndex(c => c.id === token.id);
+              if (existingIndex >= 0) {
+                savedCharacters[existingIndex] = characterData;
+              } else {
+                savedCharacters.push(characterData);
+              }
+              localStorage.setItem('saved_characters', JSON.stringify(savedCharacters));
+            }}
+            className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10"
+          >
+            <Save className="w-3 h-3 mr-1" />
+            Save
+          </Button>
+          
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       </CardHeader>
       
-      <CardContent className="p-0 h-full overflow-hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-          <TabsList className="grid w-full grid-cols-6 bg-gray-700">
-            <TabsTrigger value="summary" className="text-xs">Stats</TabsTrigger>
-            <TabsTrigger value="actions" className="text-xs">Actions</TabsTrigger>
-            <TabsTrigger value="spells" className="text-xs">Spells</TabsTrigger>
-            <TabsTrigger value="inventory" className="text-xs">Items</TabsTrigger>
-            <TabsTrigger value="features" className="text-xs">Features</TabsTrigger>
-            <TabsTrigger value="notes" className="text-xs">Notes</TabsTrigger>
+      <CardContent className="flex-1 overflow-hidden p-0">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <TabsList className="grid grid-cols-6 bg-gray-800 border-b border-green-500/30 rounded-none">
+            <TabsTrigger value="stats" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">
+              <Shield className="w-3 h-3 mr-1" />
+              Stats
+            </TabsTrigger>
+            <TabsTrigger value="combat" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">
+              <Sword className="w-3 h-3 mr-1" />
+              Combat
+            </TabsTrigger>
+            <TabsTrigger value="spells" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">✨</TabsTrigger>
+            <TabsTrigger value="inventory" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">🎒</TabsTrigger>
+            <TabsTrigger value="features" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">⭐</TabsTrigger>
+            <TabsTrigger value="notes" className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white">📝</TabsTrigger>
           </TabsList>
           
-          <div className="p-4 h-full overflow-y-auto">
-            <TabsContent value="summary" className="space-y-4">
-              {/* Portrait Upload */}
-              <div className="text-center">
-                <div className="w-20 h-20 mx-auto bg-gray-700 rounded-full flex items-center justify-center mb-2">
-                  {token.portrait ? (
-                    <img src={token.portrait} alt="Portrait" className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    <Upload className="w-8 h-8 text-gray-400" />
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  id={`portrait-${token.id}`}
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (e) => handleUpdateToken({ portrait: e.target.result });
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => document.getElementById(`portrait-${token.id}`).click()}
-                >
-                  Upload Portrait
-                </Button>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <TabsContent value="stats" className="space-y-4 mt-0">
+              {/* Core Stats */}
+              <div className="grid grid-cols-3 gap-4">
+                <Card className="bg-gray-800 border border-green-500/30">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-yellow-400 font-bold text-lg">{token.ac || 10}</div>
+                    <div className="text-xs text-gray-400">ARMOR CLASS</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-800 border border-green-500/30">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-red-400 font-bold text-lg">
+                      {token.hp?.current || 0} / {token.hp?.max || 0}
+                    </div>
+                    <div className="text-xs text-gray-400">HIT POINTS</div>
+                    <Progress 
+                      value={token.hp ? (token.hp.current / token.hp.max) * 100 : 0} 
+                      className="h-2 mt-1"
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-800 border border-green-500/30">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-blue-400 font-bold text-lg">{token.speed || '30 ft'}</div>
+                    <div className="text-xs text-gray-400">SPEED</div>
+                  </CardContent>
+                </Card>
               </div>
 
-              {/* Basic Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>AC</Label>
-                  <Input
-                    type="number"
-                    value={token.ac || ''}
-                    onChange={(e) => handleUpdateToken({ ac: parseInt(e.target.value) || 0 })}
-                    className="bg-gray-700 border-gray-600"
-                  />
-                </div>
-                <div>
-                  <Label>Speed</Label>
-                  <Input
-                    value={token.speed || ''}
-                    onChange={(e) => handleUpdateToken({ speed: e.target.value })}
-                    placeholder="30 ft"
-                    className="bg-gray-700 border-gray-600"
-                  />
-                </div>
-              </div>
+              {/* Ability Scores */}
+              <Card className="bg-gray-800 border border-green-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-green-400">Ability Scores</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-3 gap-3">
+                  {abilities.map(ability => {
+                    const score = token.abilities?.[ability] || 10;
+                    const modifier = getModifier(score);
+                    return (
+                      <div key={ability} className="text-center border border-gray-700 rounded p-2">
+                        <div className="text-xs text-gray-400 font-bold">{ability}</div>
+                        <div className="text-lg font-bold text-white">{getModifierString(score)}</div>
+                        <div className="text-xs text-gray-500">{score}</div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full mt-1 h-6 text-xs"
+                          onClick={() => rollDice(20, modifier, `${ability} Check`)}
+                        >
+                          <Dice6 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
 
-              {/* HP */}
-              <div>
-                <Label>Hit Points</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    value={token.hp?.current || ''}
-                    onChange={(e) => handleUpdateToken({
-                      hp: { ...token.hp, current: parseInt(e.target.value) || 0 }
-                    })}
-                    placeholder="Current"
-                    className="bg-gray-700 border-gray-600"
-                  />
-                  <span className="self-center">/</span>
-                  <Input
-                    type="number"
-                    value={token.hp?.max || ''}
-                    onChange={(e) => handleUpdateToken({
-                      hp: { ...token.hp, max: parseInt(e.target.value) || 0 }
-                    })}
-                    placeholder="Max"
-                    className="bg-gray-700 border-gray-600"
-                  />
-                </div>
-              </div>
-
-              {/* Passive Perception */}
-              <div>
-                <Label>Passive Perception</Label>
-                <Input
-                  type="number"
-                  value={token.passivePerception || ''}
-                  onChange={(e) => handleUpdateToken({ passivePerception: parseInt(e.target.value) || 0 })}
-                  className="bg-gray-700 border-gray-600"
-                />
-              </div>
+              {/* Skills */}
+              <Card className="bg-gray-800 border border-green-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-green-400">Skills</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-1">
+                  {skills.map(skill => {
+                    const abilityScore = token.abilities?.[skill.ability] || 10;
+                    const modifier = getModifier(abilityScore);
+                    const proficient = token.proficiencies?.includes(skill.name) || false;
+                    const bonus = modifier + (proficient ? (token.proficiencyBonus || 2) : 0);
+                    
+                    return (
+                      <div key={skill.name} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={proficient}
+                            onCheckedChange={(checked) => {
+                              const profs = token.proficiencies || [];
+                              const newProfs = checked 
+                                ? [...profs, skill.name]
+                                : profs.filter(p => p !== skill.name);
+                              handleUpdateToken({ proficiencies: newProfs });
+                            }}
+                            className="scale-75"
+                          />
+                          <span className="text-sm">{skill.name}</span>
+                          <span className="text-xs text-gray-500">({skill.ability})</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-mono">
+                            {bonus >= 0 ? '+' : ''}{bonus}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-6 h-6 p-0"
+                            onClick={() => rollDice(20, bonus, skill.name)}
+                          >
+                            <Dice6 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            <TabsContent value="actions" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold">Actions</h3>
-                <Button size="sm" onClick={() => {
-                  const newAction = {
-                    id: Date.now().toString(),
-                    name: 'New Action',
-                    type: 'action',
-                    roll: '1d20',
-                    desc: ''
-                  };
-                  const actions = token.actions || [];
-                  handleUpdateToken({ actions: [...actions, newAction] });
-                }}>
-                  <Plus className="w-4 h-4" />
-                </Button>
+            <TabsContent value="combat" className="space-y-4 mt-0">
+              {/* Initiative and Combat Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="bg-gray-800 border border-red-500/30">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-red-400 font-bold text-lg">
+                      {getModifierString(token.abilities?.DEX || 10)}
+                    </div>
+                    <div className="text-xs text-gray-400">INITIATIVE</div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full mt-1"
+                      onClick={() => rollDice(20, getModifier(token.abilities?.DEX || 10), 'Initiative')}
+                    >
+                      <Dice6 className="w-3 h-3 mr-1" />
+                      Roll
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-800 border border-blue-500/30">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-blue-400 font-bold text-lg">{token.proficiencyBonus || 2}</div>
+                    <div className="text-xs text-gray-400">PROF BONUS</div>
+                  </CardContent>
+                </Card>
               </div>
 
-              <div className="space-y-2">
-                {(token.actions || []).map((action) => (
-                  <Card key={action.id} className="bg-gray-700 border-gray-600">
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
+              {/* Actions */}
+              <Card className="bg-gray-800 border border-green-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-green-400 flex items-center justify-between">
+                    Actions
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const newAction = {
+                          id: Date.now().toString(),
+                          name: 'New Action',
+                          type: 'action',
+                          damage: '1d6',
+                          attackBonus: '+3',
+                          desc: ''
+                        };
+                        const actions = token.actions || [];
+                        handleUpdateToken({ actions: [...actions, newAction] });
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {(token.actions || []).map((action) => (
+                    <Card key={action.id} className="bg-gray-700 border border-gray-600">
+                      <CardContent className="p-3">
+                        <div className="flex justify-between items-start mb-2">
                           <Input
                             value={action.name}
                             onChange={(e) => {
@@ -198,73 +381,112 @@ const CharacterSheet = ({ token, onClose }) => {
                               );
                               handleUpdateToken({ actions });
                             }}
-                            className="font-medium mb-2 bg-gray-600 border-gray-500"
+                            className="font-medium bg-gray-600 border-gray-500 text-sm"
                           />
-                          <div className="flex gap-2 mb-2">
-                            <Input
-                              value={action.roll || ''}
-                              onChange={(e) => {
-                                const actions = token.actions.map(a =>
-                                  a.id === action.id ? { ...a, roll: e.target.value } : a
-                                );
-                                handleUpdateToken({ actions });
-                              }}
-                              placeholder="1d20+5"
-                              className="bg-gray-600 border-gray-500 text-sm"
-                            />
-                            <Button
-                              size="sm"
-                              onClick={() => rollAction(action)}
-                              className="bg-red-600 hover:bg-red-700"
-                            >
-                              <Dice6 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          <Textarea
-                            value={action.desc || ''}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const actions = token.actions.filter(a => a.id !== action.id);
+                              handleUpdateToken({ actions });
+                            }}
+                            className="text-red-400 ml-2"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 mb-2">
+                          <Input
+                            value={action.attackBonus || ''}
                             onChange={(e) => {
                               const actions = token.actions.map(a =>
-                                a.id === action.id ? { ...a, desc: e.target.value } : a
+                                a.id === action.id ? { ...a, attackBonus: e.target.value } : a
                               );
                               handleUpdateToken({ actions });
                             }}
-                            placeholder="Action description..."
-                            className="bg-gray-600 border-gray-500 text-sm"
-                            rows={2}
+                            placeholder="Attack +3"
+                            className="bg-gray-600 border-gray-500 text-xs"
+                          />
+                          <Input
+                            value={action.damage || ''}
+                            onChange={(e) => {
+                              const actions = token.actions.map(a =>
+                                a.id === action.id ? { ...a, damage: e.target.value } : a
+                              );
+                              handleUpdateToken({ actions });
+                            }}
+                            placeholder="1d8+3"
+                            className="bg-gray-600 border-gray-500 text-xs"
                           />
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            const actions = token.actions.filter(a => a.id !== action.id);
-                            handleUpdateToken({ actions });
-                          }}
-                          className="text-red-400"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-red-600 hover:bg-red-700"
+                            onClick={() => {
+                              // Roll attack
+                              const bonus = parseInt(action.attackBonus?.replace(/[^-\d]/g, '') || '0');
+                              rollDice(20, bonus, `${action.name} Attack`);
+                            }}
+                          >
+                            Attack
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-orange-600 hover:bg-orange-700"
+                            onClick={() => {
+                              // Roll damage
+                              const match = action.damage?.match(/(\d+)d(\d+)([+-]\d+)?/);
+                              if (match) {
+                                const count = parseInt(match[1]);
+                                const sides = parseInt(match[2]);
+                                const bonus = parseInt(match[3] || '0');
+                                let total = bonus;
+                                const results = [];
+                                for (let i = 0; i < count; i++) {
+                                  const roll = Math.floor(Math.random() * sides) + 1;
+                                  results.push(roll);
+                                  total += roll;
+                                }
+                                addChatMessage({
+                                  type: 'roll',
+                                  who: token.name,
+                                  formula: action.damage,
+                                  results,
+                                  total,
+                                  note: `${action.name} Damage`
+                                });
+                              }
+                            }}
+                          >
+                            Damage
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            <TabsContent value="spells" className="space-y-4">
+            <TabsContent value="spells" className="space-y-4 mt-0">
               {/* Spell Slots */}
-              <div>
-                <h3 className="font-semibold mb-2">Spell Slots</h3>
-                <div className="grid grid-cols-3 gap-2">
+              <Card className="bg-gray-800 border border-purple-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-purple-400">Spell Slots</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-3 gap-2">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(level => {
                     const slots = token.spellSlots?.[level] || { used: 0, max: 0 };
                     return (
-                      <div key={level} className="text-center">
+                      <div key={level} className="text-center border border-gray-700 rounded p-2">
                         <div className="text-xs text-gray-400">Level {level}</div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-between">
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="ghost"
                             onClick={() => {
                               const newSlots = {
                                 ...token.spellSlots,
@@ -272,13 +494,14 @@ const CharacterSheet = ({ token, onClose }) => {
                               };
                               handleUpdateToken({ spellSlots: newSlots });
                             }}
+                            className="w-6 h-6 p-0"
                           >
                             -
                           </Button>
                           <span className="text-sm">{slots.used}/{slots.max}</span>
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="ghost"
                             onClick={() => {
                               const newSlots = {
                                 ...token.spellSlots,
@@ -286,6 +509,7 @@ const CharacterSheet = ({ token, onClose }) => {
                               };
                               handleUpdateToken({ spellSlots: newSlots });
                             }}
+                            className="w-6 h-6 p-0"
                           >
                             +
                           </Button>
@@ -293,27 +517,99 @@ const CharacterSheet = ({ token, onClose }) => {
                       </div>
                     );
                   })}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
-              {/* Spells List */}
-              <div>
-                <h3 className="font-semibold mb-2">Spells</h3>
-                <div className="space-y-2">
+              {/* Spell List */}
+              <Card className="bg-gray-800 border border-green-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-green-400 flex items-center justify-between">
+                    Spells
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const newSpell = {
+                          id: Date.now().toString(),
+                          name: 'New Spell',
+                          level: 1,
+                          prepared: true,
+                          desc: ''
+                        };
+                        const spells = token.spells || [];
+                        handleUpdateToken({ spells: [...spells, newSpell] });
+                      }}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
                   {(token.spells || []).map((spell) => (
-                    <Card key={spell.id} className="bg-gray-700 border-gray-600">
+                    <Card key={spell.id} className="bg-gray-700 border border-gray-600">
                       <CardContent className="p-3">
                         <div className="flex justify-between items-center">
-                          <div>
-                            <div className="font-medium">{spell.name}</div>
-                            <div className="text-sm text-gray-400">Level {spell.level}</div>
+                          <div className="flex-1">
+                            <Input
+                              value={spell.name}
+                              onChange={(e) => {
+                                const spells = token.spells.map(s =>
+                                  s.id === spell.id ? { ...s, name: e.target.value } : s
+                                );
+                                handleUpdateToken({ spells });
+                              }}
+                              className="font-medium bg-gray-600 border-gray-500 mb-2"
+                            />
+                            <div className="flex items-center gap-2">
+                              <Label className="text-xs">Level:</Label>
+                              <Input
+                                type="number"
+                                value={spell.level}
+                                onChange={(e) => {
+                                  const spells = token.spells.map(s =>
+                                    s.id === spell.id ? { ...s, level: parseInt(e.target.value) || 1 } : s
+                                  );
+                                  handleUpdateToken({ spells });
+                                }}
+                                className="w-16 bg-gray-600 border-gray-500 text-xs"
+                                min="0"
+                                max="9"
+                              />
+                              <Switch
+                                checked={spell.prepared}
+                                onCheckedChange={(checked) => {
+                                  const spells = token.spells.map(s =>
+                                    s.id === spell.id ? { ...s, prepared: checked } : s
+                                  );
+                                  handleUpdateToken({ spells });
+                                }}
+                                className="scale-75"
+                              />
+                              <Label className="text-xs">Prepared</Label>
+                            </div>
                           </div>
                           <Button
                             size="sm"
-                            onClick={() => castSpell(spell, spell.level)}
+                            className="bg-purple-600 hover:bg-purple-700 ml-2"
+                            onClick={() => {
+                              const slots = token.spellSlots?.[spell.level];
+                              if (slots && slots.used < slots.max) {
+                                const newSlots = {
+                                  ...token.spellSlots,
+                                  [spell.level]: { ...slots, used: slots.used + 1 }
+                                };
+                                handleUpdateToken({ spellSlots: newSlots });
+                                
+                                addChatMessage({
+                                  type: 'spell',
+                                  who: token.name,
+                                  text: `Cast ${spell.name} (Level ${spell.level})`
+                                });
+                              }
+                            }}
                             disabled={
-                              (token.spellSlots?.[spell.level]?.used || 0) >=
-                              (token.spellSlots?.[spell.level]?.max || 0)
+                              !token.spellSlots?.[spell.level] ||
+                              token.spellSlots[spell.level].used >= token.spellSlots[spell.level].max
                             }
                           >
                             Cast
@@ -322,92 +618,59 @@ const CharacterSheet = ({ token, onClose }) => {
                       </CardContent>
                     </Card>
                   ))}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            <TabsContent value="inventory" className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">Attunement Slots (3 max)</h3>
-                <div className="space-y-2">
-                  {(token.inventory || [])
-                    .filter(item => item.attunement !== 'none')
-                    .map((item) => (
-                    <div key={item.id} className="flex items-center justify-between">
-                      <span className="text-sm">{item.name}</span>
-                      <Switch
-                        checked={item.attuned || false}
-                        onCheckedChange={(checked) => {
-                          const attunedCount = token.inventory?.filter(i => i.attuned).length || 0;
-                          if (checked && attunedCount >= 3) return; // Max 3 attuned items
-                          
-                          const inventory = token.inventory?.map(i =>
-                            i.id === item.id ? { ...i, attuned: checked } : i
-                          ) || [];
-                          handleUpdateToken({ inventory });
-                        }}
-                        disabled={
-                          !item.attuned && 
-                          (token.inventory?.filter(i => i.attuned).length || 0) >= 3
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-2">All Items</h3>
-                <div className="space-y-2">
-                  {(token.inventory || []).map((item) => (
-                    <Card key={item.id} className="bg-gray-700 border-gray-600">
-                      <CardContent className="p-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="font-medium">{item.name}</div>
-                            {item.desc && (
-                              <div className="text-sm text-gray-400">{item.desc}</div>
-                            )}
-                          </div>
-                          {item.attuned && (
-                            <Badge variant="secondary" className="text-xs">
-                              Attuned
-                            </Badge>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
+            <TabsContent value="inventory" className="space-y-4 mt-0">
+              {/* Inventory management - simplified for space */}
+              <Card className="bg-gray-800 border border-green-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-green-400">Equipment & Inventory</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    value={token.equipment || ''}
+                    onChange={(e) => handleUpdateToken({ equipment: e.target.value })}
+                    placeholder="List your equipment, weapons, armor, and other items..."
+                    className="bg-gray-700 border-gray-600 min-h-32"
+                  />
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            <TabsContent value="features">
-              <div className="space-y-4">
-                <h3 className="font-semibold">Features & Traits</h3>
-                <div className="space-y-2">
-                  {(token.features || []).map((feature) => (
-                    <Card key={feature.id} className="bg-gray-700 border-gray-600">
-                      <CardContent className="p-3">
-                        <div className="font-medium">{feature.name}</div>
-                        <div className="text-sm text-gray-400">{feature.desc}</div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
+            <TabsContent value="features" className="space-y-4 mt-0">
+              {/* Features and Traits */}
+              <Card className="bg-gray-800 border border-green-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-green-400">Features & Traits</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    value={token.features || ''}
+                    onChange={(e) => handleUpdateToken({ features: e.target.value })}
+                    placeholder="Racial traits, class features, feats, and other abilities..."
+                    className="bg-gray-700 border-gray-600 min-h-32"
+                  />
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            <TabsContent value="notes">
-              <div className="space-y-4">
-                <h3 className="font-semibold">Notes</h3>
-                <Textarea
-                  value={token.notes || ''}
-                  onChange={(e) => handleUpdateToken({ notes: e.target.value })}
-                  placeholder="Character notes, backstory, etc..."
-                  className="bg-gray-700 border-gray-600 min-h-40"
-                />
-              </div>
+            <TabsContent value="notes" className="space-y-4 mt-0">
+              {/* Notes */}
+              <Card className="bg-gray-800 border border-green-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-green-400">Character Notes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    value={token.notes || ''}
+                    onChange={(e) => handleUpdateToken({ notes: e.target.value })}
+                    placeholder="Backstory, personality traits, bonds, ideals, flaws, and other notes..."
+                    className="bg-gray-700 border-gray-600 min-h-40"
+                  />
+                </CardContent>
+              </Card>
             </TabsContent>
           </div>
         </Tabs>
