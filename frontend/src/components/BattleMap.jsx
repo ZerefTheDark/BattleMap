@@ -83,7 +83,7 @@ const BattleMap = () => {
 
   return (
     <TooltipProvider>
-      <div className="h-screen bg-gray-900 text-white flex flex-col">
+      <div className="h-screen bg-gray-900 text-white flex flex-col thorny-vine-border-full">
         {/* Top Toolbar */}
         <div className="bg-gray-900 border-b-2 border-green-500 shadow-lg shadow-green-500/20 p-3 flex items-center justify-between gap-4 relative">
           {/* Decorative thorns */}
