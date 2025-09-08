@@ -377,7 +377,7 @@ const CharacterSheet = ({ token, onClose }) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="combat" className="space-y-4 mt-0 h-full overflow-y-auto">
+            <TabsContent value="combat" className="space-y-4 mt-0 max-h-[600px] overflow-y-auto fantasy-scrollbar">
               {/* Initiative and Combat Stats */}
               <div className="grid grid-cols-2 gap-4">
                 <Card className="bg-gray-800 border border-red-500/30">
