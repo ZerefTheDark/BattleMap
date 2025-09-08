@@ -114,13 +114,13 @@ const TokenPanel = ({ onClose }) => {
                 <Slider
                   value={[newToken.size]}
                   onValueChange={(value) => setNewToken({ ...newToken, size: value[0] })}
-                  max={150}
-                  min={20}
-                  step={5}
+                  max={75}
+                  min={10}
+                  step={2}
                   className="mt-2"
                 />
                 <div className="flex justify-between text-xs text-gray-400 mt-1">
-                  <span>Small</span>
+                  <span>Tiny</span>
                   <span>Medium</span>
                   <span>Large</span>
                 </div>
