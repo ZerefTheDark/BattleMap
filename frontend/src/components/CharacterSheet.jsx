@@ -375,6 +375,72 @@ const CharacterSheet = ({ token, onClose }) => {
                   })}
                 </CardContent>
               </Card>
+
+              {/* Additional Character Information */}
+              <Card className="border-2" style={{
+                background: 'linear-gradient(145deg, #1a1a1a, #2a1a1a)',
+                borderColor: '#dc2626',
+                boxShadow: '0 4px 15px rgba(220, 38, 38, 0.2)'
+              }}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-bold text-red-400">PROFICIENCIES & LANGUAGES</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <Label className="text-xs font-bold text-red-300">Armor Proficiencies</Label>
+                    <div className="text-sm text-gray-300 mt-1">Light Armor, Medium Armor, Shields</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-bold text-red-300">Weapon Proficiencies</Label>
+                    <div className="text-sm text-gray-300 mt-1">Simple Weapons, Martial Weapons</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-bold text-red-300">Languages</Label>
+                    <div className="text-sm text-gray-300 mt-1">Common, Elvish, Draconic</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-bold text-red-300">Tools</Label>
+                    <div className="text-sm text-gray-300 mt-1">Thieves' Tools, Gaming Set</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Saving Throws */}
+              <Card className="border-2" style={{
+                background: 'linear-gradient(145deg, #1a1a1a, #2a1a1a)',
+                borderColor: '#dc2626',
+                boxShadow: '0 4px 15px rgba(220, 38, 38, 0.2)'
+              }}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-bold text-red-400">SAVING THROWS</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-2">
+                    {abilities.map(ability => {
+                      const score = token.abilities?.[ability] || 10;
+                      const modifier = getModifier(score);
+                      return (
+                        <div key={ability} className="flex items-center justify-between p-2 rounded bg-gray-800 border border-red-500/30">
+                          <span className="text-sm font-medium text-red-300">{ability}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-mono text-white">
+                              {modifier >= 0 ? '+' : ''}{modifier}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-6 h-6 p-0 bg-red-900/30 hover:bg-red-800/40"
+                              onClick={() => rollDice(20, modifier, `${ability} Save`)}
+                            >
+                              <Dice6 className="w-3 h-3 text-red-400" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="combat" className="space-y-4 mt-0 max-h-[600px] overflow-y-auto fantasy-scrollbar">
