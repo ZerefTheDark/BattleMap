@@ -330,11 +330,16 @@ const ChatDiceInitiative = ({ onClose }) => {
               </div>
 
               {/* Input */}
-              <div className="border-t border-gray-700 pt-3">
+              <div className="p-3 rounded-lg" style={{
+                background: 'linear-gradient(145deg, #1a1a1a, #2a1a1a)',
+                border: '2px solid rgba(220, 38, 38, 0.3)',
+                boxShadow: '0 4px 10px rgba(220, 38, 38, 0.1)'
+              }}>
                 {selectedToken && (
-                  <div className="mb-2">
-                    <Badge className="bg-blue-600 text-xs">
-                      {selectedToken.name}
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="text-xs text-gray-400">Speaking as:</div>
+                    <Badge className="bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs px-2 py-1 shadow-lg">
+                      🗡️ {selectedToken.name}
                     </Badge>
                   </div>
                 )}
@@ -343,15 +348,19 @@ const ChatDiceInitiative = ({ onClose }) => {
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type message..."
-                    className="fantasy-input text-sm"
+                    placeholder="Speak your words, adventurer..."
+                    className="text-sm bg-gray-800 border-gray-600 focus:border-red-400 focus:ring-red-400/20 text-white placeholder-gray-400"
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                    style={{
+                      background: 'linear-gradient(145deg, #374151, #1f2937)',
+                      borderColor: '#dc2626'
+                    }}
                   />
                   <Button 
                     onClick={sendMessage} 
                     disabled={!newMessage.trim()}
                     size="sm"
-                    className="fantasy-button-emerald"
+                    className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white border-red-500 shadow-lg"
                   >
                     <Send className="w-3 h-3" />
                   </Button>
