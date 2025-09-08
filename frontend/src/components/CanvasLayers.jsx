@@ -392,18 +392,30 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     });
   }, [camera, screenToWorld, setCamera]);
 
-  // Handle resize
+  // Handle resize and initial setup
   useEffect(() => {
     const handleResize = () => {
-      drawBackground();
-      drawGrid();
-      drawTokens();
-      drawTools();
+      // Force canvas resize before redrawing
+      if (backgroundCanvasRef.current) setupCanvas(backgroundCanvasRef.current);
+      if (gridCanvasRef.current) setupCanvas(gridCanvasRef.current);
+      if (tokensCanvasRef.current) setupCanvas(tokensCanvasRef.current);
+      if (toolsCanvasRef.current) setupCanvas(toolsCanvasRef.current);
+      
+      // Small delay to ensure canvas is resized
+      setTimeout(() => {
+        drawBackground();
+        drawGrid();
+        drawTokens();
+        drawTools();
+      }, 10);
     };
+    
+    // Initial setup
+    handleResize();
     
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [drawBackground, drawGrid, drawTokens, drawTools]);
+  }, [setupCanvas, drawBackground, drawGrid, drawTokens, drawTools]);
 
   // Redraw on state changes
   useEffect(() => {
