@@ -93,7 +93,7 @@ const CharacterSheet = ({ token, onClose }) => {
   };
 
   return (
-    <Card className="bg-gray-900 border-2 border-green-500/50 text-white h-full flex flex-col shadow-lg shadow-green-500/10">
+    <Card className="character-sheet-premium fantasy-card h-full flex flex-col shadow-lg shadow-green-500/10 fantasy-scrollbar">
       <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-green-500/30">
         <div className="flex items-center gap-3">
           {/* Character Portrait */}
@@ -122,7 +122,7 @@ const CharacterSheet = ({ token, onClose }) => {
             <Button
               variant="ghost"
               size="sm"
-              className="absolute -bottom-1 -right-1 w-6 h-6 p-0 bg-green-600 hover:bg-green-700 rounded-full"
+              className="fantasy-button-emerald absolute -bottom-1 -right-1 w-6 h-6 p-0 rounded-full"
               onClick={() => document.getElementById(`portrait-${token.id}`).click()}
             >
               <Plus className="w-3 h-3" />
@@ -130,7 +130,7 @@ const CharacterSheet = ({ token, onClose }) => {
           </div>
           
           <div>
-            <CardTitle className="text-lg text-yellow-400">{token.name}</CardTitle>
+            <CardTitle className="text-lg dragon-stones-title">{token.name}</CardTitle>
             <div className="text-sm text-gray-400">
               {token.race || 'Unknown'} {token.class || 'Adventurer'} • Level {token.level || 1}
             </div>
@@ -150,7 +150,7 @@ const CharacterSheet = ({ token, onClose }) => {
             variant="outline"
             size="sm"
             onClick={() => document.getElementById(`sheet-upload-${token.id}`).click()}
-            className="border-green-500/50 text-green-400 hover:bg-green-500/10"
+            className="fantasy-button-emerald border-green-500/50 text-green-400 hover:bg-green-500/10"
           >
             <FileText className="w-3 h-3 mr-1" />
             Upload Sheet
@@ -176,7 +176,7 @@ const CharacterSheet = ({ token, onClose }) => {
               }
               localStorage.setItem('saved_characters', JSON.stringify(savedCharacters));
             }}
-            className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10"
+            className="fantasy-button border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10"
           >
             <Save className="w-3 h-3 mr-1" />
             Save
