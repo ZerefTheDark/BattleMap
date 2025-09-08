@@ -225,12 +225,12 @@ const ChatDiceInitiative = ({ onClose }) => {
     switch (message.type) {
       case 'roll':
         return (
-          <div className="bg-blue-900/30 border border-blue-700/50 rounded p-2 mb-2">
+          <div className="chat-message-premium roll-message">
             <div className="flex items-center gap-2 mb-1">
-              <Dice6 className="w-3 h-3 text-blue-400" />
-              <span className="font-medium text-blue-300 text-sm">{message.who}</span>
+              <Dice6 className="w-3 h-3 text-purple-400" />
+              <span className="font-medium text-purple-300 text-sm">{message.who}</span>
               {message.note && (
-                <Badge variant="secondary" className="text-xs h-4">
+                <Badge variant="secondary" className="text-xs h-4 bg-purple-600">
                   {message.note}
                 </Badge>
               )}
@@ -242,7 +242,7 @@ const ChatDiceInitiative = ({ onClose }) => {
                   [{message.results.join(', ')}] = 
                 </span>
               )}
-              <span className="font-bold text-white ml-1">
+              <span className="font-bold text-white ml-1 character-stat-number text-sm">
                 {message.total}
               </span>
             </div>
