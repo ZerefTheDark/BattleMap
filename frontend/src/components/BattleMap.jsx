@@ -37,6 +37,7 @@ const BattleMap = () => {
   const [showCharacterSheet, setShowCharacterSheet] = useState(false);
   const [showChatPanel, setShowChatPanel] = useState(false);
   const [showSubmapManager, setShowSubmapManager] = useState(false);
+  const [showStoragePanel, setShowStoragePanel] = useState(false);
   
   const {
     camera,
