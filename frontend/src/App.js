@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import BattleMap from './components/BattleMap';
 import './App.css';
+import './styles/enhanced-graphics.css';
 
 function App() {
   return (
