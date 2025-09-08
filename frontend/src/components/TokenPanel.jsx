@@ -144,13 +144,13 @@ const TokenPanel = ({ onClose }) => {
               </div>
               
               <div className="flex gap-2">
-                <Button onClick={handleCreateToken} className="flex-1 bg-green-600 hover:bg-green-700">
+                <Button onClick={handleCreateToken} className="fantasy-button-emerald flex-1">
                   Create
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShowTokenCreator(false)}
-                  className="flex-1"
+                  className="fantasy-button flex-1"
                 >
                   Cancel
                 </Button>
