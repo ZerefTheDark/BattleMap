@@ -337,9 +337,15 @@ const SubmapManager = ({ onClose }) => {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        // Focus camera on submap
-                        // This would need to be implemented in the store
-                        console.log('Focus on submap:', submap.bounds);
+                        // Focus camera on submap bounds
+                        const bounds = submap.bounds;
+                        const centerX = bounds.x + bounds.w / 2;
+                        const centerY = bounds.y + bounds.h / 2;
+                        // This will focus the camera on the submap
+                        camera.x = centerX;
+                        camera.y = centerY;
+                        camera.scale = Math.min(800 / bounds.w, 600 / bounds.h, 2);
+                        alert(`Focused on submap: ${submap.name}`);
                       }}
                       className="flex-1 text-xs"
                     >
