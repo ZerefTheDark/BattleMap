@@ -129,7 +129,7 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     }
   }, [backgroundImage, setupCanvas, applyTransform, DPR]);
 
-  // Draw grid
+  // Draw grid with enhanced graphics
   const drawGrid = useCallback(() => {
     const canvas = gridCanvasRef.current;
     if (!canvas || !gridEnabled) {
@@ -143,45 +143,16 @@ const CanvasLayers = forwardRef(({ selectedTool, onTokenSelect }, ref) => {
     const ctx = setupCanvas(canvas);
     ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
     
-    ctx.save();
     applyTransform(ctx);
     
-    ctx.strokeStyle = '#374151';
-    ctx.lineWidth = Math.max(0.5, 1 / camera.scale);
-    ctx.globalAlpha = 0.6;
-    
-    // Calculate visible area bounds
     const rect = canvas.getBoundingClientRect();
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    const worldLeft = (0 - centerX) / camera.scale + camera.x;
-    const worldRight = (rect.width - centerX) / camera.scale + camera.x;
-    const worldTop = (0 - centerY) / camera.scale + camera.y;
-    const worldBottom = (rect.height - centerY) / camera.scale + camera.y;
-    
-    // Draw only visible grid lines
-    const startX = Math.floor(worldLeft / gridSize) * gridSize;
-    const endX = Math.ceil(worldRight / gridSize) * gridSize;
-    const startY = Math.floor(worldTop / gridSize) * gridSize;
-    const endY = Math.ceil(worldBottom / gridSize) * gridSize;
-    
-    ctx.beginPath();
-    
-    // Vertical lines
-    for (let x = startX; x <= endX; x += gridSize) {
-      ctx.moveTo(x, startY);
-      ctx.lineTo(x, endY);
-    }
-    
-    // Horizontal lines
-    for (let y = startY; y <= endY; y += gridSize) {
-      ctx.moveTo(startX, y);
-      ctx.lineTo(endX, y);
-    }
-    
-    ctx.stroke();
-    ctx.restore();
+    CanvasEffects.drawEnhancedGrid(
+      ctx, 
+      camera, 
+      gridSize, 
+      rect.width, 
+      rect.height
+    );
   }, [gridEnabled, gridSize, camera, setupCanvas, applyTransform, DPR]);
 
   // Draw tokens with enhanced graphics
