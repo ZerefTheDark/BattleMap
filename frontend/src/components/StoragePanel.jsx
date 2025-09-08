@@ -15,7 +15,8 @@ import {
   Users,
   FileText,
   Camera,
-  Database
+  Database,
+  Plus
 } from 'lucide-react';
 import { StorageManager } from '../utils/StorageManager';
 import { useBattleMapStore } from '../store/battleMapStore';
