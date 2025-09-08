@@ -233,10 +233,13 @@ const BattleMap = () => {
 
             {/* Character Sheet */}
             {showCharacterSheet && selectedToken && (
-              <div className="w-96 h-full">
+              <div className="w-96 h-full border-r-2 border-green-500/30">
                 <CharacterSheet
                   token={selectedToken}
-                  onClose={() => setShowCharacterSheet(false)}
+                  onClose={() => {
+                    setShowCharacterSheet(false);
+                    // Keep token selected when closing character sheet
+                  }}
                 />
               </div>
             )}
