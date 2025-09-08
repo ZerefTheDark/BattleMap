@@ -318,6 +318,7 @@ const BattleMap = () => {
                       if (showTokenPanel) setShowTokenPanel(false);
                       if (showChatPanel) setShowChatPanel(false);
                       if (showSubmapManager) setShowSubmapManager(false);
+                      if (showStoragePanel) setShowStoragePanel(false);
                     }
                   }}
                   disabled={!selectedToken}
@@ -340,6 +341,7 @@ const BattleMap = () => {
                     if (showTokenPanel) setShowTokenPanel(false);
                     if (showCharacterSheet) setShowCharacterSheet(false);
                     if (showSubmapManager) setShowSubmapManager(false);
+                    if (showStoragePanel) setShowStoragePanel(false);
                   }}
                 >
                   <MessageSquare className="w-5 h-5" />
