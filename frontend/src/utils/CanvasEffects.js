@@ -241,6 +241,9 @@ export class CanvasEffects {
       ctx.fill();
     });
     
+    // Reset composite operation
+    ctx.globalCompositeOperation = 'source-over';
+    
     ctx.restore();
   }
 
