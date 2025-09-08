@@ -257,7 +257,7 @@ const BattleMap = () => {
                   token={selectedToken}
                   onClose={() => {
                     setShowCharacterSheet(false);
-                    // Keep token selected when closing character sheet
+                    selectToken(null); // Unselect the token
                   }}
                 />
               </div>
