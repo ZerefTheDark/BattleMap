@@ -96,7 +96,7 @@ export class CanvasEffects {
     const endY = Math.ceil(worldBottom / gridSize) * gridSize;
     
     // Minor grid lines
-    ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.lineWidth = Math.max(0.5, 0.5 / camera.scale);
     ctx.beginPath();
     
