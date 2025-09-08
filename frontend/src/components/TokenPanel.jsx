@@ -82,7 +82,6 @@ const TokenPanel = ({ onClose }) => {
           Create Token
         </Button>
 
-        {console.log('Rendering TokenPanel, showTokenCreator:', showTokenCreator)}
         {showTokenCreator && (
           <Card className="fantasy-card">
             <CardContent className="p-4 space-y-3">
