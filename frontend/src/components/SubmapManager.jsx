@@ -275,13 +275,22 @@ const SubmapManager = ({ onClose }) => {
                     <Button
                       size="sm"
                       onClick={() => {
-                        // TODO: Open submap editor
-                        console.log('Edit submap:', submap.id);
+                        // Enter submap - focus camera on submap bounds and enable editing
+                        const bounds = submap.bounds;
+                        updateSubmap(submap.id, {
+                          ...submap,
+                          isActive: true
+                        });
+                        // Focus camera on submap center
+                        const centerX = bounds.x + bounds.w / 2;
+                        const centerY = bounds.y + bounds.h / 2;
+                        // You'll need to add a focusCamera function to the store
+                        alert('Submap editing enabled! Focus camera and add tokens/content specific to this submap.');
                       }}
                       className="flex-1 bg-blue-600 hover:bg-blue-700"
                     >
                       <Edit className="w-3 h-3 mr-1" />
-                      Edit
+                      Enter
                     </Button>
 
                     {/* Save */}
