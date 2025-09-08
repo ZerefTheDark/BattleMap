@@ -141,6 +141,7 @@ export class CanvasEffects {
     const dy = ruler.end.y - ruler.start.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
     const squares = Math.round(distance / gridSize);
+    const feet = squares * 5; // Each square is 5 feet in D&D
     
     // Draw ruler line with glow
     ctx.shadowColor = '#ef4444';
@@ -184,7 +185,7 @@ export class CanvasEffects {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
-    const text = `${squares} sq`;
+    const text = `${feet} ft`;
     ctx.strokeText(text, midX, midY);
     ctx.fillText(text, midX, midY);
     
