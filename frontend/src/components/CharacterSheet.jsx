@@ -249,26 +249,48 @@ const CharacterSheet = ({ token, onClose }) => {
               </div>
 
               {/* Ability Scores */}
-              <Card className="fantasy-card">
+              <Card className="border-2" style={{
+                background: 'linear-gradient(145deg, #1a1a1a, #2a1a1a)',
+                borderColor: '#dc2626',
+                boxShadow: '0 4px 15px rgba(220, 38, 38, 0.2)'
+              }}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-green-400">Ability Scores</CardTitle>
+                  <CardTitle className="text-sm font-bold text-red-400">ABILITY SCORES</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-3 gap-3">
+                <CardContent className="grid grid-cols-3 gap-2">
                   {abilities.map(ability => {
                     const score = token.abilities?.[ability] || 10;
                     const modifier = getModifier(score);
                     return (
-                      <div key={ability} className="ability-score">
-                        <div className="ability-name">{ability}</div>
-                        <div className="ability-modifier">{getModifierString(score)}</div>
-                        <div className="ability-base-score">{score}</div>
+                      <div key={ability} className="text-center">
+                        <div className="relative">
+                          {/* Hexagonal background */}
+                          <div className="w-16 h-16 mx-auto mb-1 flex items-center justify-center relative" style={{
+                            background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                            clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                            boxShadow: '0 4px 10px rgba(220, 38, 38, 0.3)'
+                          }}>
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-white">{getModifierString(score)}</div>
+                            </div>
+                          </div>
+                          {/* Base score circle */}
+                          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{
+                            background: 'linear-gradient(135deg, #374151, #1f2937)',
+                            border: '2px solid #dc2626'
+                          }}>
+                            {score}
+                          </div>
+                        </div>
+                        <div className="text-xs font-bold text-red-300 mt-2">{ability}</div>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="dice-roll-premium w-full mt-1 h-6 text-xs"
+                          className="w-full mt-1 h-6 text-xs bg-gray-800 hover:bg-red-900/30 border border-red-500/30 text-red-300"
                           onClick={() => rollDice(20, modifier, `${ability} Check`)}
                         >
-                          <Dice6 className="w-3 h-3" />
+                          <Dice6 className="w-3 h-3 mr-1" />
+                          Roll
                         </Button>
                       </div>
                     );
