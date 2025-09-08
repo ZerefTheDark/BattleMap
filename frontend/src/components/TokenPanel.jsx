@@ -153,7 +153,7 @@ const TokenPanel = ({ onClose }) => {
               onClick={() => selectToken(token.id)}
             >
               <CardContent className="p-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-6 h-6 border-2 border-gray-400 ${
@@ -193,6 +193,21 @@ const TokenPanel = ({ onClose }) => {
                     </Button>
                   </div>
                 </div>
+
+                {/* Token Size Control */}
+                {selectedTokenId === token.id && (
+                  <div className="border-t border-gray-600 pt-2 mt-2">
+                    <Label className="text-xs">Size: {token.size}px</Label>
+                    <Slider
+                      value={[token.size]}
+                      onValueChange={(value) => updateToken(token.id, { size: value[0] })}
+                      max={150}
+                      min={20}
+                      step={5}
+                      className="mt-1"
+                    />
+                  </div>
+                )}
                 
                 {token.conditions && token.conditions.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
