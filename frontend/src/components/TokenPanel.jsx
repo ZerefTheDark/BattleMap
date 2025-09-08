@@ -76,7 +76,7 @@ const TokenPanel = ({ onClose }) => {
       <CardContent className="space-y-4">
         <Button
           onClick={() => setShowTokenCreator(!showTokenCreator)}
-          className="w-full bg-blue-600 hover:bg-blue-700"
+          className="fantasy-button-emerald w-full"
         >
           <Plus className="w-4 h-4 mr-2" />
           Create Token
