@@ -158,6 +158,64 @@
                 linear-gradient(90deg, rgba(16, 185, 129, 0.2) 1px, transparent 1px);
             background-size: 40px 40px;
         }
+        
+        /* Modal and Character Sheet Styles */
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            max-height: 90vh;
+            max-width: 90vw;
+            overflow-y: auto;
+        }
+        
+        .character-sheet {
+            background: linear-gradient(145deg, #1e293b, #334155);
+            border: 2px solid #10b981;
+            box-shadow: var(--dragon-shadow);
+        }
+        
+        .character-sheet-tabs {
+            border-bottom: 2px solid #10b981;
+        }
+        
+        .character-sheet-tab {
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .character-sheet-tab:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .character-sheet-tab.active {
+            background: rgba(16, 185, 129, 0.2);
+            border-bottom-color: #fbbf24;
+        }
+        
+        .stat-block {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+        }
+        
+        .drag-drop-area {
+            border: 2px dashed #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .drag-drop-area.drag-over {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.2);
+        }
+        
+        .token-selected {
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -218,6 +276,11 @@
                 <button id="grid-toggle" class="flex items-center gap-1 px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-600" title="Toggle Grid">
                     <span class="icon">#️⃣</span>
                     <span>Grid</span>
+                </button>
+                
+                <!-- Upload Button -->
+                <button id="upload-campaign" class="p-2 text-gray-400 hover:text-white" title="Upload D&D Beyond Campaign">
+                    <span class="icon">📂</span>
                 </button>
                 
                 <!-- Panel Toggles -->
@@ -308,6 +371,108 @@
         </div>
     </div>
 
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center">
+        <div class="modal-content bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-white">Upload D&D Beyond Campaign</h2>
+                <button id="close-upload-modal" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Campaign File Upload -->
+                <div>
+                    <h3 class="text-lg text-green-400 mb-2">Campaign Files</h3>
+                    <div id="campaign-drop-area" class="drag-drop-area rounded-lg p-8 text-center">
+                        <div class="text-gray-300 mb-2">
+                            <span class="text-4xl">📁</span>
+                        </div>
+                        <p class="text-white mb-2">Drag & drop D&D Beyond campaign files here</p>
+                        <p class="text-gray-400 text-sm">or click to browse</p>
+                        <input type="file" id="campaign-file-input" class="hidden" accept=".json,.xml,.zip" multiple>
+                    </div>
+                </div>
+                
+                <!-- PDF Upload for Enemies -->
+                <div>
+                    <h3 class="text-lg text-green-400 mb-2">Enemy PDFs</h3>
+                    <div id="pdf-drop-area" class="drag-drop-area rounded-lg p-8 text-center">
+                        <div class="text-gray-300 mb-2">
+                            <span class="text-4xl">📄</span>
+                        </div>
+                        <p class="text-white mb-2">Drag & drop enemy PDF files here</p>
+                        <p class="text-gray-400 text-sm">or click to browse</p>
+                        <input type="file" id="pdf-file-input" class="hidden" accept=".pdf" multiple>
+                    </div>
+                </div>
+                
+                <!-- Upload Progress -->
+                <div id="upload-progress" class="hidden">
+                    <div class="text-sm text-gray-300 mb-2">Uploading...</div>
+                    <div class="bg-gray-700 rounded-full h-2">
+                        <div id="upload-progress-bar" class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Sheet Modal -->
+    <div id="character-sheet-modal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center">
+        <div class="modal-content character-sheet rounded-lg shadow-lg w-full max-w-6xl mx-4 h-5/6">
+            <div class="flex flex-col h-full">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                    <div class="flex items-center gap-4">
+                        <h2 id="character-name" class="text-2xl font-bold text-white">Character Name</h2>
+                        <span id="character-level" class="text-green-400">Level 1</span>
+                        <span id="character-class" class="text-yellow-400">Class</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="expand-character-sheet" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                            Expand to Full View
+                        </button>
+                        <button id="close-character-sheet" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                    </div>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="character-sheet-tabs flex overflow-x-auto">
+                    <button class="character-sheet-tab active px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="overview">Overview</button>
+                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="actions">Actions</button>
+                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="spells">Spells</button>
+                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="inventory">Inventory</button>
+                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="features">Features</button>
+                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="description">Description</button>
+                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="notes">Notes</button>
+                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="extras">Extras</button>
+                </div>
+                
+                <!-- Tab Content -->
+                <div class="flex-1 p-4 overflow-y-auto">
+                    <div id="tab-content" class="h-full">
+                        <!-- Tab content will be dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Modal -->
+    <div id="pdf-viewer-modal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center">
+        <div class="modal-content bg-gray-900 rounded-lg shadow-lg w-full max-w-4xl mx-4 h-5/6">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                    <h2 id="pdf-title" class="text-xl font-bold text-white">Enemy Information</h2>
+                    <button id="close-pdf-viewer" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                </div>
+                <div class="flex-1 p-4">
+                    <iframe id="pdf-iframe" class="w-full h-full border-0 rounded" src=""></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Emergent Badge -->
     <a
         id="emergent-badge"
@@ -347,7 +512,14 @@
             camera: { x: 0, y: 0 },
             tokens: [],
             isDragging: false,
-            dragStart: { x: 0, y: 0 }
+            dragStart: { x: 0, y: 0 },
+            selectedToken: null,
+            uploadedFiles: {
+                campaigns: [],
+                pdfs: []
+            },
+            characterSheets: new Map(),
+            enemyPdfs: new Map()
         };
         
         // Get canvas and context
@@ -423,7 +595,27 @@
                 appState.dragStart = { x: e.clientX, y: e.clientY };
                 canvas.style.cursor = 'grabbing';
             } else if (appState.currentTool === 'token') {
-                addToken(e.offsetX, e.offsetY);
+                // Check if clicking on existing token first
+                const clickX = (e.offsetX - appState.camera.x) / appState.zoom;
+                const clickY = (e.offsetY - appState.camera.y) / appState.zoom;
+                
+                const clickedToken = appState.tokens.find(t => {
+                    const distance = Math.sqrt(Math.pow(clickX - t.x, 2) + Math.pow(clickY - t.y, 2));
+                    return distance <= t.size;
+                });
+                
+                if (clickedToken) {
+                    selectToken(e.offsetX, e.offsetY);
+                } else {
+                    addToken(e.offsetX, e.offsetY);
+                }
+            }
+        });
+        
+        canvas.addEventListener('click', (e) => {
+            if (appState.currentTool === 'move') {
+                // Select token on click when in move mode
+                selectToken(e.offsetX, e.offsetY);
             }
         });
         
@@ -452,11 +644,73 @@
                 x: x - appState.camera.x,
                 y: y - appState.camera.y,
                 color: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'][Math.floor(Math.random() * 5)],
-                size: 20
+                size: 20,
+                type: 'player', // 'player' or 'enemy'
+                name: 'New Token',
+                characterSheet: createDefaultCharacterSheet(),
+                pdfUrl: null
             };
             appState.tokens.push(token);
             document.getElementById('token-count').textContent = appState.tokens.length;
             redrawCanvas();
+        }
+        
+        // Create default character sheet structure
+        function createDefaultCharacterSheet() {
+            return {
+                name: 'New Character',
+                level: 1,
+                class: 'Fighter',
+                race: 'Human',
+                background: 'Soldier',
+                stats: {
+                    str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10
+                },
+                health: {
+                    current: 10,
+                    max: 10,
+                    temp: 0
+                },
+                ac: 10,
+                speed: 30,
+                initiative: 0,
+                proficiencyBonus: 2,
+                savingThrows: {
+                    str: false, dex: false, con: false, int: false, wis: false, cha: false
+                },
+                skills: {
+                    acrobatics: 0, animalHandling: 0, arcana: 0, athletics: 0,
+                    deception: 0, history: 0, insight: 0, intimidation: 0,
+                    investigation: 0, medicine: 0, nature: 0, perception: 0,
+                    performance: 0, persuasion: 0, religion: 0, sleightOfHand: 0,
+                    stealth: 0, survival: 0
+                },
+                spells: [],
+                inventory: [],
+                features: [],
+                notes: ''
+            };
+        }
+        
+        // Token selection
+        function selectToken(x, y) {
+            const clickX = (x - appState.camera.x) / appState.zoom;
+            const clickY = (y - appState.camera.y) / appState.zoom;
+            
+            // Find clicked token
+            const token = appState.tokens.find(t => {
+                const distance = Math.sqrt(Math.pow(clickX - t.x, 2) + Math.pow(clickY - t.y, 2));
+                return distance <= t.size;
+            });
+            
+            if (token) {
+                appState.selectedToken = token;
+                showCharacterSheet(token);
+                redrawCanvas();
+            } else {
+                appState.selectedToken = null;
+                redrawCanvas();
+            }
         }
         
         // Draw canvas
@@ -476,9 +730,22 @@
                 ctx.arc(token.x, token.y, token.size, 0, 2 * Math.PI);
                 ctx.fillStyle = token.color;
                 ctx.fill();
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
+                
+                // Token border
+                ctx.strokeStyle = appState.selectedToken === token ? '#fbbf24' : '#ffffff';
+                ctx.lineWidth = appState.selectedToken === token ? 4 : 2;
                 ctx.stroke();
+                
+                // Selection glow
+                if (appState.selectedToken === token) {
+                    ctx.beginPath();
+                    ctx.arc(token.x, token.y, token.size + 6, 0, 2 * Math.PI);
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = 0.6;
+                    ctx.stroke();
+                    ctx.globalAlpha = 1.0;
+                }
                 
                 // Token border glow
                 ctx.beginPath();
@@ -488,13 +755,380 @@
                 ctx.globalAlpha = 0.3;
                 ctx.stroke();
                 ctx.globalAlpha = 1.0;
+                
+                // Token name
+                if (token.name) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(token.name, token.x, token.y + token.size + 15);
+                }
             });
             
             // Restore context
             ctx.restore();
         }
         
-        // Chat functionality
+        // Character Sheet Functions
+        function showCharacterSheet(token) {
+            const modal = document.getElementById('character-sheet-modal');
+            const sheet = token.characterSheet;
+            
+            // Update header
+            document.getElementById('character-name').textContent = sheet.name;
+            document.getElementById('character-level').textContent = `Level ${sheet.level}`;
+            document.getElementById('character-class').textContent = sheet.class;
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            
+            // Load overview tab by default
+            showCharacterTab('overview', sheet);
+        }
+        
+        function showCharacterTab(tabName, sheet) {
+            // Update active tab
+            document.querySelectorAll('.character-sheet-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            // Generate tab content
+            const content = document.getElementById('tab-content');
+            content.innerHTML = generateTabContent(tabName, sheet);
+        }
+        
+        function generateTabContent(tabName, sheet) {
+            switch (tabName) {
+                case 'overview':
+                    return generateOverviewTab(sheet);
+                case 'actions':
+                    return generateActionsTab(sheet);
+                case 'spells':
+                    return generateSpellsTab(sheet);
+                case 'inventory':
+                    return generateInventoryTab(sheet);
+                case 'features':
+                    return generateFeaturesTab(sheet);
+                case 'description':
+                    return generateDescriptionTab(sheet);
+                case 'notes':
+                    return generateNotesTab(sheet);
+                case 'extras':
+                    return generateExtrasTab(sheet);
+                default:
+                    return '<div class="text-white">Tab content not implemented yet.</div>';
+            }
+        }
+        
+        function generateOverviewTab(sheet) {
+            const getModifier = (score) => Math.floor((score - 10) / 2);
+            const formatModifier = (mod) => mod >= 0 ? `+${mod}` : `${mod}`;
+            
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Health -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Health</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white">${sheet.health.current}</div>
+                                <div class="text-xs text-gray-400">Current HP</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white">${sheet.health.max}</div>
+                                <div class="text-xs text-gray-400">Max HP</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-yellow-400">${sheet.health.temp}</div>
+                                <div class="text-xs text-gray-400">Temp HP</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Core Stats -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Ability Scores</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            ${Object.entries(sheet.stats).map(([stat, score]) => `
+                                <div class="text-center bg-gray-700 rounded p-2">
+                                    <div class="text-xs text-gray-400 uppercase">${stat}</div>
+                                    <div class="text-lg font-bold text-white">${score}</div>
+                                    <div class="text-sm text-yellow-400">${formatModifier(getModifier(score))}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- Combat Stats -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Combat</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${sheet.ac}</div>
+                                <div class="text-xs text-gray-400">Armor Class</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${formatModifier(sheet.initiative)}</div>
+                                <div class="text-xs text-gray-400">Initiative</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${sheet.speed} ft</div>
+                                <div class="text-xs text-gray-400">Speed</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Character Info -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Character Info</h3>
+                        <div class="space-y-2">
+                            <div><span class="text-gray-400">Race:</span> <span class="text-white">${sheet.race}</span></div>
+                            <div><span class="text-gray-400">Class:</span> <span class="text-white">${sheet.class}</span></div>
+                            <div><span class="text-gray-400">Level:</span> <span class="text-white">${sheet.level}</span></div>
+                            <div><span class="text-gray-400">Background:</span> <span class="text-white">${sheet.background}</span></div>
+                            <div><span class="text-gray-400">Proficiency Bonus:</span> <span class="text-white">+${sheet.proficiencyBonus}</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateActionsTab(sheet) {
+            return `
+                <div class="space-y-6">
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Actions</h3>
+                        <div class="space-y-2">
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Attack</div>
+                                <div class="text-sm text-gray-300">Make a weapon attack</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Dash</div>
+                                <div class="text-sm text-gray-300">Double your speed for the turn</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Dodge</div>
+                                <div class="text-sm text-gray-300">Focus entirely on avoiding attacks</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateSpellsTab(sheet) {
+            return `
+                <div class="space-y-6">
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Spells</h3>
+                        <div class="text-gray-300">No spells available</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateInventoryTab(sheet) {
+            return `
+                <div class="space-y-6">
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Equipment</h3>
+                        <div class="text-gray-300">No equipment configured</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateFeaturesTab(sheet) {
+            return `
+                <div class="space-y-6">
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Features & Traits</h3>
+                        <div class="text-gray-300">No features configured</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateDescriptionTab(sheet) {
+            return `
+                <div class="space-y-6">
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Character Description</h3>
+                        <div class="text-gray-300">No description provided</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateNotesTab(sheet) {
+            return `
+                <div class="space-y-6">
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Notes</h3>
+                        <textarea class="w-full h-64 bg-gray-700 text-white rounded p-3 resize-none" placeholder="Enter your notes here...">${sheet.notes}</textarea>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateExtrasTab(sheet) {
+            return `
+                <div class="space-y-6">
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Extras</h3>
+                        <div class="text-gray-300">No extras configured</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Upload functionality
+        function setupUploadHandlers() {
+            const uploadBtn = document.getElementById('upload-campaign');
+            const uploadModal = document.getElementById('upload-modal');
+            const closeUploadBtn = document.getElementById('close-upload-modal');
+            
+            // Campaign file handling
+            const campaignDropArea = document.getElementById('campaign-drop-area');
+            const campaignFileInput = document.getElementById('campaign-file-input');
+            
+            // PDF file handling
+            const pdfDropArea = document.getElementById('pdf-drop-area');
+            const pdfFileInput = document.getElementById('pdf-file-input');
+            
+            // Open upload modal
+            uploadBtn.addEventListener('click', () => {
+                uploadModal.classList.remove('hidden');
+            });
+            
+            // Close upload modal
+            closeUploadBtn.addEventListener('click', () => {
+                uploadModal.classList.add('hidden');
+            });
+            
+            // Campaign file drag & drop
+            campaignDropArea.addEventListener('click', () => campaignFileInput.click());
+            campaignDropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                campaignDropArea.classList.add('drag-over');
+            });
+            campaignDropArea.addEventListener('dragleave', () => {
+                campaignDropArea.classList.remove('drag-over');
+            });
+            campaignDropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                campaignDropArea.classList.remove('drag-over');
+                handleCampaignFiles(e.dataTransfer.files);
+            });
+            campaignFileInput.addEventListener('change', (e) => {
+                handleCampaignFiles(e.target.files);
+            });
+            
+            // PDF file drag & drop
+            pdfDropArea.addEventListener('click', () => pdfFileInput.click());
+            pdfDropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                pdfDropArea.classList.add('drag-over');
+            });
+            pdfDropArea.addEventListener('dragleave', () => {
+                pdfDropArea.classList.remove('drag-over');
+            });
+            pdfDropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                pdfDropArea.classList.remove('drag-over');
+                handlePdfFiles(e.dataTransfer.files);
+            });
+            pdfFileInput.addEventListener('change', (e) => {
+                handlePdfFiles(e.target.files);
+            });
+        }
+        
+        function handleCampaignFiles(files) {
+            Array.from(files).forEach(file => {
+                addChatMessage(`Campaign file uploaded: ${file.name}`, 'system');
+                appState.uploadedFiles.campaigns.push({
+                    name: file.name,
+                    file: file,
+                    timestamp: new Date()
+                });
+                
+                // Parse campaign file (simplified implementation)
+                if (file.type === 'application/json' || file.name.endsWith('.json')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            addChatMessage(`Parsed campaign data: ${Object.keys(data).join(', ')}`, 'system');
+                        } catch (error) {
+                            addChatMessage(`Error parsing campaign file: ${error.message}`, 'system');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+        
+        function handlePdfFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/pdf') {
+                    const url = URL.createObjectURL(file);
+                    appState.uploadedFiles.pdfs.push({
+                        name: file.name,
+                        url: url,
+                        timestamp: new Date()
+                    });
+                    addChatMessage(`Enemy PDF uploaded: ${file.name}`, 'system');
+                } else {
+                    addChatMessage(`Invalid file type. Please upload PDF files only.`, 'system');
+                }
+            });
+        }
+        
+        function setupModalHandlers() {
+            // Character sheet modal
+            const characterModal = document.getElementById('character-sheet-modal');
+            const closeCharacterBtn = document.getElementById('close-character-sheet');
+            const expandCharacterBtn = document.getElementById('expand-character-sheet');
+            
+            closeCharacterBtn.addEventListener('click', () => {
+                characterModal.classList.add('hidden');
+            });
+            
+            expandCharacterBtn.addEventListener('click', () => {
+                // TODO: Implement full-screen character sheet
+                addChatMessage('Full-screen character sheet not yet implemented', 'system');
+            });
+            
+            // Character sheet tabs
+            document.querySelectorAll('.character-sheet-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+                    if (appState.selectedToken) {
+                        showCharacterTab(tabName, appState.selectedToken.characterSheet);
+                    }
+                });
+            });
+            
+            // PDF viewer modal
+            const pdfModal = document.getElementById('pdf-viewer-modal');
+            const closePdfBtn = document.getElementById('close-pdf-viewer');
+            
+            closePdfBtn.addEventListener('click', () => {
+                pdfModal.classList.add('hidden');
+            });
+            
+            // Close modals on background click
+            const uploadModal = document.getElementById('upload-modal');
+            [uploadModal, characterModal, pdfModal].forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+        }
         const chatMessages = document.getElementById('chat-messages');
         const chatInput = document.getElementById('chat-input');
         const sendButton = document.getElementById('send-chat');
@@ -573,10 +1207,13 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
         updateZoomDisplay();
+        setupUploadHandlers();
+        setupModalHandlers();
         
         // Welcome message
         setTimeout(() => {
             addChatMessage('Welcome to The Dragon Stones battle map! Try adding tokens by selecting the Token tool and clicking on the map.', 'system');
+            addChatMessage('Click the 📂 upload button to import D&D Beyond campaigns and enemy PDFs.', 'system');
         }, 1000);
     </script>
 </body>
