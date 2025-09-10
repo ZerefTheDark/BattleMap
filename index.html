@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="The Dragon Stones - A D&D Battle Map Application" />
+    <title>The Dragon Stones - Battle Map</title>
+    
+    <!-- Embedded minimal CSS framework -->
+    <style>
+        /* Minimal utility classes inspired by Tailwind */
+        .flex { display: flex; }
+        .flex-1 { flex: 1 1 0%; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .h-screen { height: 100vh; }
+        .w-full { width: 100%; }
+        .h-full { height: 100%; }
+        .w-80 { width: 20rem; }
+        .w-5 { width: 1.25rem; }
+        .h-5 { height: 1.25rem; }
+        .p-1 { padding: 0.25rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .-mt-1 { margin-top: -0.25rem; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace; }
+        .font-serif { font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif; }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .italic { font-style: italic; }
+        .text-center { text-align: center; }
+        .text-white { color: rgb(255 255 255); }
+        .text-gray-300 { color: rgb(209 213 219); }
+        .text-gray-400 { color: rgb(156 163 175); }
+        .text-green-400 { color: rgb(74 222 128); }
+        .text-yellow-400 { color: rgb(251 191 36); }
+        .text-blue-400 { color: rgb(96 165 250); }
+        .bg-gray-700 { background-color: rgb(55 65 81); }
+        .bg-gray-800 { background-color: rgb(31 41 55); }
+        .bg-gray-900 { background-color: rgb(17 24 39); }
+        .bg-green-600 { background-color: rgb(22 163 74); }
+        .bg-black { background-color: rgb(0 0 0); }
+        .bg-opacity-75 { background-color: rgba(0, 0, 0, 0.75); }
+        .border { border-width: 1px; }
+        .border-2 { border-width: 2px; }
+        .border-t { border-top-width: 1px; }
+        .border-b-2 { border-bottom-width: 2px; }
+        .border-l { border-left-width: 1px; }
+        .border-gray-700 { border-color: rgb(55 65 81); }
+        .border-green-500 { border-color: rgb(34 197 94); }
+        .rounded { border-radius: 0.25rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .fixed { position: fixed; }
+        .inset-0 { top: 0px; right: 0px; bottom: 0px; left: 0px; }
+        .inset-x-0 { left: 0px; right: 0px; }
+        .bottom-0 { bottom: 0px; }
+        .overflow-hidden { overflow: hidden; }
+        .overflow-y-auto { overflow-y: auto; }
+        .pointer-events-none { pointer-events: none; }
+        .cursor-pointer { cursor: pointer; }
+        .flex-wrap { flex-wrap: wrap; }
+        .hidden { display: none; }
+        .hover\:bg-gray-600:hover { background-color: rgb(75 85 99); }
+        .hover\:bg-green-700:hover { background-color: rgb(21 128 61); }
+        .hover\:text-white:hover { color: rgb(255 255 255); }
+        
+        @media (min-width: 640px) {
+            .sm\:inline { display: inline; }
+        }
+    </style>
+    
+    <style>
+        /* Custom Dragon Stones Theme */
+        :root {
+            --dragon-gold: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+            --emerald-magic: linear-gradient(135deg, #10b981, #059669, #047857);
+            --dark-stone: linear-gradient(145deg, #0f172a, #1e293b, #334155);
+            --dragon-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+            --emerald-glow: 0 0 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            background-attachment: fixed;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .dragon-border {
+            background: linear-gradient(45deg, #22c55e, #fbbf24, #22c55e);
+            padding: 2px;
+            border-radius: 8px;
+        }
+        
+        .dragon-border-inner {
+            background: #1e293b;
+            border-radius: 6px;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .battle-canvas {
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            cursor: grab;
+        }
+        
+        .battle-canvas:active {
+            cursor: grabbing;
+        }
+        
+        .tool-button {
+            transition: all 0.2s ease;
+        }
+        
+        .tool-button:hover {
+            box-shadow: var(--emerald-glow);
+        }
+        
+        .active-tool {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            box-shadow: var(--emerald-glow);
+        }
+        
+        .decorative-border {
+            background: linear-gradient(to right, #fbbf24, #10b981, #fbbf24);
+            height: 2px;
+        }
+        
+        .grid-overlay {
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.2) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="h-screen flex flex-col">
+        <!-- Decorative Top Border -->
+        <div class="bg-gray-900 text-green-400 text-center py-1 text-xs font-mono">
+            🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️🌿⚔️
+        </div>
+        
+        <!-- Top Toolbar -->
+        <div class="bg-gray-900 border-b-2 border-green-500 shadow-lg p-3 flex items-center justify-between gap-4 relative">
+            <div class="decorative-border absolute inset-x-0 bottom-0"></div>
+            
+            <!-- Title and Info -->
+            <div class="flex items-center gap-2">
+                <div class="flex flex-col">
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+                        The Dragon Stones
+                    </h1>
+                    <p class="text-sm text-gray-400 font-serif italic -mt-1">Chris Marshall</p>
+                </div>
+                <span id="zoom-badge" class="px-2 py-1 text-xs border border-green-500 text-green-400 rounded">100%</span>
+            </div>
+            
+            <!-- Tool Selection -->
+            <div class="flex items-center gap-1 bg-gray-700 rounded-lg p-1">
+                <button id="tool-move" class="tool-button active-tool px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Pan & Move">
+                    <span class="icon">⬅️</span>
+                    <span class="hidden sm:inline text-xs">Move</span>
+                </button>
+                <button id="tool-ruler" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Ruler Tool">
+                    <span class="icon">📏</span>
+                    <span class="hidden sm:inline text-xs">Ruler</span>
+                </button>
+                <button id="tool-fog" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Fog of War">
+                    <span class="icon">👁️</span>
+                    <span class="hidden sm:inline text-xs">Fog</span>
+                </button>
+                <button id="tool-token" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Add Token">
+                    <span class="icon">👥</span>
+                    <span class="hidden sm:inline text-xs">Token</span>
+                </button>
+            </div>
+            
+            <!-- Controls -->
+            <div class="flex items-center gap-4">
+                <!-- Zoom Controls -->
+                <div class="flex items-center gap-2">
+                    <button id="zoom-out" class="p-1 text-gray-400 hover:text-white" title="Zoom Out">
+                        <span class="icon">🔍➖</span>
+                    </button>
+                    <button id="zoom-in" class="p-1 text-gray-400 hover:text-white" title="Zoom In">
+                        <span class="icon">🔍➕</span>
+                    </button>
+                </div>
+                
+                <!-- Grid Toggle -->
+                <button id="grid-toggle" class="flex items-center gap-1 px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-600" title="Toggle Grid">
+                    <span class="icon">#️⃣</span>
+                    <span>Grid</span>
+                </button>
+                
+                <!-- Panel Toggles -->
+                <button id="chat-toggle" class="p-2 text-gray-400 hover:text-white" title="Chat Panel">
+                    <span class="icon">💬</span>
+                </button>
+                <button id="dice-toggle" class="p-2 text-gray-400 hover:text-white" title="Dice Roller">
+                    <span class="icon">🎲</span>
+                </button>
+                <button id="storage-toggle" class="p-2 text-gray-400 hover:text-white" title="Storage">
+                    <span class="icon">💾</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="flex-1 flex relative">
+            <!-- Battle Map Canvas -->
+            <div class="flex-1 relative overflow-hidden">
+                <canvas 
+                    id="battle-canvas" 
+                    class="battle-canvas w-full h-full grid-overlay"
+                    width="1200" 
+                    height="800"
+                ></canvas>
+                
+                <!-- Canvas Overlay for UI Elements -->
+                <div id="canvas-overlay" class="absolute inset-0 pointer-events-none">
+                    <!-- Ruler display -->
+                    <div id="ruler-display" class="hidden absolute bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs"></div>
+                </div>
+            </div>
+            
+            <!-- Side Panels -->
+            <div class="w-80 bg-gray-900 border-l border-gray-700 flex flex-col">
+                <!-- Chat Panel -->
+                <div id="chat-panel" class="flex-1 flex flex-col p-4">
+                    <h3 class="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                        <span class="icon w-5 h-5">💬</span>
+                        Chat & Initiative
+                    </h3>
+                    
+                    <!-- Chat Messages -->
+                    <div id="chat-messages" class="flex-1 bg-gray-800 rounded p-3 mb-3 overflow-y-auto text-sm">
+                        <div class="text-gray-400 text-xs mb-2">Welcome to The Dragon Stones!</div>
+                        <div class="text-green-400 text-xs">System: Battle map loaded successfully.</div>
+                    </div>
+                    
+                    <!-- Chat Input -->
+                    <div class="flex gap-2">
+                        <input 
+                            id="chat-input" 
+                            type="text" 
+                            placeholder="Type message or /roll 1d20..." 
+                            class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm"
+                        >
+                        <button id="send-chat" class="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            <span class="icon">📤</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Dice Roller -->
+                    <div class="mt-3 p-3 bg-gray-800 rounded">
+                        <div class="text-sm text-gray-300 mb-2">Quick Dice:</div>
+                        <div class="flex gap-1 flex-wrap">
+                            <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d20">d20</button>
+                            <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d12">d12</button>
+                            <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d10">d10</button>
+                            <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d8">d8</button>
+                            <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d6">d6</button>
+                            <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d4">d4</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="bg-gray-900 border-t border-gray-700 px-4 py-2 flex items-center justify-between text-sm text-gray-400">
+            <div class="flex items-center gap-4">
+                <span>Tool: <span id="current-tool" class="text-green-400">Move</span></span>
+                <span>Grid: <span id="grid-status" class="text-green-400">On</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span>Tokens: <span id="token-count" class="text-yellow-400">0</span></span>
+                <span>Canvas: <span id="canvas-size" class="text-blue-400">1200x800</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergent Badge -->
+    <a
+        id="emergent-badge"
+        target="_blank"
+        href="https://app.emergent.sh/?utm_source=emergent-badge"
+        style="
+            display: flex !important;
+            align-items: center !important;
+            position: fixed !important;
+            bottom: 20px;
+            right: 20px;
+            text-decoration: none;
+            padding: 6px 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+            font-size: 12px !important;
+            z-index: 9999 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+            border-radius: 8px !important;
+            background-color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        "
+    >
+        <div style="display: flex; flex-direction: row; align-items: center">
+            <span style="width: 20px; height: 20px; margin-right: 8px; font-size: 16px;">⚡</span>
+            <p style="color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important; font-size: 12px !important; align-items: center; margin-bottom: 0;">
+                Made with Emergent
+            </p>
+        </div>
+    </a>
+
+    <script>
+        // Battle Map Application State
+        const appState = {
+            currentTool: 'move',
+            zoom: 1.0,
+            gridEnabled: true,
+            camera: { x: 0, y: 0 },
+            tokens: [],
+            isDragging: false,
+            dragStart: { x: 0, y: 0 }
+        };
+        
+        // Get canvas and context
+        const canvas = document.getElementById('battle-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Resize canvas to fit container
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            redrawCanvas();
+        }
+        
+        // Tool selection
+        document.querySelectorAll('.tool-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tools
+                document.querySelectorAll('.tool-button').forEach(btn => {
+                    btn.classList.remove('active-tool');
+                });
+                
+                // Add active class to clicked tool
+                button.classList.add('active-tool');
+                
+                // Update current tool
+                const toolId = button.id.replace('tool-', '');
+                appState.currentTool = toolId;
+                document.getElementById('current-tool').textContent = toolId.charAt(0).toUpperCase() + toolId.slice(1);
+                
+                // Update cursor
+                canvas.className = `battle-canvas w-full h-full ${appState.gridEnabled ? 'grid-overlay' : ''}`;
+                if (toolId === 'move') {
+                    canvas.style.cursor = 'grab';
+                } else if (toolId === 'ruler') {
+                    canvas.style.cursor = 'crosshair';
+                } else if (toolId === 'fog') {
+                    canvas.style.cursor = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M9 9a3 3 0 1 1 6 0\'/%3E%3Cpath d=\'M6 8a6 6 0 0 1 12 0c0 7-3 9-6 9s-6-2-6-9\'/%3E%3Cpath d=\'M6 10a6 6 0 0 1 12 0c0 7-3 9-6 9s-6-2-6-9\'/%3E%3C/svg%3E") 12 12, auto';
+                } else {
+                    canvas.style.cursor = 'pointer';
+                }
+            });
+        });
+        
+        // Zoom controls
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            appState.zoom = Math.min(appState.zoom * 1.2, 5.0);
+            updateZoomDisplay();
+            redrawCanvas();
+        });
+        
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            appState.zoom = Math.max(appState.zoom / 1.2, 0.1);
+            updateZoomDisplay();
+            redrawCanvas();
+        });
+        
+        function updateZoomDisplay() {
+            document.getElementById('zoom-badge').textContent = Math.round(appState.zoom * 100) + '%';
+        }
+        
+        // Grid toggle
+        document.getElementById('grid-toggle').addEventListener('click', () => {
+            appState.gridEnabled = !appState.gridEnabled;
+            document.getElementById('grid-status').textContent = appState.gridEnabled ? 'On' : 'Off';
+            canvas.classList.toggle('grid-overlay', appState.gridEnabled);
+        });
+        
+        // Canvas mouse events
+        canvas.addEventListener('mousedown', (e) => {
+            if (appState.currentTool === 'move') {
+                appState.isDragging = true;
+                appState.dragStart = { x: e.clientX, y: e.clientY };
+                canvas.style.cursor = 'grabbing';
+            } else if (appState.currentTool === 'token') {
+                addToken(e.offsetX, e.offsetY);
+            }
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (appState.isDragging && appState.currentTool === 'move') {
+                const dx = e.clientX - appState.dragStart.x;
+                const dy = e.clientY - appState.dragStart.y;
+                appState.camera.x += dx;
+                appState.camera.y += dy;
+                appState.dragStart = { x: e.clientX, y: e.clientY };
+                redrawCanvas();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            if (appState.isDragging) {
+                appState.isDragging = false;
+                canvas.style.cursor = 'grab';
+            }
+        });
+        
+        // Add token function
+        function addToken(x, y) {
+            const token = {
+                id: Date.now(),
+                x: x - appState.camera.x,
+                y: y - appState.camera.y,
+                color: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'][Math.floor(Math.random() * 5)],
+                size: 20
+            };
+            appState.tokens.push(token);
+            document.getElementById('token-count').textContent = appState.tokens.length;
+            redrawCanvas();
+        }
+        
+        // Draw canvas
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Save context for transformations
+            ctx.save();
+            
+            // Apply camera transformation
+            ctx.translate(appState.camera.x, appState.camera.y);
+            ctx.scale(appState.zoom, appState.zoom);
+            
+            // Draw tokens
+            appState.tokens.forEach(token => {
+                ctx.beginPath();
+                ctx.arc(token.x, token.y, token.size, 0, 2 * Math.PI);
+                ctx.fillStyle = token.color;
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Token border glow
+                ctx.beginPath();
+                ctx.arc(token.x, token.y, token.size + 2, 0, 2 * Math.PI);
+                ctx.strokeStyle = token.color;
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.3;
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+            });
+            
+            // Restore context
+            ctx.restore();
+        }
+        
+        // Chat functionality
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-chat');
+        
+        function addChatMessage(message, type = 'user') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `mb-1 text-xs ${type === 'system' ? 'text-green-400' : type === 'dice' ? 'text-yellow-400' : 'text-white'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function rollDice(diceString) {
+            const match = diceString.match(/(\d+)d(\d+)(?:\+(\d+))?/);
+            if (!match) return null;
+            
+            const count = parseInt(match[1]);
+            const sides = parseInt(match[2]);
+            const modifier = parseInt(match[3]) || 0;
+            
+            const rolls = [];
+            let total = modifier;
+            
+            for (let i = 0; i < count; i++) {
+                const roll = Math.floor(Math.random() * sides) + 1;
+                rolls.push(roll);
+                total += roll;
+            }
+            
+            return {
+                rolls,
+                total,
+                modifier,
+                diceString
+            };
+        }
+        
+        function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            if (message.startsWith('/roll ') || message.startsWith('/r ')) {
+                const diceString = message.split(' ')[1];
+                const result = rollDice(diceString);
+                if (result) {
+                    addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+                } else {
+                    addChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
+                }
+            } else {
+                addChatMessage(`Player: ${message}`, 'user');
+            }
+            
+            chatInput.value = '';
+        }
+        
+        sendButton.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+        
+        // Quick dice buttons
+        document.querySelectorAll('.dice-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const diceString = btn.dataset.dice;
+                const result = rollDice(diceString);
+                if (result) {
+                    addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}] = ${result.total}`, 'dice');
+                }
+            });
+        });
+        
+        // Initialize application
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        updateZoomDisplay();
+        
+        // Welcome message
+        setTimeout(() => {
+            addChatMessage('Welcome to The Dragon Stones battle map! Try adding tokens by selecting the Token tool and clicking on the map.', 'system');
+        }, 1000);
+    </script>
+</body>
+</html>
