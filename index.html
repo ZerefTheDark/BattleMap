@@ -1514,28 +1514,70 @@
         }
         
         // Create default character sheet structure
+        // Enhanced to include comprehensive D&D 5e character details
         function createDefaultCharacterSheet() {
             return {
+                // Basic Information
                 name: 'New Character',
                 level: 1,
                 class: 'Fighter',
                 race: 'Human',
                 background: 'Soldier',
+                alignment: 'Lawful Good',
+                experiencePoints: 0,
+                
+                // Ability Scores
                 stats: {
                     str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10
                 },
+                
+                // Health and Vitality
                 health: {
                     current: 10,
                     max: 10,
                     temp: 0
                 },
+                hitDice: {
+                    total: 1,
+                    used: 0,
+                    type: 'd10'
+                },
+                deathSaves: {
+                    successes: 0,
+                    failures: 0
+                },
+                
+                // Combat Statistics
                 ac: 10,
                 speed: 30,
                 initiative: 0,
                 proficiencyBonus: 2,
+                inspiration: false,
+                
+                // Movement Speeds
+                speeds: {
+                    walk: 30,
+                    climb: 15,
+                    swim: 15,
+                    fly: 0,
+                    burrow: 0
+                },
+                
+                // Senses
+                senses: {
+                    darkvision: 0,
+                    blindsight: 0,
+                    tremorsense: 0,
+                    truesight: 0,
+                    passivePerception: 10
+                },
+                
+                // Saving Throws (proficiency flags)
                 savingThrows: {
                     str: false, dex: false, con: false, int: false, wis: false, cha: false
                 },
+                
+                // Skills (proficiency values: 0 = not proficient, 1 = proficient, 2 = expertise)
                 skills: {
                     acrobatics: 0, animalHandling: 0, arcana: 0, athletics: 0,
                     deception: 0, history: 0, insight: 0, intimidation: 0,
@@ -1543,10 +1585,102 @@
                     performance: 0, persuasion: 0, religion: 0, sleightOfHand: 0,
                     stealth: 0, survival: 0
                 },
+                
+                // Proficiencies
+                proficiencies: {
+                    languages: ['Common'],
+                    tools: [],
+                    weapons: ['Simple weapons', 'Martial weapons'],
+                    armor: ['Light armor', 'Medium armor', 'Heavy armor', 'Shields']
+                },
+                
+                // Resistances and Immunities
+                resistances: {
+                    damageResistances: [],
+                    damageImmunities: [],
+                    damageVulnerabilities: [],
+                    conditionImmunities: []
+                },
+                
+                // Character Appearance and Personality
+                appearance: {
+                    age: 25,
+                    height: '6 ft',
+                    weight: '180 lbs',
+                    eyes: 'Brown',
+                    skin: 'Fair',
+                    hair: 'Black'
+                },
+                
+                // Personality Traits
+                personality: {
+                    traits: [],
+                    ideals: [],
+                    bonds: [],
+                    flaws: []
+                },
+                
+                // Organization and Background
+                organizations: {
+                    faction: '',
+                    rank: '',
+                    renown: 0
+                },
+                
+                // Spellcasting
+                spellcasting: {
+                    class: '',
+                    ability: '',
+                    saveDC: 8,
+                    attackBonus: 0,
+                    spellSlots: {
+                        1: { max: 0, used: 0 },
+                        2: { max: 0, used: 0 },
+                        3: { max: 0, used: 0 },
+                        4: { max: 0, used: 0 },
+                        5: { max: 0, used: 0 },
+                        6: { max: 0, used: 0 },
+                        7: { max: 0, used: 0 },
+                        8: { max: 0, used: 0 },
+                        9: { max: 0, used: 0 }
+                    }
+                },
+                
+                // Enhanced Data Collections
                 spells: [],
                 inventory: [],
                 features: [],
-                notes: ''
+                actions: [],
+                racialTraits: [],
+                feats: [],
+                
+                // Additional Character Collections
+                companions: [],
+                wildShapeForms: [],
+                magicalItems: [],
+                customAbilities: [],
+                vehicles: [],
+                additionalResources: [],
+                
+                // Currency
+                currency: {
+                    pp: 0, gp: 0, ep: 0, sp: 0, cp: 0
+                },
+                
+                // Carrying Capacity
+                carryingCapacity: {
+                    current: 0,
+                    max: 150, // Str score * 15
+                    encumbered: 75 // Str score * 5
+                },
+                
+                // Session Data
+                notes: '',
+                backstory: '',
+                allies: '',
+                enemies: '',
+                treasures: '',
+                characterReminders: ''
             };
         }
         
@@ -1715,11 +1849,11 @@
             const formatModifier = (mod) => mod >= 0 ? `+${mod}` : `${mod}`;
             
             return `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Health -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Health and Vitality -->
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Health</h3>
-                        <div class="grid grid-cols-3 gap-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Health & Vitality</h3>
+                        <div class="grid grid-cols-3 gap-4 mb-4">
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-white">${sheet.health.current}</div>
                                 <div class="text-xs text-gray-400">Current HP</div>
@@ -1733,6 +1867,30 @@
                                 <div class="text-xs text-gray-400">Temp HP</div>
                             </div>
                         </div>
+                        ${sheet.hitDice ? `
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-white">${sheet.hitDice.total - sheet.hitDice.used}/${sheet.hitDice.total}</div>
+                                    <div class="text-xs text-gray-400">Hit Dice (${sheet.hitDice.type})</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-white">${sheet.inspiration ? 'Yes' : 'No'}</div>
+                                    <div class="text-xs text-gray-400">Inspiration</div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${sheet.deathSaves ? `
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-green-400">${sheet.deathSaves.successes}/3</div>
+                                    <div class="text-xs text-gray-400">Death Save Successes</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-red-400">${sheet.deathSaves.failures}/3</div>
+                                    <div class="text-xs text-gray-400">Death Save Failures</div>
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
                     
                     <!-- Core Stats -->
@@ -1752,7 +1910,7 @@
                     <!-- Combat Stats -->
                     <div class="stat-block rounded-lg p-4">
                         <h3 class="text-lg font-semibold text-green-400 mb-3">Combat</h3>
-                        <div class="grid grid-cols-3 gap-4">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
                             <div class="text-center">
                                 <div class="text-xl font-bold text-white">${sheet.ac}</div>
                                 <div class="text-xs text-gray-400">Armor Class</div>
@@ -1761,11 +1919,47 @@
                                 <div class="text-xl font-bold text-white">${formatModifier(sheet.initiative)}</div>
                                 <div class="text-xs text-gray-400">Initiative</div>
                             </div>
-                            <div class="text-center">
-                                <div class="text-xl font-bold text-white">${sheet.speed} ft</div>
-                                <div class="text-xs text-gray-400">Speed</div>
-                            </div>
                         </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-white">+${sheet.proficiencyBonus}</div>
+                            <div class="text-xs text-gray-400">Proficiency Bonus</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Movement & Senses -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Movement & Senses</h3>
+                        ${sheet.speeds ? `
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-300 mb-2">Speed:</div>
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div>Walk: ${sheet.speeds.walk} ft</div>
+                                    ${sheet.speeds.fly > 0 ? `<div>Fly: ${sheet.speeds.fly} ft</div>` : ''}
+                                    ${sheet.speeds.climb !== 15 ? `<div>Climb: ${sheet.speeds.climb} ft</div>` : ''}
+                                    ${sheet.speeds.swim !== 15 ? `<div>Swim: ${sheet.speeds.swim} ft</div>` : ''}
+                                    ${sheet.speeds.burrow > 0 ? `<div>Burrow: ${sheet.speeds.burrow} ft</div>` : ''}
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="mb-4">
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-white">${sheet.speed} ft</div>
+                                    <div class="text-xs text-gray-400">Speed</div>
+                                </div>
+                            </div>
+                        `}
+                        ${sheet.senses ? `
+                            <div>
+                                <div class="text-sm text-gray-300 mb-2">Senses:</div>
+                                <div class="text-sm space-y-1">
+                                    <div>Passive Perception: ${sheet.senses.passivePerception}</div>
+                                    ${sheet.senses.darkvision > 0 ? `<div>Darkvision: ${sheet.senses.darkvision} ft</div>` : ''}
+                                    ${sheet.senses.blindsight > 0 ? `<div>Blindsight: ${sheet.senses.blindsight} ft</div>` : ''}
+                                    ${sheet.senses.tremorsense > 0 ? `<div>Tremorsense: ${sheet.senses.tremorsense} ft</div>` : ''}
+                                    ${sheet.senses.truesight > 0 ? `<div>Truesight: ${sheet.senses.truesight} ft</div>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
                     
                     <!-- Character Info -->
@@ -1776,9 +1970,86 @@
                             <div><span class="text-gray-400">Class:</span> <span class="text-white">${sheet.class}</span></div>
                             <div><span class="text-gray-400">Level:</span> <span class="text-white">${sheet.level}</span></div>
                             <div><span class="text-gray-400">Background:</span> <span class="text-white">${sheet.background}</span></div>
-                            <div><span class="text-gray-400">Proficiency Bonus:</span> <span class="text-white">+${sheet.proficiencyBonus}</span></div>
+                            ${sheet.alignment ? `<div><span class="text-gray-400">Alignment:</span> <span class="text-white">${sheet.alignment}</span></div>` : ''}
+                            ${sheet.experiencePoints !== undefined ? `<div><span class="text-gray-400">Experience:</span> <span class="text-white">${sheet.experiencePoints}</span></div>` : ''}
                         </div>
                     </div>
+
+                    <!-- Appearance -->
+                    ${sheet.appearance ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Appearance</h3>
+                            <div class="space-y-2 text-sm">
+                                <div><span class="text-gray-400">Age:</span> <span class="text-white">${sheet.appearance.age}</span></div>
+                                <div><span class="text-gray-400">Height:</span> <span class="text-white">${sheet.appearance.height}</span></div>
+                                <div><span class="text-gray-400">Weight:</span> <span class="text-white">${sheet.appearance.weight}</span></div>
+                                <div><span class="text-gray-400">Eyes:</span> <span class="text-white">${sheet.appearance.eyes}</span></div>
+                                <div><span class="text-gray-400">Skin:</span> <span class="text-white">${sheet.appearance.skin}</span></div>
+                                <div><span class="text-gray-400">Hair:</span> <span class="text-white">${sheet.appearance.hair}</span></div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Proficiencies -->
+                    ${sheet.proficiencies ? `
+                        <div class="stat-block rounded-lg p-4 lg:col-span-2">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Proficiencies</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <div class="text-gray-300 font-medium mb-1">Languages:</div>
+                                    <div class="text-white">${sheet.proficiencies.languages.join(', ') || 'None'}</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-300 font-medium mb-1">Tools:</div>
+                                    <div class="text-white">${sheet.proficiencies.tools.join(', ') || 'None'}</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-300 font-medium mb-1">Weapons:</div>
+                                    <div class="text-white">${sheet.proficiencies.weapons.join(', ') || 'None'}</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-300 font-medium mb-1">Armor:</div>
+                                    <div class="text-white">${sheet.proficiencies.armor.join(', ') || 'None'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Resistances -->
+                    ${sheet.resistances && (sheet.resistances.damageResistances.length > 0 || 
+                        sheet.resistances.damageImmunities.length > 0 || 
+                        sheet.resistances.damageVulnerabilities.length > 0 || 
+                        sheet.resistances.conditionImmunities.length > 0) ? `
+                        <div class="stat-block rounded-lg p-4 lg:col-span-2">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Resistances & Immunities</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                ${sheet.resistances.damageResistances.length > 0 ? `
+                                    <div>
+                                        <div class="text-gray-300 font-medium mb-1">Damage Resistances:</div>
+                                        <div class="text-white">${sheet.resistances.damageResistances.join(', ')}</div>
+                                    </div>
+                                ` : ''}
+                                ${sheet.resistances.damageImmunities.length > 0 ? `
+                                    <div>
+                                        <div class="text-gray-300 font-medium mb-1">Damage Immunities:</div>
+                                        <div class="text-white">${sheet.resistances.damageImmunities.join(', ')}</div>
+                                    </div>
+                                ` : ''}
+                                ${sheet.resistances.damageVulnerabilities.length > 0 ? `
+                                    <div>
+                                        <div class="text-gray-300 font-medium mb-1">Damage Vulnerabilities:</div>
+                                        <div class="text-white">${sheet.resistances.damageVulnerabilities.join(', ')}</div>
+                                    </div>
+                                ` : ''}
+                                ${sheet.resistances.conditionImmunities.length > 0 ? `
+                                    <div>
+                                        <div class="text-gray-300 font-medium mb-1">Condition Immunities:</div>
+                                        <div class="text-white">${sheet.resistances.conditionImmunities.join(', ')}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -1786,20 +2057,92 @@
         function generateActionsTab(sheet) {
             return `
                 <div class="space-y-6">
+                    <!-- Custom Actions -->
+                    ${sheet.actions && sheet.actions.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Character Actions</h3>
+                            <div class="space-y-3">
+                                ${sheet.actions.map(action => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="font-semibold text-white">${action.name}</div>
+                                        <div class="text-sm text-gray-300">${action.description}</div>
+                                        ${action.damage ? `<div class="text-sm text-yellow-400">Damage: ${action.damage}</div>` : ''}
+                                        ${action.range ? `<div class="text-sm text-blue-400">Range: ${action.range}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Standard D&D Actions -->
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Actions</h3>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Standard Actions</h3>
                         <div class="space-y-2">
                             <div class="bg-gray-700 rounded p-3">
                                 <div class="font-semibold text-white">Attack</div>
-                                <div class="text-sm text-gray-300">Make a weapon attack</div>
+                                <div class="text-sm text-gray-300">Make a weapon attack or cast a spell that requires an attack roll</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Cast a Spell</div>
+                                <div class="text-sm text-gray-300">Cast a spell with a casting time of 1 action</div>
                             </div>
                             <div class="bg-gray-700 rounded p-3">
                                 <div class="font-semibold text-white">Dash</div>
                                 <div class="text-sm text-gray-300">Double your speed for the turn</div>
                             </div>
                             <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Disengage</div>
+                                <div class="text-sm text-gray-300">Your movement doesn't provoke opportunity attacks</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
                                 <div class="font-semibold text-white">Dodge</div>
                                 <div class="text-sm text-gray-300">Focus entirely on avoiding attacks</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Help</div>
+                                <div class="text-sm text-gray-300">Give advantage to another creature's ability check or attack</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Hide</div>
+                                <div class="text-sm text-gray-300">Make a Dexterity (Stealth) check</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Ready</div>
+                                <div class="text-sm text-gray-300">Prepare an action to trigger when a specified condition occurs</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Search</div>
+                                <div class="text-sm text-gray-300">Make a Wisdom (Perception) or Intelligence (Investigation) check</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Use an Object</div>
+                                <div class="text-sm text-gray-300">Interact with a second object or use a magic item</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bonus Actions -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Bonus Actions</h3>
+                        <div class="space-y-2">
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Off-hand Attack</div>
+                                <div class="text-sm text-gray-300">Attack with a light weapon in your other hand</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Two-Weapon Fighting</div>
+                                <div class="text-sm text-gray-300">Make an attack with your off-hand weapon</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reactions -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Reactions</h3>
+                        <div class="space-y-2">
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Opportunity Attack</div>
+                                <div class="text-sm text-gray-300">Attack when a creature moves out of your reach</div>
                             </div>
                         </div>
                     </div>
@@ -1810,9 +2153,72 @@
         function generateSpellsTab(sheet) {
             return `
                 <div class="space-y-6">
+                    ${sheet.spellcasting ? `
+                        <!-- Spellcasting Info -->
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Spellcasting</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-white">${sheet.spellcasting.class || 'None'}</div>
+                                    <div class="text-xs text-gray-400">Spellcasting Class</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-white">${sheet.spellcasting.saveDC}</div>
+                                    <div class="text-xs text-gray-400">Spell Save DC</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-white">+${sheet.spellcasting.attackBonus}</div>
+                                    <div class="text-xs text-gray-400">Spell Attack Bonus</div>
+                                </div>
+                            </div>
+                            ${sheet.spellcasting.ability ? `
+                                <div class="text-center">
+                                    <div class="text-gray-300">Spellcasting Ability: <span class="text-white font-semibold">${sheet.spellcasting.ability.toUpperCase()}</span></div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Spell Slots -->
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Spell Slots</h3>
+                            <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
+                                ${Object.entries(sheet.spellcasting.spellSlots).map(([level, slots]) => 
+                                    slots.max > 0 ? `
+                                        <div class="text-center bg-gray-700 rounded p-2">
+                                            <div class="text-xs text-gray-400">Level ${level}</div>
+                                            <div class="text-lg font-bold text-white">${slots.max - slots.used}/${slots.max}</div>
+                                            <div class="text-xs text-yellow-400">Available</div>
+                                        </div>
+                                    ` : ''
+                                ).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Known Spells -->
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Spells</h3>
-                        <div class="text-gray-300">No spells available</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Known Spells</h3>
+                        ${sheet.spells && sheet.spells.length > 0 ? `
+                            <div class="space-y-3">
+                                ${sheet.spells.map(spell => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="font-semibold text-white">${spell.name}</div>
+                                            <div class="text-sm text-yellow-400">Level ${spell.level}</div>
+                                        </div>
+                                        <div class="text-sm text-gray-300 mb-2">${spell.description || 'No description available'}</div>
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-gray-400">
+                                            ${spell.castingTime ? `<div>Cast: ${spell.castingTime}</div>` : ''}
+                                            ${spell.range ? `<div>Range: ${spell.range}</div>` : ''}
+                                            ${spell.duration ? `<div>Duration: ${spell.duration}</div>` : ''}
+                                            ${spell.components ? `<div>Components: ${spell.components}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <div class="text-gray-300">No spells known</div>
+                        `}
                     </div>
                 </div>
             `;
@@ -1821,10 +2227,86 @@
         function generateInventoryTab(sheet) {
             return `
                 <div class="space-y-6">
+                    <!-- Equipment -->
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Equipment</h3>
-                        <div class="text-gray-300">No equipment configured</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Equipment & Inventory</h3>
+                        ${sheet.inventory && sheet.inventory.length > 0 ? `
+                            <div class="space-y-3">
+                                ${sheet.inventory.map(item => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="font-semibold text-white">${item.name}</div>
+                                            <div class="text-sm text-yellow-400">${item.quantity > 1 ? `×${item.quantity}` : ''}</div>
+                                        </div>
+                                        ${item.description ? `<div class="text-sm text-gray-300 mb-2">${item.description}</div>` : ''}
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-gray-400">
+                                            ${item.type ? `<div>Type: ${item.type}</div>` : ''}
+                                            ${item.weight ? `<div>Weight: ${item.weight} lbs</div>` : ''}
+                                            ${item.value ? `<div>Value: ${item.value}</div>` : ''}
+                                            ${item.rarity ? `<div>Rarity: ${item.rarity}</div>` : ''}
+                                        </div>
+                                        ${item.properties && item.properties.length > 0 ? `
+                                            <div class="mt-2 text-xs text-blue-400">
+                                                Properties: ${item.properties.join(', ')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <div class="text-gray-300">No equipment configured</div>
+                        `}
                     </div>
+
+                    <!-- Currency -->
+                    ${sheet.currency ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Currency</h3>
+                            <div class="grid grid-cols-5 gap-4">
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-yellow-400">${sheet.currency.pp || 0}</div>
+                                    <div class="text-xs text-gray-400">Platinum</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-yellow-400">${sheet.currency.gp || 0}</div>
+                                    <div class="text-xs text-gray-400">Gold</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-gray-300">${sheet.currency.ep || 0}</div>
+                                    <div class="text-xs text-gray-400">Electrum</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-gray-300">${sheet.currency.sp || 0}</div>
+                                    <div class="text-xs text-gray-400">Silver</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-orange-400">${sheet.currency.cp || 0}</div>
+                                    <div class="text-xs text-gray-400">Copper</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Carrying Capacity -->
+                    ${sheet.carryingCapacity ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Carrying Capacity</h3>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-white">${sheet.carryingCapacity.current || 0}</div>
+                                    <div class="text-xs text-gray-400">Current Weight</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-white">${sheet.carryingCapacity.max || 0}</div>
+                                    <div class="text-xs text-gray-400">Max Capacity</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-white">${sheet.carryingCapacity.encumbered || 0}</div>
+                                    <div class="text-xs text-gray-400">Encumbered At</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -1832,9 +2314,128 @@
         function generateFeaturesTab(sheet) {
             return `
                 <div class="space-y-6">
+                    <!-- Class Features -->
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Features & Traits</h3>
-                        <div class="text-gray-300">No features configured</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Class Features & Abilities</h3>
+                        ${sheet.features && sheet.features.length > 0 ? `
+                            <div class="space-y-3">
+                                ${sheet.features.map(feature => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="font-semibold text-white">${feature.name}</div>
+                                            ${feature.type ? `<div class="text-sm text-blue-400">${feature.type}</div>` : ''}
+                                        </div>
+                                        <div class="text-sm text-gray-300 mb-2">${feature.description || 'No description available'}</div>
+                                        ${feature.uses ? `
+                                            <div class="text-xs text-yellow-400">
+                                                Uses: ${feature.uses.current || 0}/${feature.uses.max || 0} ${feature.uses.resetOn ? `(Resets on ${feature.uses.resetOn})` : ''}
+                                            </div>
+                                        ` : ''}
+                                        ${feature.level ? `
+                                            <div class="text-xs text-gray-400">Available at level ${feature.level}</div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <div class="text-gray-300">No class features configured</div>
+                        `}
+                    </div>
+
+                    <!-- Racial Traits -->
+                    ${sheet.racialTraits && sheet.racialTraits.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Racial Traits</h3>
+                            <div class="space-y-3">
+                                ${sheet.racialTraits.map(trait => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="font-semibold text-white mb-2">${trait.name}</div>
+                                        <div class="text-sm text-gray-300">${trait.description || 'No description available'}</div>
+                                        ${trait.uses ? `
+                                            <div class="text-xs text-yellow-400 mt-2">
+                                                Uses: ${trait.uses.current || 0}/${trait.uses.max || 0} ${trait.uses.resetOn ? `(Resets on ${trait.uses.resetOn})` : ''}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Feats -->
+                    ${sheet.feats && sheet.feats.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Feats</h3>
+                            <div class="space-y-3">
+                                ${sheet.feats.map(feat => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="font-semibold text-white mb-2">${feat.name}</div>
+                                        <div class="text-sm text-gray-300">${feat.description || 'No description available'}</div>
+                                        ${feat.prerequisite ? `
+                                            <div class="text-xs text-blue-400 mt-2">Prerequisite: ${feat.prerequisite}</div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Saving Throws -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Saving Throws</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            ${Object.entries(sheet.stats).map(([stat, score]) => {
+                                const modifier = Math.floor((score - 10) / 2);
+                                const proficient = sheet.savingThrows[stat];
+                                const total = modifier + (proficient ? sheet.proficiencyBonus : 0);
+                                const sign = total >= 0 ? '+' : '';
+                                return `
+                                    <div class="bg-gray-700 rounded p-2 text-center">
+                                        <div class="text-xs text-gray-400 uppercase">${stat}</div>
+                                        <div class="text-lg font-bold text-white">${sign}${total}</div>
+                                        ${proficient ? '<div class="text-xs text-green-400">Proficient</div>' : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Skills</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            ${Object.entries(sheet.skills).map(([skill, proficiency]) => {
+                                // Map skills to their ability scores
+                                const skillAbilities = {
+                                    acrobatics: 'dex', animalHandling: 'wis', arcana: 'int', athletics: 'str',
+                                    deception: 'cha', history: 'int', insight: 'wis', intimidation: 'cha',
+                                    investigation: 'int', medicine: 'wis', nature: 'int', perception: 'wis',
+                                    performance: 'cha', persuasion: 'cha', religion: 'int', sleightOfHand: 'dex',
+                                    stealth: 'dex', survival: 'wis'
+                                };
+                                const ability = skillAbilities[skill] || 'str';
+                                const abilityMod = Math.floor((sheet.stats[ability] - 10) / 2);
+                                const profBonus = proficiency === 2 ? sheet.proficiencyBonus * 2 : 
+                                                  proficiency === 1 ? sheet.proficiencyBonus : 0;
+                                const total = abilityMod + profBonus;
+                                const sign = total >= 0 ? '+' : '';
+                                const skillName = skill.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                                
+                                return `
+                                    <div class="flex justify-between items-center bg-gray-700 rounded p-2">
+                                        <div class="text-sm text-white">
+                                            ${skillName} <span class="text-xs text-gray-400">(${ability.toUpperCase()})</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="text-sm font-bold text-white">${sign}${total}</div>
+                                            ${proficiency === 2 ? '<div class="text-xs text-yellow-400">E</div>' : 
+                                              proficiency === 1 ? '<div class="text-xs text-green-400">P</div>' : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div class="text-xs text-gray-400 mt-2">P = Proficient, E = Expertise</div>
                     </div>
                 </div>
             `;
@@ -1843,10 +2444,109 @@
         function generateDescriptionTab(sheet) {
             return `
                 <div class="space-y-6">
+                    <!-- Character Description -->
                     <div class="stat-block rounded-lg p-4">
                         <h3 class="text-lg font-semibold text-green-400 mb-3">Character Description</h3>
-                        <div class="text-gray-300">No description provided</div>
+                        ${sheet.backstory ? `
+                            <div class="mb-4">
+                                <h4 class="text-md font-semibold text-yellow-400 mb-2">Backstory</h4>
+                                <div class="text-gray-300 whitespace-pre-wrap">${sheet.backstory}</div>
+                            </div>
+                        ` : ''}
+                        ${sheet.personality && (sheet.personality.traits.length > 0 || 
+                          sheet.personality.ideals.length > 0 || 
+                          sheet.personality.bonds.length > 0 || 
+                          sheet.personality.flaws.length > 0) ? `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${sheet.personality.traits.length > 0 ? `
+                                    <div>
+                                        <h4 class="text-md font-semibold text-yellow-400 mb-2">Personality Traits</h4>
+                                        <ul class="text-gray-300 space-y-1">
+                                            ${sheet.personality.traits.map(trait => `<li>• ${trait}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                                ${sheet.personality.ideals.length > 0 ? `
+                                    <div>
+                                        <h4 class="text-md font-semibold text-yellow-400 mb-2">Ideals</h4>
+                                        <ul class="text-gray-300 space-y-1">
+                                            ${sheet.personality.ideals.map(ideal => `<li>• ${ideal}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                                ${sheet.personality.bonds.length > 0 ? `
+                                    <div>
+                                        <h4 class="text-md font-semibold text-yellow-400 mb-2">Bonds</h4>
+                                        <ul class="text-gray-300 space-y-1">
+                                            ${sheet.personality.bonds.map(bond => `<li>• ${bond}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                                ${sheet.personality.flaws.length > 0 ? `
+                                    <div>
+                                        <h4 class="text-md font-semibold text-yellow-400 mb-2">Flaws</h4>
+                                        <ul class="text-gray-300 space-y-1">
+                                            ${sheet.personality.flaws.map(flaw => `<li>• ${flaw}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                        ${!sheet.backstory && (!sheet.personality || 
+                          (sheet.personality.traits.length === 0 && 
+                           sheet.personality.ideals.length === 0 && 
+                           sheet.personality.bonds.length === 0 && 
+                           sheet.personality.flaws.length === 0)) ? `
+                            <div class="text-gray-300">No character description provided</div>
+                        ` : ''}
                     </div>
+
+                    <!-- Relationships -->
+                    ${(sheet.allies || sheet.enemies) ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Relationships</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${sheet.allies ? `
+                                    <div>
+                                        <h4 class="text-md font-semibold text-yellow-400 mb-2">Allies & Organizations</h4>
+                                        <div class="text-gray-300 whitespace-pre-wrap">${sheet.allies}</div>
+                                    </div>
+                                ` : ''}
+                                ${sheet.enemies ? `
+                                    <div>
+                                        <h4 class="text-md font-semibold text-yellow-400 mb-2">Enemies & Rivals</h4>
+                                        <div class="text-gray-300 whitespace-pre-wrap">${sheet.enemies}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Organizations -->
+                    ${sheet.organizations && (sheet.organizations.faction || sheet.organizations.rank) ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Organizations & Factions</h3>
+                            <div class="space-y-2">
+                                ${sheet.organizations.faction ? `
+                                    <div><span class="text-gray-400">Faction:</span> <span class="text-white">${sheet.organizations.faction}</span></div>
+                                ` : ''}
+                                ${sheet.organizations.rank ? `
+                                    <div><span class="text-gray-400">Rank:</span> <span class="text-white">${sheet.organizations.rank}</span></div>
+                                ` : ''}
+                                ${sheet.organizations.renown > 0 ? `
+                                    <div><span class="text-gray-400">Renown:</span> <span class="text-white">${sheet.organizations.renown}</span></div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Treasures & Important Items -->
+                    ${sheet.treasures ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Treasures & Important Items</h3>
+                            <div class="text-gray-300 whitespace-pre-wrap">${sheet.treasures}</div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -1854,10 +2554,50 @@
         function generateNotesTab(sheet) {
             return `
                 <div class="space-y-6">
+                    <!-- Session Notes -->
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Notes</h3>
-                        <textarea class="w-full h-64 bg-gray-700 text-white rounded p-3 resize-none" placeholder="Enter your notes here...">${sheet.notes}</textarea>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Session Notes</h3>
+                        <textarea class="w-full h-64 bg-gray-700 text-white rounded p-3 resize-none" 
+                                  placeholder="Enter your session notes, thoughts, reminders, and important information here...">${sheet.notes || ''}</textarea>
                     </div>
+
+                    <!-- Quick Reference -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Quick Reference</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <h4 class="text-yellow-400 font-semibold mb-2">Combat Actions</h4>
+                                <ul class="text-gray-300 space-y-1">
+                                    <li>• Attack: Make weapon/spell attack</li>
+                                    <li>• Cast Spell: 1 action spells</li>
+                                    <li>• Dash: Double movement speed</li>
+                                    <li>• Dodge: Advantage on Dex saves</li>
+                                    <li>• Help: Give ally advantage</li>
+                                    <li>• Hide: Stealth check</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-yellow-400 font-semibold mb-2">Conditions</h4>
+                                <ul class="text-gray-300 space-y-1">
+                                    <li>• Advantage: Roll twice, take higher</li>
+                                    <li>• Disadvantage: Roll twice, take lower</li>
+                                    <li>• Blinded: Auto-fail sight checks</li>
+                                    <li>• Charmed: Can't attack charmer</li>
+                                    <li>• Frightened: Disadvantage while can see source</li>
+                                    <li>• Prone: Movement cost +1/2, melee advantage</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Character Reminders -->
+                    ${sheet.characterReminders ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Character Reminders</h3>
+                            <textarea class="w-full h-32 bg-gray-700 text-white rounded p-3 resize-none" 
+                                      placeholder="Character-specific reminders, special abilities, roleplay notes...">${sheet.characterReminders || ''}</textarea>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -1865,10 +2605,161 @@
         function generateExtrasTab(sheet) {
             return `
                 <div class="space-y-6">
-                    <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Extras</h3>
-                        <div class="text-gray-300">No extras configured</div>
-                    </div>
+                    <!-- Companions & Pets -->
+                    ${sheet.companions && sheet.companions.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Companions & Pets</h3>
+                            <div class="space-y-3">
+                                ${sheet.companions.map(companion => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="font-semibold text-white">${companion.name}</div>
+                                            <div class="text-sm text-blue-400">${companion.type || 'Companion'}</div>
+                                        </div>
+                                        ${companion.description ? `<div class="text-sm text-gray-300 mb-2">${companion.description}</div>` : ''}
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                            ${companion.ac ? `<div class="text-gray-400">AC: <span class="text-white">${companion.ac}</span></div>` : ''}
+                                            ${companion.hp ? `<div class="text-gray-400">HP: <span class="text-white">${companion.hp}</span></div>` : ''}
+                                            ${companion.speed ? `<div class="text-gray-400">Speed: <span class="text-white">${companion.speed}</span></div>` : ''}
+                                            ${companion.level ? `<div class="text-gray-400">Level: <span class="text-white">${companion.level}</span></div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Wild Shape Forms (for Druids) -->
+                    ${sheet.wildShapeForms && sheet.wildShapeForms.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Wild Shape Forms</h3>
+                            <div class="space-y-3">
+                                ${sheet.wildShapeForms.map(form => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="font-semibold text-white">${form.name}</div>
+                                            <div class="text-sm text-blue-400">CR ${form.challengeRating || '?'}</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                            ${form.ac ? `<div class="text-gray-400">AC: <span class="text-white">${form.ac}</span></div>` : ''}
+                                            ${form.hp ? `<div class="text-gray-400">HP: <span class="text-white">${form.hp}</span></div>` : ''}
+                                            ${form.speed ? `<div class="text-gray-400">Speed: <span class="text-white">${form.speed}</span></div>` : ''}
+                                            ${form.size ? `<div class="text-gray-400">Size: <span class="text-white">${form.size}</span></div>` : ''}
+                                        </div>
+                                        ${form.abilities && form.abilities.length > 0 ? `
+                                            <div class="mt-2">
+                                                <div class="text-xs text-yellow-400 mb-1">Abilities:</div>
+                                                <div class="text-xs text-gray-300">${form.abilities.join(', ')}</div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Magical Items & Artifacts -->
+                    ${sheet.magicalItems && sheet.magicalItems.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Magical Items & Artifacts</h3>
+                            <div class="space-y-3">
+                                ${sheet.magicalItems.map(item => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="font-semibold text-white">${item.name}</div>
+                                            <div class="text-sm text-purple-400">${item.rarity || 'Unknown Rarity'}</div>
+                                        </div>
+                                        <div class="text-sm text-gray-300 mb-2">${item.description || 'No description available'}</div>
+                                        ${item.properties && item.properties.length > 0 ? `
+                                            <div class="text-xs text-blue-400">
+                                                Properties: ${item.properties.join(', ')}
+                                            </div>
+                                        ` : ''}
+                                        ${item.charges ? `
+                                            <div class="text-xs text-yellow-400 mt-1">
+                                                Charges: ${item.charges.current || 0}/${item.charges.max || 0}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Custom Abilities -->
+                    ${sheet.customAbilities && sheet.customAbilities.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Custom Abilities</h3>
+                            <div class="space-y-3">
+                                ${sheet.customAbilities.map(ability => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="font-semibold text-white mb-2">${ability.name}</div>
+                                        <div class="text-sm text-gray-300 mb-2">${ability.description || 'No description available'}</div>
+                                        ${ability.uses ? `
+                                            <div class="text-xs text-yellow-400">
+                                                Uses: ${ability.uses.current || 0}/${ability.uses.max || 0} ${ability.uses.resetOn ? `(Resets on ${ability.uses.resetOn})` : ''}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Vehicles & Mounts -->
+                    ${sheet.vehicles && sheet.vehicles.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Vehicles & Mounts</h3>
+                            <div class="space-y-3">
+                                ${sheet.vehicles.map(vehicle => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="font-semibold text-white">${vehicle.name}</div>
+                                            <div class="text-sm text-blue-400">${vehicle.type || 'Vehicle'}</div>
+                                        </div>
+                                        <div class="text-sm text-gray-300 mb-2">${vehicle.description || 'No description available'}</div>
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                            ${vehicle.speed ? `<div class="text-gray-400">Speed: <span class="text-white">${vehicle.speed}</span></div>` : ''}
+                                            ${vehicle.ac ? `<div class="text-gray-400">AC: <span class="text-white">${vehicle.ac}</span></div>` : ''}
+                                            ${vehicle.hp ? `<div class="text-gray-400">HP: <span class="text-white">${vehicle.hp}</span></div>` : ''}
+                                            ${vehicle.capacity ? `<div class="text-gray-400">Capacity: <span class="text-white">${vehicle.capacity}</span></div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Additional Resources -->
+                    ${sheet.additionalResources && sheet.additionalResources.length > 0 ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Additional Resources</h3>
+                            <div class="space-y-2">
+                                ${sheet.additionalResources.map(resource => `
+                                    <div class="bg-gray-700 rounded p-2">
+                                        <div class="flex justify-between items-center">
+                                            <div class="text-white font-medium">${resource.name}</div>
+                                            <div class="text-sm text-yellow-400">${resource.current || 0}/${resource.max || 0}</div>
+                                        </div>
+                                        ${resource.description ? `
+                                            <div class="text-xs text-gray-300 mt-1">${resource.description}</div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${!sheet.companions && !sheet.wildShapeForms && !sheet.magicalItems && 
+                      !sheet.customAbilities && !sheet.vehicles && !sheet.additionalResources ? `
+                        <div class="stat-block rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-green-400 mb-3">Extras</h3>
+                            <div class="text-gray-300">No additional features configured</div>
+                            <div class="text-sm text-gray-400 mt-2">
+                                This tab can display companions, wild shape forms, magical items, custom abilities, vehicles, and other special features.
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -3318,6 +4209,33 @@
             });
             
             // Dragging functionality
+            // 
+            // KNOWN ISSUE: Module drag and drop position misalignment
+            // 
+            // PROBLEM: While dragging follows mouse movements correctly, modules may not land 
+            // in the exact position where the mouse was released, causing visual misalignment.
+            //
+            // ROOT CAUSE: Coordinate system mismatch between position capture and position setting:
+            // 1. Initial position is captured using getBoundingClientRect() which returns 
+            //    viewport-relative coordinates (includes current scroll position)
+            // 2. Mouse movement deltas are calculated correctly in screen coordinates
+            // 3. Final position is applied using style.left/top which sets absolute positioning
+            // 4. If browser window has scrolled, or there are transform/zoom differences between
+            //    the coordinate systems, the calculated position won't match the visual expectation
+            //
+            // DETAILED ANALYSIS:
+            // - getBoundingClientRect() returns position relative to the viewport
+            // - clientX/clientY are relative to the browser viewport
+            // - When we calculate newX = moduleStartX + deltaX, we assume both coordinate systems align
+            // - Any discrepancy (scroll offset, transform scaling, viewport changes) causes misalignment
+            // - The viewport bounds clamping (lines 3391-3392) can also introduce position drift
+            //
+            // POTENTIAL SOLUTIONS:
+            // 1. Use consistent coordinate system throughout (either all viewport or all document)
+            // 2. Account for document scroll offset in calculations
+            // 3. Use transform: translate() instead of left/top for better precision
+            // 4. Implement position validation after setting to detect and correct misalignment
+            //
             let isDragging = false;
             let dragStartX = 0;
             let dragStartY = 0;
@@ -3334,9 +4252,13 @@
                 moduleElement.classList.add('dragging');
                 moduleElement.style.zIndex = ++nextModuleZIndex;
                 
+                // Capture initial mouse position in viewport coordinates
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
                 
+                // Capture initial module position relative to viewport
+                // NOTE: This is where potential misalignment begins - getBoundingClientRect()
+                // returns viewport-relative coordinates but we later set absolute position
                 const rect = moduleElement.getBoundingClientRect();
                 moduleStartX = rect.left;
                 moduleStartY = rect.top;
@@ -3377,9 +4299,14 @@
             // Global mouse move handler for this module
             const mouseMoveHandler = (e) => {
                 if (isDragging) {
+                    // Calculate movement delta in viewport coordinates
                     const deltaX = e.clientX - dragStartX;
                     const deltaY = e.clientY - dragStartY;
                     
+                    // Apply delta to initial position
+                    // ISSUE: This calculation assumes coordinate system consistency
+                    // but moduleStartX/Y came from getBoundingClientRect() (viewport-relative)
+                    // while we're setting absolute position with style.left/top
                     const newX = moduleStartX + deltaX;
                     const newY = moduleStartY + deltaY;
                     
@@ -3388,13 +4315,18 @@
                     const viewportHeight = window.innerHeight;
                     const moduleRect = moduleElement.getBoundingClientRect();
                     
+                    // Apply viewport constraints - this clamping can introduce additional position drift
+                    // if the module size calculation is inconsistent with the coordinate system
                     const clampedX = Math.max(0, Math.min(newX, viewportWidth - moduleRect.width));
                     const clampedY = Math.max(0, Math.min(newY, viewportHeight - moduleRect.height));
                     
+                    // Set final position using absolute positioning
+                    // CRITICAL POINT: This is where misalignment can occur if coordinate systems don't match
                     moduleElement.style.left = clampedX + 'px';
                     moduleElement.style.top = clampedY + 'px';
                     
                     // Update state (with error checking)
+                    // Note: We store the clamped position, which may differ from user's intended drop location
                     if (moduleState[moduleName]) {
                         moduleState[moduleName].position = { x: clampedX, y: clampedY };
                     }
