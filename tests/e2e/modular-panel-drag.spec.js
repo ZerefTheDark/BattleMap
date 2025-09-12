@@ -114,11 +114,12 @@ test.describe('Modular Panel Drag Functionality', () => {
     // Get the header element
     const header = page.locator('.bg-gray-900.border-b-2.border-green-500');
     
-    // Check that header has p-1 class (reduced from p-2 by twice the previous reduction amount)
-    await expect(header).toHaveClass(/p-1/);
+    // Check that header has py-0 px-1 classes (reduced from p-1 by twice the previous reduction amount)
+    await expect(header).toHaveClass(/py-0/);
+    await expect(header).toHaveClass(/px-1/);
     
-    // Verify header doesn't have the old p-2 class
-    await expect(header).not.toHaveClass(/p-2/);
+    // Verify header doesn't have the old p-1 class
+    await expect(header).not.toHaveClass(/p-1/);
   });
 
   test('should verify drag positioning accuracy', async ({ page }) => {
@@ -151,5 +152,41 @@ test.describe('Modular Panel Drag Functionality', () => {
     // Verify it's not jumping to incorrect locations
     expect(finalBox.x).not.toBe(initialBox.x);
     expect(finalBox.y).not.toBe(initialBox.y);
+    
+    // CRITICAL: Verify no major jump occurred (should not move more than 200px from expected position)
+    expect(Math.abs(finalBox.x - targetX)).toBeLessThan(200);
+    expect(Math.abs(finalBox.y - targetY)).toBeLessThan(200);
+  });
+
+  test('should detect and prevent drag positioning jumps', async ({ page }) => {
+    // Open control center and party module
+    await page.click('#control-center-toggle');
+    await page.click('[data-module="party"]');
+    
+    const partyModule = page.locator('#module-party');
+    const partyHeader = page.locator('#module-party .module-header');
+    await expect(partyHeader).toBeVisible();
+    
+    // Get initial position
+    const initialBox = await partyModule.boundingBox();
+    
+    // Perform a small drag movement
+    await partyHeader.hover();
+    await page.mouse.down();
+    await page.mouse.move(initialBox.x + 50, initialBox.y + 30);
+    
+    // Check intermediate position during drag - should not have jumped
+    const midDragBox = await partyModule.boundingBox();
+    
+    // The module should not have moved more than ~60px from initial position for a 50px drag
+    expect(Math.abs(midDragBox.x - initialBox.x)).toBeLessThan(80);
+    expect(Math.abs(midDragBox.y - initialBox.y)).toBeLessThan(80);
+    
+    await page.mouse.up();
+    
+    // Final position should be close to where we dragged it
+    const finalBox = await partyModule.boundingBox();
+    expect(Math.abs(finalBox.x - (initialBox.x + 50))).toBeLessThan(30);
+    expect(Math.abs(finalBox.y - (initialBox.y + 30))).toBeLessThan(30);
   });
 });

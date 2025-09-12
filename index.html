@@ -867,7 +867,7 @@
         </div>
         
         <!-- Top Toolbar -->
-        <div class="bg-gray-900 border-b-2 border-green-500 shadow-lg p-1 flex items-center justify-between gap-4 relative">
+        <div class="bg-gray-900 border-b-2 border-green-500 shadow-lg py-0 px-1 flex items-center justify-between gap-4 relative">
             <div class="decorative-border absolute inset-x-0 bottom-0"></div>
             
             <!-- Title and Info -->
@@ -3776,10 +3776,12 @@
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
                 
+                // FIXED: Use current CSS position values instead of getBoundingClientRect()
+                // to prevent coordinate system mismatch causing jump behavior
+                moduleStartX = parseInt(moduleElement.style.left) || 0;
+                moduleStartY = parseInt(moduleElement.style.top) || 0;
+                
                 const rect = moduleElement.getBoundingClientRect();
-                moduleStartX = rect.left;
-                moduleStartY = rect.top;
-                // Fixed: Cache dimensions to prevent positioning glitches during drag
                 moduleStartWidth = rect.width;
                 moduleStartHeight = rect.height;
                 
