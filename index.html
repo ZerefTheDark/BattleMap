@@ -787,9 +787,6 @@
                     <button class="btn-tab" data-panel="initiative" role="tab" aria-selected="false" aria-controls="panel-content" aria-label="Initiative tracker tab">
                         <span class="icon">⚡</span> Initiative
                     </button>
-                    <button class="btn-tab" data-panel="dice" role="tab" aria-selected="false" aria-controls="panel-content" aria-label="Dice roller tab">
-                        <span class="icon">🎲</span> Dice
-                    </button>
                     <button class="btn-tab" data-panel="tokens" role="tab" aria-selected="false" aria-controls="panel-content" aria-label="Token maker tab">
                         <span class="icon">🎨</span> Tokens
                     </button>
@@ -1587,8 +1584,6 @@
                     return generatePartyPanel();
                 case 'initiative':
                     return generateInitiativePanel();
-                case 'dice':
-                    return generateDicePanel();
                 case 'tokens':
                     return generateTokenMakerPanel();
                 default:
@@ -1669,55 +1664,6 @@
             `;
         }
         
-        function generateDicePanel() {
-            return `
-                <div class="space-y-4">
-                    <h3 class="text-lg font-semibold text-green-400">Dice Roller</h3>
-                    
-                    <!-- Custom Dice Input -->
-                    <div class="space-y-2">
-                        <label class="text-sm text-gray-300">Custom Roll:</label>
-                        <div class="flex gap-2">
-                            <input id="custom-dice-input" type="text" placeholder="e.g., 2d6+3" class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm">
-                            <button id="roll-custom-dice" class="btn-primary" aria-label="Roll custom dice formula">Roll</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Standard Dice -->
-                    <div class="space-y-2">
-                        <label class="text-sm text-gray-300">Standard Dice:</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button class="btn-dice" data-dice="1d4" aria-label="Roll four-sided die">d4</button>
-                            <button class="btn-dice" data-dice="1d6" aria-label="Roll six-sided die">d6</button>
-                            <button class="btn-dice" data-dice="1d8" aria-label="Roll eight-sided die">d8</button>
-                            <button class="btn-dice" data-dice="1d10" aria-label="Roll ten-sided die">d10</button>
-                            <button class="btn-dice" data-dice="1d12" aria-label="Roll twelve-sided die">d12</button>
-                            <button class="btn-dice" data-dice="1d20" aria-label="Roll twenty-sided die">d20</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Multiple Dice -->
-                    <div class="space-y-2">
-                        <label class="text-sm text-gray-300">Multiple Dice:</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button class="btn-dice" data-dice="2d6" aria-label="Roll two six-sided dice">2d6</button>
-                            <button class="btn-dice" data-dice="3d6" aria-label="Roll three six-sided dice">3d6</button>
-                            <button class="btn-dice" data-dice="4d6" aria-label="Roll four six-sided dice">4d6</button>
-                            <button class="btn-dice" data-dice="2d20" aria-label="Roll two twenty-sided dice">2d20</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Recent Rolls -->
-                    <div class="space-y-2">
-                        <label class="text-sm text-gray-300">Recent Rolls:</label>
-                        <div id="recent-rolls" class="bg-gray-800 rounded p-3 h-32 overflow-y-auto text-xs">
-                            <div class="text-gray-400">No recent rolls</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
         function generateTokenMakerPanel() {
             return `
                 <div class="space-y-4">
@@ -1791,9 +1737,6 @@
                 case 'initiative':
                     setupInitiativeHandlers();
                     break;
-                case 'dice':
-                    setupDiceHandlers();
-                    break;
                 case 'tokens':
                     setupTokenMakerHandlers();
                     break;
@@ -1841,35 +1784,6 @@
                     nextTurn();
                 });
             }
-        }
-        
-        function setupDiceHandlers() {
-            const customInput = document.getElementById('custom-dice-input');
-            const rollBtn = document.getElementById('roll-custom-dice');
-            
-            if (customInput && rollBtn) {
-                rollBtn.addEventListener('click', () => {
-                    rollCustomDice();
-                });
-                
-                customInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        rollCustomDice();
-                    }
-                });
-            }
-            
-            // Dice buttons (consolidated from static-dice-btn)
-            document.querySelectorAll('.btn-dice').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const diceString = btn.dataset.dice;
-                    const result = rollDice(diceString);
-                    if (result) {
-                        addToRecentRolls(`${result.diceString}: ${result.total}`);
-                        addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
-                    }
-                });
-            });
         }
         
         function setupTokenMakerHandlers() {
@@ -2028,37 +1942,6 @@
         }
         
         // Dice Functions
-        function rollCustomDice() {
-            const input = document.getElementById('custom-dice-input');
-            const diceString = input.value.trim();
-            
-            if (diceString) {
-                const result = rollDice(diceString);
-                if (result) {
-                    addToRecentRolls(`${result.diceString}: ${result.total}`);
-                    addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
-                    input.value = '';
-                } else {
-                    addChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
-                }
-            }
-        }
-        
-        function addToRecentRolls(rollText) {
-            const recentRolls = document.getElementById('recent-rolls');
-            if (recentRolls) {
-                const rollDiv = document.createElement('div');
-                rollDiv.className = 'text-yellow-400 mb-1';
-                rollDiv.textContent = rollText;
-                recentRolls.appendChild(rollDiv);
-                recentRolls.scrollTop = recentRolls.scrollHeight;
-                
-                // Keep only last 10 rolls
-                while (recentRolls.children.length > 10) {
-                    recentRolls.removeChild(recentRolls.firstChild);
-                }
-            }
-        }
         
         // Token Maker Functions
         function createTokenFromMaker() {
@@ -2308,51 +2191,7 @@
             };
         }
         
-        // Note: Chat functionality moved to Control Center
-        // Legacy sendChatMessage for compatibility
-        function sendChatMessage() {
-            if (chatInput && chatInput.value) {
-                const message = chatInput.value.trim();
-                if (!message) return;
-                
-                if (message.startsWith('/roll ') || message.startsWith('/r ')) {
-                    const diceString = message.split(' ')[1];
-                    const result = rollDice(diceString);
-                    if (result) {
-                        addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
-                    } else {
-                        addChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
-                    }
-                } else {
-                    addChatMessage(`Player: ${message}`, 'user');
-                }
-                
-                chatInput.value = '';
-            }
-        }
-        
-        // Setup legacy chat event listeners if elements exist
-        if (sendButton) {
-            sendButton.addEventListener('click', sendChatMessage);
-        }
-        if (chatInput) {
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendChatMessage();
-                }
-            });
-        }
-        
-        // Quick dice buttons
-        document.querySelectorAll('.dice-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const diceString = btn.dataset.dice;
-                const result = rollDice(diceString);
-                if (result) {
-                    addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}] = ${result.total}`, 'dice');
-                }
-            });
-        });
+        // Note: All dice and chat functionality now handled by Control Center
         
         // Control Center Functionality
         const controlCenter = document.getElementById('control-center');
@@ -2473,32 +2312,52 @@
                         <div class="space-y-4">
                             <h4 class="text-lg font-semibold text-green-400">Dice Roller</h4>
                             
-                            <div class="grid grid-cols-3 gap-2">
-                                <button class="btn-dice" data-dice="1d4">d4</button>
-                                <button class="btn-dice" data-dice="1d6">d6</button>
-                                <button class="btn-dice" data-dice="1d8">d8</button>
-                                <button class="btn-dice" data-dice="1d10">d10</button>
-                                <button class="btn-dice" data-dice="1d12">d12</button>
-                                <button class="btn-dice" data-dice="1d20">d20</button>
-                            </div>
-                            
-                            <div>
-                                <label class="text-sm text-gray-300 block mb-1">Custom Roll:</label>
+                            <!-- Custom Dice Input -->
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300">Custom Roll:</label>
                                 <div class="flex gap-2">
                                     <input 
                                         id="control-custom-dice-input" 
                                         type="text" 
-                                        placeholder="2d6+3, 1d20+5, etc." 
+                                        placeholder="e.g., 2d6+3, 1d20+5" 
                                         class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm"
                                     >
-                                    <button id="control-roll-custom" class="btn-primary">
+                                    <button id="control-roll-custom" class="btn-primary" aria-label="Roll custom dice formula">
                                         <span class="icon">🎲</span> Roll
                                     </button>
                                 </div>
                             </div>
                             
-                            <div id="control-recent-rolls" class="bg-gray-800 rounded p-3 max-h-32 overflow-y-auto">
-                                <div class="text-gray-400 text-xs">Recent rolls will appear here</div>
+                            <!-- Standard Dice -->
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300">Standard Dice:</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button class="btn-dice" data-dice="1d4" aria-label="Roll four-sided die">d4</button>
+                                    <button class="btn-dice" data-dice="1d6" aria-label="Roll six-sided die">d6</button>
+                                    <button class="btn-dice" data-dice="1d8" aria-label="Roll eight-sided die">d8</button>
+                                    <button class="btn-dice" data-dice="1d10" aria-label="Roll ten-sided die">d10</button>
+                                    <button class="btn-dice" data-dice="1d12" aria-label="Roll twelve-sided die">d12</button>
+                                    <button class="btn-dice" data-dice="1d20" aria-label="Roll twenty-sided die">d20</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Multiple Dice -->
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300">Multiple Dice:</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button class="btn-dice" data-dice="2d6" aria-label="Roll two six-sided dice">2d6</button>
+                                    <button class="btn-dice" data-dice="3d6" aria-label="Roll three six-sided dice">3d6</button>
+                                    <button class="btn-dice" data-dice="4d6" aria-label="Roll four six-sided dice">4d6</button>
+                                    <button class="btn-dice" data-dice="2d20" aria-label="Roll two twenty-sided dice">2d20</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Rolls -->
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300">Recent Rolls:</label>
+                                <div id="control-recent-rolls" class="bg-gray-800 rounded p-3 h-32 overflow-y-auto text-xs">
+                                    <div class="text-gray-400">No recent rolls</div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2506,15 +2365,12 @@
                     return `
                         <div class="space-y-4">
                             <h4 class="text-lg font-semibold text-green-400">Quick Panel Access</h4>
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-3 gap-2">
                                 <button class="btn-secondary control-panel-btn" data-panel="party">
                                     <span class="icon">👥</span> Party
                                 </button>
                                 <button class="btn-secondary control-panel-btn" data-panel="initiative">
                                     <span class="icon">⚡</span> Initiative
-                                </button>
-                                <button class="btn-secondary control-panel-btn" data-panel="dice">
-                                    <span class="icon">🎲</span> Dice
                                 </button>
                                 <button class="btn-secondary control-panel-btn" data-panel="tokens">
                                     <span class="icon">🎨</span> Tokens
@@ -2709,6 +2565,11 @@
                 rollDiv.textContent = rollText;
                 recentRolls.appendChild(rollDiv);
                 recentRolls.scrollTop = recentRolls.scrollHeight;
+                
+                // Keep only last 10 rolls
+                while (recentRolls.children.length > 10) {
+                    recentRolls.removeChild(recentRolls.firstChild);
+                }
             }
         }
         
