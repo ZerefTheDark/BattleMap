@@ -134,6 +134,7 @@
             cursor: grabbing;
         }
         
+        /* Legacy styles - kept for any remaining usage */
         .tool-button {
             transition: all 0.2s ease;
         }
@@ -331,7 +332,7 @@
             user-select: none;
         }
         
-        /* Panel Tab Styles */
+        /* Legacy panel tab styles - keeping for compatibility */
         .panel-tab {
             transition: all 0.2s ease;
             cursor: pointer;
@@ -350,23 +351,264 @@
             background: linear-gradient(145deg, #1f2937, #374151);
         }
         
+        /* ================================================
+           CANONICAL BUTTON COMPONENT SYSTEM
+           ================================================ */
+
+        /* PRIMARY ACTION BUTTONS - For main interactive elements */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:focus {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* TOOL BUTTONS - For toolbar selection */
+        .btn-tool {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            background: transparent;
+            color: white;
+            border: 1px solid transparent;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 3rem;
+        }
+
+        .btn-tool:hover {
+            background: rgba(75, 85, 99, 0.5);
+            border-color: rgba(107, 114, 128, 0.5);
+        }
+
+        .btn-tool.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-color: #2563eb;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-tool:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* DICE BUTTONS - Consolidated implementation */
+        .btn-dice {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0.75rem;
+            background: #374151;
+            color: white;
+            border: 1px solid #4b5563;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 2.5rem;
+        }
+
+        .btn-dice:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+            transform: translateY(-1px);
+        }
+
+        .btn-dice:active {
+            background: #10b981;
+            border-color: #059669;
+            transform: translateY(0);
+        }
+
+        .btn-dice:focus {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+        }
+
+        /* TAB BUTTONS - For panel navigation */
+        .btn-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            background: transparent;
+            color: #d1d5db;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+
+        .btn-tab:hover {
+            background: rgba(16, 185, 129, 0.1);
+            color: white;
+        }
+
+        .btn-tab.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: white;
+            border-bottom-color: #fbbf24;
+        }
+
+        .btn-tab:focus {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+        }
+
+        /* ICON BUTTONS - For small utility actions */
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            background: transparent;
+            color: #9ca3af;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        .btn-icon:hover {
+            color: white;
+            background: rgba(75, 85, 99, 0.3);
+        }
+
+        .btn-icon:focus {
+            outline: 2px solid #6b7280;
+            outline-offset: 2px;
+        }
+
+        /* COLOR SELECTION BUTTONS */
+        .btn-color {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .btn-color:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-color.selected {
+            border-color: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-color:focus {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+        }
+
+        /* SECONDARY BUTTONS - For supporting actions */
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: #374151;
+            color: white;
+            border: 1px solid #4b5563;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        .btn-secondary:focus {
+            outline: 2px solid #6b7280;
+            outline-offset: 2px;
+        }
+
+        .btn-secondary.active {
+            background: rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            border-color: #fbbf24;
+        }
+
+        /* DANGER/DELETE BUTTONS */
+        .btn-danger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-danger:focus {
+            outline: 2px solid #dc2626;
+            outline-offset: 2px;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 640px) {
+            .btn-tool .btn-text {
+                display: none;
+            }
+        }
+
         /* Enhanced Fog Tool Styles */
         .fog-mode-selector {
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid #10b981;
-        }
-        
-        .fog-mode-btn {
-            transition: all 0.2s ease;
-        }
-        
-        .fog-mode-btn:hover {
-            background: rgba(16, 185, 129, 0.2);
-        }
-        
-        .fog-mode-btn.active {
-            background: rgba(251, 191, 36, 0.3);
-            color: #fbbf24;
         }
         
         #fog-submenu {
@@ -407,35 +649,35 @@
             
             <!-- Tool Selection -->
             <div class="flex items-center gap-1 bg-gray-700 rounded-lg p-1">
-                <button id="tool-move" class="tool-button active-tool px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Pan & Move">
+                <button id="tool-move" class="btn-tool active" title="Pan & Move" aria-label="Pan and move tool, currently active" aria-pressed="true">
                     <span class="icon">⬅️</span>
-                    <span class="hidden sm:inline text-xs">Move</span>
+                    <span class="btn-text hidden sm:inline">Move</span>
                 </button>
-                <button id="tool-ruler" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Ruler Tool">
+                <button id="tool-ruler" class="btn-tool" title="Ruler Tool" aria-label="Ruler measurement tool" aria-pressed="false">
                     <span class="icon">📏</span>
-                    <span class="hidden sm:inline text-xs">Ruler</span>
+                    <span class="btn-text hidden sm:inline">Ruler</span>
                 </button>
-                <button id="tool-fog" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1 relative" title="Fog of War">
+                <button id="tool-fog" class="btn-tool relative" title="Fog of War" aria-label="Fog of war tool" aria-pressed="false">
                     <span class="icon">👁️</span>
-                    <span class="hidden sm:inline text-xs">Fog</span>
+                    <span class="btn-text hidden sm:inline">Fog</span>
                     <div id="fog-submenu" class="hidden absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded shadow-lg z-50 min-w-32">
-                        <button class="fog-mode-btn w-full px-3 py-2 text-xs text-white hover:bg-gray-700 flex items-center gap-2 active" data-fog-mode="brush">
+                        <button class="btn-secondary w-full active" data-fog-mode="brush" aria-label="Fog brush mode">
                             <span>🖌️</span> Brush
                         </button>
-                        <button class="fog-mode-btn w-full px-3 py-2 text-xs text-white hover:bg-gray-700 flex items-center gap-2" data-fog-mode="cone">
+                        <button class="btn-secondary w-full" data-fog-mode="cone" aria-label="Fog cone mode">
                             <span>📐</span> Cone
                         </button>
-                        <button class="fog-mode-btn w-full px-3 py-2 text-xs text-white hover:bg-gray-700 flex items-center gap-2" data-fog-mode="circle">
+                        <button class="btn-secondary w-full" data-fog-mode="circle" aria-label="Fog circle mode">
                             <span>⭕</span> Circle
                         </button>
-                        <button class="fog-mode-btn w-full px-3 py-2 text-xs text-white hover:bg-gray-700 flex items-center gap-2" data-fog-mode="clear">
+                        <button class="btn-secondary w-full" data-fog-mode="clear" aria-label="Clear fog mode">
                             <span>🧹</span> Clear
                         </button>
                     </div>
                 </button>
-                <button id="tool-token" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Add Token">
+                <button id="tool-token" class="btn-tool" title="Add Token" aria-label="Add token tool" aria-pressed="false">
                     <span class="icon">👥</span>
-                    <span class="hidden sm:inline text-xs">Token</span>
+                    <span class="btn-text hidden sm:inline">Token</span>
                 </button>
             </div>
             
@@ -443,38 +685,38 @@
             <div class="flex items-center gap-4">
                 <!-- Zoom Controls -->
                 <div class="flex items-center gap-2">
-                    <button id="zoom-out" class="p-1 text-gray-400 hover:text-white" title="Zoom Out">
+                    <button id="zoom-out" class="btn-icon" title="Zoom Out" aria-label="Zoom out">
                         <span class="icon">🔍➖</span>
                     </button>
-                    <button id="zoom-in" class="p-1 text-gray-400 hover:text-white" title="Zoom In">
+                    <button id="zoom-in" class="btn-icon" title="Zoom In" aria-label="Zoom in">
                         <span class="icon">🔍➕</span>
                     </button>
                 </div>
                 
                 <!-- Grid Toggle -->
-                <button id="grid-toggle" class="flex items-center gap-1 px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-600" title="Toggle Grid">
+                <button id="grid-toggle" class="btn-secondary" title="Toggle Grid" aria-label="Toggle grid overlay" aria-pressed="true">
                     <span class="icon">#️⃣</span>
                     <span>Grid</span>
                 </button>
                 
                 <!-- Upload Button -->
-                <button id="upload-campaign" class="p-2 text-gray-400 hover:text-white" title="Upload D&D Beyond Campaign">
+                <button id="upload-campaign" class="btn-icon" title="Upload D&D Beyond Campaign" aria-label="Upload campaign files">
                     <span class="icon">📂</span>
                 </button>
                 
                 <!-- Upload Expansion Button -->
-                <button id="upload-expansion" class="p-2 text-gray-400 hover:text-white" title="Upload Expansion">
+                <button id="upload-expansion" class="btn-icon" title="Upload Expansion" aria-label="Upload expansion content">
                     <span class="icon">📦</span>
                 </button>
                 
                 <!-- Panel Toggles -->
-                <button id="chat-toggle" class="p-2 text-gray-400 hover:text-white" title="Chat Panel">
+                <button id="chat-toggle" class="btn-icon" title="Chat Panel" aria-label="Toggle chat panel">
                     <span class="icon">💬</span>
                 </button>
-                <button id="dice-toggle" class="p-2 text-gray-400 hover:text-white" title="Dice Roller">
+                <button id="dice-toggle" class="btn-icon" title="Dice Roller" aria-label="Toggle dice roller">
                     <span class="icon">🎲</span>
                 </button>
-                <button id="storage-toggle" class="p-2 text-gray-400 hover:text-white" title="Storage">
+                <button id="storage-toggle" class="btn-icon" title="Storage" aria-label="Toggle storage panel">
                     <span class="icon">💾</span>
                 </button>
             </div>
@@ -485,17 +727,17 @@
             <!-- Left Sidebar Panel -->
             <div id="sidebar-panel" class="w-80 bg-gray-900 border-r border-gray-700 flex flex-col">
                 <!-- Panel Tabs -->
-                <div class="flex bg-gray-800 border-b border-gray-700">
-                    <button class="panel-tab active-panel-tab flex-1 px-3 py-2 text-xs text-white border-b-2 border-yellow-400" data-panel="party">
+                <div class="flex bg-gray-800 border-b border-gray-700" role="tablist" aria-label="Panel navigation">
+                    <button class="btn-tab active" data-panel="party" role="tab" aria-selected="true" aria-controls="panel-content" aria-label="Party management tab">
                         <span class="icon">👥</span> Party
                     </button>
-                    <button class="panel-tab flex-1 px-3 py-2 text-xs text-white border-b-2 border-transparent" data-panel="initiative">
+                    <button class="btn-tab" data-panel="initiative" role="tab" aria-selected="false" aria-controls="panel-content" aria-label="Initiative tracker tab">
                         <span class="icon">⚡</span> Initiative
                     </button>
-                    <button class="panel-tab flex-1 px-3 py-2 text-xs text-white border-b-2 border-transparent" data-panel="dice">
+                    <button class="btn-tab" data-panel="dice" role="tab" aria-selected="false" aria-controls="panel-content" aria-label="Dice roller tab">
                         <span class="icon">🎲</span> Dice
                     </button>
-                    <button class="panel-tab flex-1 px-3 py-2 text-xs text-white border-b-2 border-transparent" data-panel="tokens">
+                    <button class="btn-tab" data-panel="tokens" role="tab" aria-selected="false" aria-controls="panel-content" aria-label="Token maker tab">
                         <span class="icon">🎨</span> Tokens
                     </button>
                 </div>
@@ -548,23 +790,11 @@
                                 type="text" 
                                 placeholder="Type message or /roll 1d20..." 
                                 class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm"
+                                aria-label="Chat message input"
                             >
-                            <button id="send-chat" class="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            <button id="send-chat" class="btn-secondary" aria-label="Send chat message">
                                 <span class="icon">📤</span>
                             </button>
-                        </div>
-                        
-                        <!-- Dice Roller -->
-                        <div class="mt-3 p-3 bg-gray-800 rounded">
-                            <div class="text-sm text-gray-300 mb-2">Quick Dice:</div>
-                            <div class="flex gap-1 flex-wrap">
-                                <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d20">d20</button>
-                                <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d12">d12</button>
-                                <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d10">d10</button>
-                                <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d8">d8</button>
-                                <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d6">d6</button>
-                                <button class="dice-btn px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-600" data-dice="1d4">d4</button>
-                            </div>
                         </div>
                     </div>
                     
@@ -599,7 +829,7 @@
         <div class="modal-content bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-2xl mx-4">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-bold text-white">Upload D&D Beyond Campaign</h2>
-                <button id="close-upload-modal" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                <button id="close-upload-modal" class="btn-icon text-2xl" aria-label="Close upload dialog">&times;</button>
             </div>
             
             <div class="space-y-4">
@@ -652,23 +882,23 @@
                         <span id="character-class" class="text-yellow-400">Class</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="expand-character-sheet" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                        <button id="expand-character-sheet" class="btn-secondary text-sm" aria-label="Expand character sheet to full view">
                             Expand to Full View
                         </button>
-                        <button id="close-character-sheet" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                        <button id="close-character-sheet" class="btn-icon text-2xl" aria-label="Close character sheet">&times;</button>
                     </div>
                 </div>
                 
                 <!-- Tabs -->
-                <div class="character-sheet-tabs flex overflow-x-auto">
-                    <button class="character-sheet-tab active px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="overview">Overview</button>
-                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="actions">Actions</button>
-                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="spells">Spells</button>
-                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="inventory">Inventory</button>
-                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="features">Features</button>
-                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="description">Description</button>
-                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="notes">Notes</button>
-                    <button class="character-sheet-tab px-4 py-2 text-sm whitespace-nowrap text-white" data-tab="extras">Extras</button>
+                <div class="character-sheet-tabs flex overflow-x-auto" role="tablist" aria-label="Character sheet sections">
+                    <button class="btn-tab active whitespace-nowrap" data-tab="overview" role="tab" aria-selected="true" aria-label="Character overview tab">Overview</button>
+                    <button class="btn-tab whitespace-nowrap" data-tab="actions" role="tab" aria-selected="false" aria-label="Character actions tab">Actions</button>
+                    <button class="btn-tab whitespace-nowrap" data-tab="spells" role="tab" aria-selected="false" aria-label="Character spells tab">Spells</button>
+                    <button class="btn-tab whitespace-nowrap" data-tab="inventory" role="tab" aria-selected="false" aria-label="Character inventory tab">Inventory</button>
+                    <button class="btn-tab whitespace-nowrap" data-tab="features" role="tab" aria-selected="false" aria-label="Character features tab">Features</button>
+                    <button class="btn-tab whitespace-nowrap" data-tab="description" role="tab" aria-selected="false" aria-label="Character description tab">Description</button>
+                    <button class="btn-tab whitespace-nowrap" data-tab="notes" role="tab" aria-selected="false" aria-label="Character notes tab">Notes</button>
+                    <button class="btn-tab whitespace-nowrap" data-tab="extras" role="tab" aria-selected="false" aria-label="Character extras tab">Extras</button>
                 </div>
                 
                 <!-- Tab Content -->
@@ -687,7 +917,7 @@
             <div class="flex flex-col h-full">
                 <div class="flex items-center justify-between p-4 border-b border-gray-700">
                     <h2 id="pdf-title" class="text-xl font-bold text-white">Enemy Information</h2>
-                    <button id="close-pdf-viewer" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                    <button id="close-pdf-viewer" class="btn-icon text-2xl" aria-label="Close PDF viewer">&times;</button>
                 </div>
                 <div class="flex-1 p-4">
                     <iframe id="pdf-iframe" class="w-full h-full border-0 rounded" src=""></iframe>
@@ -763,15 +993,17 @@
         }
         
         // Tool selection
-        document.querySelectorAll('.tool-button').forEach(button => {
+        document.querySelectorAll('.btn-tool').forEach(button => {
             button.addEventListener('click', () => {
                 // Remove active class from all tools
-                document.querySelectorAll('.tool-button').forEach(btn => {
-                    btn.classList.remove('active-tool');
+                document.querySelectorAll('.btn-tool').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-pressed', 'false');
                 });
                 
                 // Add active class to clicked tool
-                button.classList.add('active-tool');
+                button.classList.add('active');
+                button.setAttribute('aria-pressed', 'true');
                 
                 // Update current tool
                 const toolId = button.id.replace('tool-', '');
@@ -801,10 +1033,10 @@
         
         // Fog mode selection
         document.addEventListener('click', (e) => {
-            const fogModeBtn = e.target.closest('.fog-mode-btn');
+            const fogModeBtn = e.target.closest('[data-fog-mode]');
             if (fogModeBtn) {
                 // Update active fog mode
-                document.querySelectorAll('.fog-mode-btn').forEach(btn => {
+                document.querySelectorAll('[data-fog-mode]').forEach(btn => {
                     btn.classList.remove('active');
                 });
                 fogModeBtn.classList.add('active');
@@ -835,10 +1067,12 @@
         }
         
         // Panel tab selection
-        document.querySelectorAll('.panel-tab').forEach(tab => {
+        document.querySelectorAll('.btn-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 const panelName = tab.dataset.panel;
-                showPanel(panelName);
+                if (panelName) {
+                    showPanel(panelName);
+                }
             });
         });
         
@@ -1066,10 +1300,15 @@
         
         function showCharacterTab(tabName, sheet) {
             // Update active tab
-            document.querySelectorAll('.character-sheet-tab').forEach(tab => {
+            document.querySelectorAll('.character-sheet-tabs .btn-tab').forEach(tab => {
                 tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
             });
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+                activeTab.setAttribute('aria-selected', 'true');
+            }
             
             // Generate tab content
             const content = document.getElementById('tab-content');
@@ -1265,10 +1504,15 @@
         // Panel Management Functions
         function showPanel(panelName) {
             // Update active tab
-            document.querySelectorAll('.panel-tab').forEach(tab => {
-                tab.classList.remove('active-panel-tab');
+            document.querySelectorAll('#sidebar-panel .btn-tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
             });
-            document.querySelector(`[data-panel="${panelName}"]`).classList.add('active-panel-tab');
+            const activeTab = document.querySelector(`[data-panel="${panelName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+                activeTab.setAttribute('aria-selected', 'true');
+            }
             
             // Update panel content
             appState.currentPanel = panelName;
@@ -1299,7 +1543,7 @@
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-green-400">Party Manager</h3>
-                        <button id="add-party-member" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+                        <button id="add-party-member" class="btn-primary text-sm" aria-label="Add new party member">
                             <span class="icon">➕</span> Add Member
                         </button>
                     </div>
@@ -1334,7 +1578,7 @@
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-green-400">Initiative Tracker</h3>
                         <div class="flex gap-2">
-                            <button id="roll-initiative" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                            <button id="roll-initiative" class="btn-secondary text-sm" aria-label="Roll initiative for all participants">
                                 🎲 Roll Initiative
                             </button>
                             <button id="next-turn" class="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm">
@@ -1377,7 +1621,7 @@
                         <label class="text-sm text-gray-300">Custom Roll:</label>
                         <div class="flex gap-2">
                             <input id="custom-dice-input" type="text" placeholder="e.g., 2d6+3" class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm">
-                            <button id="roll-custom-dice" class="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700">Roll</button>
+                            <button id="roll-custom-dice" class="btn-primary" aria-label="Roll custom dice formula">Roll</button>
                         </div>
                     </div>
                     
@@ -1385,12 +1629,12 @@
                     <div class="space-y-2">
                         <label class="text-sm text-gray-300">Standard Dice:</label>
                         <div class="grid grid-cols-3 gap-2">
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d4">d4</button>
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d6">d6</button>
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d8">d8</button>
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d10">d10</button>
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d12">d12</button>
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d20">d20</button>
+                            <button class="btn-dice" data-dice="1d4" aria-label="Roll four-sided die">d4</button>
+                            <button class="btn-dice" data-dice="1d6" aria-label="Roll six-sided die">d6</button>
+                            <button class="btn-dice" data-dice="1d8" aria-label="Roll eight-sided die">d8</button>
+                            <button class="btn-dice" data-dice="1d10" aria-label="Roll ten-sided die">d10</button>
+                            <button class="btn-dice" data-dice="1d12" aria-label="Roll twelve-sided die">d12</button>
+                            <button class="btn-dice" data-dice="1d20" aria-label="Roll twenty-sided die">d20</button>
                         </div>
                     </div>
                     
@@ -1398,10 +1642,10 @@
                     <div class="space-y-2">
                         <label class="text-sm text-gray-300">Multiple Dice:</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="2d6">2d6</button>
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="3d6">3d6</button>
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="4d6">4d6</button>
-                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="2d20">2d20</button>
+                            <button class="btn-dice" data-dice="2d6" aria-label="Roll two six-sided dice">2d6</button>
+                            <button class="btn-dice" data-dice="3d6" aria-label="Roll three six-sided dice">3d6</button>
+                            <button class="btn-dice" data-dice="4d6" aria-label="Roll four six-sided dice">4d6</button>
+                            <button class="btn-dice" data-dice="2d20" aria-label="Roll two twenty-sided dice">2d20</button>
                         </div>
                     </div>
                     
@@ -1447,16 +1691,16 @@
                         <div>
                             <label class="text-sm text-gray-300 block mb-1">Color:</label>
                             <div class="grid grid-cols-5 gap-2 mb-2">
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-white" style="background-color: #ef4444" data-color="#ef4444"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #3b82f6" data-color="#3b82f6"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #10b981" data-color="#10b981"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #f59e0b" data-color="#f59e0b"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #8b5cf6" data-color="#8b5cf6"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #ec4899" data-color="#ec4899"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #6b7280" data-color="#6b7280"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #374151" data-color="#374151"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #7c3aed" data-color="#7c3aed"></button>
-                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #dc2626" data-color="#dc2626"></button>
+                                <button class="btn-color selected" style="background-color: #ef4444" data-color="#ef4444" aria-label="Select red color"></button>
+                                <button class="btn-color" style="background-color: #3b82f6" data-color="#3b82f6" aria-label="Select blue color"></button>
+                                <button class="btn-color" style="background-color: #10b981" data-color="#10b981" aria-label="Select green color"></button>
+                                <button class="btn-color" style="background-color: #f59e0b" data-color="#f59e0b" aria-label="Select yellow color"></button>
+                                <button class="btn-color" style="background-color: #8b5cf6" data-color="#8b5cf6" aria-label="Select purple color"></button>
+                                <button class="btn-color" style="background-color: #ec4899" data-color="#ec4899" aria-label="Select pink color"></button>
+                                <button class="btn-color" style="background-color: #6b7280" data-color="#6b7280" aria-label="Select gray color"></button>
+                                <button class="btn-color" style="background-color: #374151" data-color="#374151" aria-label="Select dark gray color"></button>
+                                <button class="btn-color" style="background-color: #7c3aed" data-color="#7c3aed" aria-label="Select violet color"></button>
+                                <button class="btn-color" style="background-color: #dc2626" data-color="#dc2626" aria-label="Select dark red color"></button>
                             </div>
                             <input id="custom-color" type="color" value="#ef4444" class="w-full h-8 bg-gray-700 rounded">
                         </div>
@@ -1469,11 +1713,11 @@
                             </div>
                         </div>
                         
-                        <button id="create-token" class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        <button id="create-token" class="btn-primary w-full" aria-label="Create new token">
                             Create Token
                         </button>
                         
-                        <button id="update-selected-token" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">
+                        <button id="update-selected-token" class="btn-secondary w-full hidden" aria-label="Update selected token properties">
                             Update Selected Token
                         </button>
                     </div>
@@ -1557,8 +1801,8 @@
                 });
             }
             
-            // Static dice buttons
-            document.querySelectorAll('.static-dice-btn').forEach(btn => {
+            // Dice buttons (consolidated from static-dice-btn)
+            document.querySelectorAll('.btn-dice').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const diceString = btn.dataset.dice;
                     const result = rollDice(diceString);
@@ -1581,11 +1825,11 @@
             const preview = document.getElementById('token-preview');
             
             // Color selection
-            document.querySelectorAll('.color-btn').forEach(btn => {
+            document.querySelectorAll('.btn-color').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    // Update border to show selection
-                    document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
-                    btn.style.borderColor = '#ffffff';
+                    // Update selection state
+                    document.querySelectorAll('.btn-color').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
                     
                     const color = btn.dataset.color;
                     customColor.value = color;
@@ -1596,7 +1840,7 @@
             customColor.addEventListener('input', () => {
                 preview.style.backgroundColor = customColor.value;
                 // Reset color button selections
-                document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
+                document.querySelectorAll('.btn-color').forEach(b => b.classList.remove('selected'));
             });
             
             // Size slider
@@ -1936,7 +2180,7 @@
             });
             
             // Character sheet tabs
-            document.querySelectorAll('.character-sheet-tab').forEach(tab => {
+            document.querySelectorAll('.character-sheet-tabs .btn-tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabName = tab.dataset.tab;
                     if (appState.selectedToken) {
