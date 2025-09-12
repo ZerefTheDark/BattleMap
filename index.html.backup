@@ -3148,8 +3148,7 @@
                 element: moduleElement,
                 collapsed: false,
                 position: { x: 100 + offset, y: 150 + offset },
-                size: { width: 400, height: 500 },
-                cleanup: null
+                size: { width: 400, height: 500 }
             };
         }
         
@@ -3467,16 +3466,16 @@
             // Setup handlers specific to each module type
             switch (moduleName) {
                 case 'party':
-                    setupModulePartyHandlers(moduleElement);
+                    setupPartyHandlers(moduleElement);
                     break;
                 case 'initiative':
-                    setupModuleInitiativeHandlers(moduleElement);
+                    setupInitiativeHandlers(moduleElement);
                     break;
                 case 'tokens':
-                    setupModuleTokenHandlers(moduleElement);
+                    setupTokenHandlers(moduleElement);
                     break;
                 case 'maps':
-                    setupModuleMapsHandlers(moduleElement);
+                    setupMapsHandlers(moduleElement);
                     break;
                 case 'tools':
                     setupToolsHandlers(moduleElement);
@@ -3613,44 +3612,24 @@
             }
         }
         
-        function setupModulePartyHandlers(moduleElement) {
-            // Setup party-specific handlers within the module
-            const addBtn = moduleElement.querySelector('#add-party-member');
-            if (addBtn) {
-                addBtn.addEventListener('click', () => {
-                    addPartyMember();
-                });
-            }
+        function setupPartyHandlers(moduleElement) {
+            // Reuse existing panel handlers
+            setupPanelHandlers('party');
         }
         
-        function setupModuleInitiativeHandlers(moduleElement) {
-            // Setup initiative-specific handlers within the module  
-            const initBtn = moduleElement.querySelector('#roll-initiative');
-            if (initBtn) {
-                initBtn.addEventListener('click', () => {
-                    rollInitiative();
-                });
-            }
+        function setupInitiativeHandlers(moduleElement) {
+            // Reuse existing panel handlers
+            setupPanelHandlers('initiative');
         }
         
-        function setupModuleTokenHandlers(moduleElement) {
-            // Setup token-specific handlers within the module
-            const createBtn = moduleElement.querySelector('#create-token-btn');
-            if (createBtn) {
-                createBtn.addEventListener('click', () => {
-                    createToken();
-                });
-            }
+        function setupTokenHandlers(moduleElement) {
+            // Reuse existing panel handlers
+            setupPanelHandlers('tokens');
         }
         
-        function setupModuleMapsHandlers(moduleElement) {
-            // Setup map-specific handlers within the module
-            const createMapBtn = moduleElement.querySelector('#create-sub-map');
-            if (createMapBtn) {
-                createMapBtn.addEventListener('click', () => {
-                    createSubMap();
-                });
-            }
+        function setupMapsHandlers(moduleElement) {
+            // Reuse existing panel handlers
+            setupPanelHandlers('maps');
         }
         
         // Panel Event Listeners (keeping existing functionality)
@@ -3663,9 +3642,338 @@
             });
         });
         
-
-        // Module system implementation complete
-
+        // Control Center Dragging functionality
+            switch (tabName) {
+                case 'tools':
+                    return `
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-green-400">Tool Selection</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="btn-tool control-tool-btn ${appState.currentTool === 'move' ? 'active' : ''}" data-tool="move">
+                                    <span class="icon">⬅️</span> Move
+                                </button>
+                                <button class="btn-tool control-tool-btn ${appState.currentTool === 'ruler' ? 'active' : ''}" data-tool="ruler">
+                                    <span class="icon">📏</span> Ruler
+                                </button>
+                                <button class="btn-tool control-tool-btn ${appState.currentTool === 'fog' ? 'active' : ''}" data-tool="fog">
+                                    <span class="icon">👁️</span> Fog
+                                </button>
+                                <button class="btn-tool control-tool-btn ${appState.currentTool === 'token' ? 'active' : ''}" data-tool="token">
+                                    <span class="icon">👥</span> Token
+                                </button>
+                            </div>
+                            
+                            <h4 class="text-lg font-semibold text-green-400 mt-4">Quick Actions</h4>
+                            <div class="space-y-2">
+                                <button id="control-create-token" class="btn-primary w-full">
+                                    <span class="icon">➕</span> Create Token
+                                </button>
+                                <button id="control-toggle-fog" class="btn-secondary w-full">
+                                    <span class="icon">👁️</span> Toggle Fog Mode
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                case 'chat':
+                    return `
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-green-400">Chat Messages</h4>
+                            <div id="control-chat-messages" class="control-chat-messages">
+                                <div class="text-gray-400 text-xs mb-2">Welcome to The Dragon Stones!</div>
+                                <div class="text-green-400 text-xs">System: Control Center active.</div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <input 
+                                    id="control-chat-input" 
+                                    type="text" 
+                                    placeholder="Type message or /roll 1d20..." 
+                                    class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm"
+                                    aria-label="Chat message input"
+                                >
+                                <button id="control-send-chat" class="btn-secondary" aria-label="Send chat message">
+                                    <span class="icon">📤</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                case 'dice':
+                    return `
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-green-400">Dice Roller</h4>
+                            
+                            <!-- Custom Dice Input -->
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300">Custom Roll:</label>
+                                <div class="flex gap-2">
+                                    <input 
+                                        id="control-custom-dice-input" 
+                                        type="text" 
+                                        placeholder="e.g., 2d6+3, 1d20+5" 
+                                        class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm"
+                                    >
+                                    <button id="control-roll-custom" class="btn-primary" aria-label="Roll custom dice formula">
+                                        <span class="icon">🎲</span> Roll
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Standard Dice -->
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300">Standard Dice:</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button class="btn-dice" data-dice="1d4" aria-label="Roll four-sided die">d4</button>
+                                    <button class="btn-dice" data-dice="1d6" aria-label="Roll six-sided die">d6</button>
+                                    <button class="btn-dice" data-dice="1d8" aria-label="Roll eight-sided die">d8</button>
+                                    <button class="btn-dice" data-dice="1d10" aria-label="Roll ten-sided die">d10</button>
+                                    <button class="btn-dice" data-dice="1d12" aria-label="Roll twelve-sided die">d12</button>
+                                    <button class="btn-dice" data-dice="1d20" aria-label="Roll twenty-sided die">d20</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Multiple Dice -->
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300">Multiple Dice:</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button class="btn-dice" data-dice="2d6" aria-label="Roll two six-sided dice">2d6</button>
+                                    <button class="btn-dice" data-dice="3d6" aria-label="Roll three six-sided dice">3d6</button>
+                                    <button class="btn-dice" data-dice="4d6" aria-label="Roll four six-sided dice">4d6</button>
+                                    <button class="btn-dice" data-dice="2d20" aria-label="Roll two twenty-sided dice">2d20</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Rolls -->
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300">Recent Rolls:</label>
+                                <div id="control-recent-rolls" class="bg-gray-800 rounded p-3 h-32 overflow-y-auto text-xs">
+                                    <div class="text-gray-400">No recent rolls</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'panels':
+                    return `
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-green-400">Quick Panel Access</h4>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button class="btn-secondary control-panel-btn" data-panel="party">
+                                    <span class="icon">👥</span> Party
+                                </button>
+                                <button class="btn-secondary control-panel-btn" data-panel="initiative">
+                                    <span class="icon">⚡</span> Initiative
+                                </button>
+                                <button class="btn-secondary control-panel-btn" data-panel="tokens">
+                                    <span class="icon">🎨</span> Tokens
+                                </button>
+                            </div>
+                            
+                            <h4 class="text-lg font-semibold text-green-400 mt-4">Actions</h4>
+                            <div class="space-y-2">
+                                <button id="control-upload-campaign" class="btn-secondary w-full">
+                                    <span class="icon">📂</span> Upload Campaign
+                                </button>
+                                <button id="control-upload-expansion" class="btn-secondary w-full">
+                                    <span class="icon">📦</span> Upload Expansion
+                                </button>
+                                <button id="control-save-scenario" class="btn-secondary w-full">
+                                    <span class="icon">💾</span> Save Scenario
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                default:
+                    return '<div class="text-white">Content not available</div>';
+            }
+        }
+        
+        function setupControlHandlers(tabName) {
+            switch (tabName) {
+                case 'tools':
+                    setupToolsHandlers();
+                    break;
+                case 'chat':
+                    setupChatHandlers();
+                    break;
+                case 'dice':
+                    setupDiceHandlers();
+                    break;
+                case 'panels':
+                    setupPanelsHandlers();
+                    break;
+            }
+        }
+        
+        function setupToolsHandlers() {
+            document.querySelectorAll('.control-tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tool = btn.dataset.tool;
+                    selectTool(tool);
+                    
+                    // Update visual state
+                    document.querySelectorAll('.control-tool-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+            
+            const createTokenBtn = document.getElementById('control-create-token');
+            if (createTokenBtn) {
+                createTokenBtn.addEventListener('click', () => {
+                    showPanel('tokens');
+                    addChatMessage('Switched to Token Maker panel', 'system');
+                });
+            }
+            
+            const toggleFogBtn = document.getElementById('control-toggle-fog');
+            if (toggleFogBtn) {
+                toggleFogBtn.addEventListener('click', () => {
+                    selectTool('fog');
+                    addChatMessage('Fog of War tool selected', 'system');
+                });
+            }
+        }
+        
+        function setupChatHandlers() {
+            const chatInput = document.getElementById('control-chat-input');
+            const sendButton = document.getElementById('control-send-chat');
+            
+            function sendControlChatMessage() {
+                const message = chatInput.value.trim();
+                if (message === '') return;
+                
+                if (message.startsWith('/roll ')) {
+                    const diceString = message.split(' ')[1];
+                    const result = rollDice(diceString);
+                    if (result) {
+                        addControlChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+                    } else {
+                        addControlChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
+                    }
+                } else {
+                    addControlChatMessage(`Player: ${message}`, 'user');
+                }
+                
+                chatInput.value = '';
+            }
+            
+            if (sendButton) {
+                sendButton.addEventListener('click', sendControlChatMessage);
+            }
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendControlChatMessage();
+                    }
+                });
+            }
+        }
+        
+        function setupDiceHandlers() {
+            document.querySelectorAll('.btn-dice').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const diceString = btn.dataset.dice;
+                    const result = rollDice(diceString);
+                    if (result) {
+                        addControlChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}] = ${result.total}`, 'dice');
+                        addToControlRecentRolls(`${result.diceString}: ${result.total}`);
+                    }
+                });
+            });
+            
+            const customInput = document.getElementById('control-custom-dice-input');
+            const rollBtn = document.getElementById('control-roll-custom');
+            
+            function rollCustomDice() {
+                const diceString = customInput.value.trim();
+                if (diceString) {
+                    const result = rollDice(diceString);
+                    if (result) {
+                        addControlChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+                        addToControlRecentRolls(`${result.diceString}: ${result.total}`);
+                        customInput.value = '';
+                    } else {
+                        addControlChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
+                    }
+                }
+            }
+            
+            if (rollBtn) {
+                rollBtn.addEventListener('click', rollCustomDice);
+            }
+            if (customInput) {
+                customInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        rollCustomDice();
+                    }
+                });
+            }
+        }
+        
+        function setupPanelsHandlers() {
+            document.querySelectorAll('.control-panel-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const panel = btn.dataset.panel;
+                    showPanel(panel);
+                    addChatMessage(`Switched to ${panel} panel`, 'system');
+                });
+            });
+            
+            const uploadCampaignBtn = document.getElementById('control-upload-campaign');
+            if (uploadCampaignBtn) {
+                uploadCampaignBtn.addEventListener('click', () => {
+                    document.getElementById('upload-campaign').click();
+                });
+            }
+            
+            const uploadExpansionBtn = document.getElementById('control-upload-expansion');
+            if (uploadExpansionBtn) {
+                uploadExpansionBtn.addEventListener('click', () => {
+                    document.getElementById('upload-expansion').click();
+                });
+            }
+        }
+        
+        function addControlChatMessage(message, type = 'user') {
+            const messagesContainer = document.getElementById('control-chat-messages');
+            if (messagesContainer) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `text-${type === 'system' ? 'green-400' : type === 'dice' ? 'yellow-400' : 'white'} text-xs mb-1`;
+                messageDiv.textContent = message;
+                
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+            
+            // Also add to main chat if available
+            addChatMessage(message, type);
+        }
+        
+        function addToControlRecentRolls(rollText) {
+            const recentRolls = document.getElementById('control-recent-rolls');
+            if (recentRolls) {
+                const rollDiv = document.createElement('div');
+                rollDiv.className = 'text-white text-xs mb-1';
+                rollDiv.textContent = rollText;
+                recentRolls.appendChild(rollDiv);
+                recentRolls.scrollTop = recentRolls.scrollHeight;
+                
+                // Keep only last 10 rolls
+                while (recentRolls.children.length > 10) {
+                    recentRolls.removeChild(recentRolls.firstChild);
+                }
+            }
+        }
+        
+        // Control Center Tab Event Listeners
+        document.querySelectorAll('.control-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.controlTab;
+                showControlTab(tabName);
+            });
+        });
+        
+        // Remove old chat sidebar functionality and replace with Control Center
+        // Note: Legacy code removed for cleaner interface
+        
         // Control Center Dragging functionality
         if (controlCenterHeader) {
             controlCenterHeader.addEventListener('mousedown', (e) => {
