@@ -73,11 +73,60 @@ This version represents a significant merge combining the advanced chat function
 
 ## Getting Started
 
-1. **Open the Application**: Load `index.html` in a modern web browser
-2. **Add Tokens**: Select the Token tool and click on the map
-3. **Upload Campaign**: Click the 📂 button to import D&D Beyond files
-4. **View Character Sheets**: Click on tokens to open detailed character information
-5. **Use Tools**: Switch between Pan, Ruler, Fog, and Token tools as needed
+### Quick Start
+1. Clone or download the repository
+   ```bash
+   git clone https://github.com/ZerefTheDark/BattleMap.git
+   cd BattleMap
+   ```
+
+2. **Option A: Direct Browser Access**
+   - Open `index.html` directly in your web browser
+   - All features work without a server for basic usage
+
+3. **Option B: HTTP Server (Recommended)**
+   ```bash
+   # Python 3
+   python -m http.server 8000
+   
+   # Python 2
+   python -m SimpleHTTPServer 8000
+   
+   # Node.js (if you have it installed)
+   npx serve .
+   ```
+   Then visit: `http://localhost:8000/index.html`
+
+4. Start creating your battle maps!
+
+### Backend Setup (Optional)
+For advanced features like data persistence:
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn server:app --reload
+```
+
+### Testing Setup (For Developers)
+```bash
+# Install testing dependencies
+npm install
+
+# Install browsers for testing
+npm run install:browsers
+
+# Run tests
+npm test
+
+# Run tests with UI
+npm run test:ui
+```
+
+### First Steps
+1. **Add Tokens**: Select the Token tool and click on the map
+2. **Upload Campaign**: Click the 📂 button to import D&D Beyond files
+3. **View Character Sheets**: Click on tokens to open detailed character information
+4. **Use Tools**: Switch between Pan, Ruler, Fog, and Token tools as needed
 
 ## Usage Guide
 
@@ -134,6 +183,37 @@ This version represents a significant merge combining the advanced chat function
 - Canvas 2D context for map rendering
 - File API for drag & drop uploads
 - CSS Grid and Flexbox for responsive layout
+
+## Troubleshooting
+
+Having issues? Check our comprehensive [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide for:
+
+### Quick Fixes
+- **Blank screen**: Try serving via HTTP server instead of opening file directly
+- **Features not working**: Check browser console (F12) for JavaScript errors
+- **Upload issues**: Ensure browser supports File API and try smaller files
+- **Performance issues**: Close other browser tabs and check hardware acceleration
+
+### Common Issues
+- Browser compatibility problems
+- Canvas rendering issues  
+- File upload failures
+- UI interaction problems
+- Backend server setup
+
+### Testing and Debugging
+```bash
+# Run automated tests
+npm test
+
+# Debug specific issues
+npm run test:debug
+
+# Test in different browsers
+npm run test:headed
+```
+
+For detailed troubleshooting steps, error messages, and solutions, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## Development
 
