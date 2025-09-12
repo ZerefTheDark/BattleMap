@@ -44,21 +44,22 @@ This version represents a significant merge combining the advanced chat function
 - **Recent Rolls History**: Track all dice rolls in the dedicated panel
 - **Multiple Dice Types**: Support for all standard D&D dice and custom combinations
 
-### 📊 D&D Beyond Character Sheets
-- **Complete Character Sheets**: Full D&D 5e character information display
-- **Multiple Tabs**: Overview, Actions, Spells, Inventory, Features, Description, Notes, and Extras
+### 📊 Enhanced D&D 5e Character Sheets
+- **Comprehensive Character Sheets**: Complete D&D 5e character information display with all available details
+- **8 Detailed Tabs**: Overview, Actions, Spells, Inventory, Features, Description, Notes, and Extras
+- **Enhanced Character Data**: Hit dice, death saves, senses, movement speeds, resistances, proficiencies
 - **Real-time Stats**: Health tracking, ability scores, combat stats, and modifiers
 - **Token Integration**: Click tokens to view associated character sheets
 
-#### Character Sheet Tabs
-- **Overview**: Health, ability scores, combat stats, character info
-- **Actions**: Combat actions, attacks, spells, and class features
-- **Spells**: Spell management and casting (planned)
-- **Inventory**: Equipment and item management (planned)
-- **Features**: Class features, racial traits, and feats (planned)
-- **Description**: Character roleplay information (planned)
-- **Notes**: Session notes and custom information
-- **Extras**: Companions, wild shapes, and advanced features (planned)
+#### Enhanced Character Sheet Tabs
+- **Overview**: Health & vitality (HP, hit dice, death saves), ability scores, combat stats, movement & senses, appearance, proficiencies, resistances
+- **Actions**: Character-specific actions, standard D&D actions, bonus actions, reactions with comprehensive descriptions
+- **Spells**: Spellcasting info, spell slots tracking (levels 1-9), known spells with full details and components
+- **Inventory**: Equipment with properties, currency tracking (all 5 types), carrying capacity management
+- **Features**: Class features with usage tracking, racial traits, feats, saving throws, all 18 skills with expertise
+- **Description**: Character backstory, personality traits (ideals, bonds, flaws), relationships, organizations
+- **Notes**: Session notes, quick reference guide, character-specific reminders
+- **Extras**: Companions, wild shape forms, magical items, custom abilities, vehicles, additional resources
 
 ### 📂 Campaign Import System
 - **D&D Beyond Integration**: Upload campaign files (JSON, XML, ZIP)

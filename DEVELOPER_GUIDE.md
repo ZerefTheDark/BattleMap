@@ -1,36 +1,57 @@
-# BattleMap Developer Guide: D&D Beyond Character Sheet Integration
+# BattleMap Developer Guide: Enhanced D&D 5e Character Sheet System
 
 ## Overview
 
-This guide details the implementation of D&D Beyond-style character sheets and campaign import functionality in BattleMap. The system provides a comprehensive digital character sheet experience similar to D&D Beyond's interface, integrated seamlessly into the battle map application.
+This guide details the implementation of comprehensive D&D 5e character sheets and campaign import functionality in BattleMap. The system provides a detailed digital character sheet experience with enhanced functionality, integrated seamlessly into the battle map application.
+
+## Recent Enhancements
+
+### Drag and Drop Position Issue Analysis
+
+**Issue**: Module drag and drop functionality causes windows to follow movements correctly but may not land in the exact intended position, resulting in visual misalignment.
+
+**Root Cause**: Coordinate system mismatch between position capture and position setting:
+1. Initial position captured using `getBoundingClientRect()` (viewport-relative coordinates)
+2. Mouse movement deltas calculated in screen coordinates 
+3. Final position applied using `style.left/top` (absolute positioning)
+4. Any discrepancy (scroll offset, transform scaling, viewport changes) causes misalignment
+5. Viewport bounds clamping can introduce additional position drift
+
+**Location**: Lines 3320-3450 in index.html
+
+### Character Sheet Enhancement
+
+The character sheet system has been significantly enhanced to include comprehensive D&D 5e character details across all tabs.
 
 ## Architecture
 
 ### Core Components
 
 1. **Application State Management** (`appState`)
-2. **Modal System** (Upload, Character Sheet, PDF Viewer)
-3. **Token System** (Enhanced with character data)
+2. **Enhanced Modal System** (Upload, Character Sheet, PDF Viewer)
+3. **Token System** (Enhanced with comprehensive character data)
 4. **File Upload System** (Campaign files and PDFs)
-5. **Character Sheet Data Structure**
+5. **Enhanced Character Sheet Data Structure**
 
-## Character Sheet Data Structure
+## Enhanced Character Sheet Data Structure
 
-### Core Character Object
+### Comprehensive Character Object
 ```javascript
 {
   id: Number,           // Unique token identifier
   name: String,         // Character display name
   type: 'player' | 'enemy',
   characterSheet: {
-    // Basic Info
+    // Basic Information
     name: String,
     level: Number,
     class: String,
     race: String,
     background: String,
+    alignment: String,
+    experiencePoints: Number,
     
-    // Core Stats
+    // Ability Scores
     stats: {
       str: Number,      // Strength (8-20)
       dex: Number,      // Dexterity
@@ -40,18 +61,126 @@ This guide details the implementation of D&D Beyond-style character sheets and c
       cha: Number       // Charisma
     },
     
-    // Health System
+    // Health and Vitality
     health: {
       current: Number,  // Current HP
       max: Number,      // Maximum HP
       temp: Number      // Temporary HP
     },
+    hitDice: {
+      total: Number,
+      used: Number,
+      type: String      // e.g., 'd8', 'd10'
+    },
+    deathSaves: {
+      successes: Number, // 0-3
+      failures: Number   // 0-3
+    },
     
-    // Combat Stats
-    ac: Number,              // Armor Class
-    speed: Number,           // Movement speed (feet)
-    initiative: Number,      // Initiative modifier
-    proficiencyBonus: Number,// Based on level
+    // Combat Statistics
+    ac: Number,           // Armor Class
+    speed: Number,        // Base walking speed
+    initiative: Number,   // Initiative modifier
+    proficiencyBonus: Number,
+    inspiration: Boolean,
+    
+    // Enhanced Movement
+    speeds: {
+      walk: Number,
+      climb: Number,
+      swim: Number,
+      fly: Number,
+      burrow: Number
+    },
+    
+    // Senses
+    senses: {
+      darkvision: Number,
+      blindsight: Number,
+      tremorsense: Number,
+      truesight: Number,
+      passivePerception: Number
+    },
+    
+    // Proficiencies
+    proficiencies: {
+      languages: Array,   // Known languages
+      tools: Array,       // Tool proficiencies
+      weapons: Array,     // Weapon proficiencies
+      armor: Array        // Armor proficiencies
+    },
+    
+    // Resistances and Immunities
+    resistances: {
+      damageResistances: Array,
+      damageImmunities: Array,
+      damageVulnerabilities: Array,
+      conditionImmunities: Array
+    },
+    
+    // Character Appearance
+    appearance: {
+      age: Number,
+      height: String,
+      weight: String,
+      eyes: String,
+      skin: String,
+      hair: String
+    },
+    
+    // Personality Traits
+    personality: {
+      traits: Array,
+      ideals: Array,
+      bonds: Array,
+      flaws: Array
+    },
+    
+    // Organizations and Background
+    organizations: {
+      faction: String,
+      rank: String,
+      renown: Number
+    },
+    
+    // Spellcasting
+    spellcasting: {
+      class: String,
+      ability: String,
+      saveDC: Number,
+      attackBonus: Number,
+      spellSlots: {
+        1: { max: Number, used: Number },
+        // ... up to level 9
+      }
+    
+    // Enhanced Data Collections
+    spells: Array,           // Spell objects with comprehensive details
+    inventory: Array,        // Item objects with properties
+    features: Array,         // Class features and abilities
+    actions: Array,          // Combat actions and special abilities
+    racialTraits: Array,     // Racial traits and abilities
+    feats: Array,            // Character feats
+    
+    // Additional Character Collections
+    companions: Array,       // Animal companions, familiars
+    wildShapeForms: Array,   // Druid wild shape options
+    magicalItems: Array,     // Magic items and artifacts
+    customAbilities: Array,  // Homebrew or custom abilities
+    vehicles: Array,         // Owned vehicles and mounts
+    additionalResources: Array, // Custom resource tracking
+    
+    // Currency
+    currency: {
+      pp: Number, gp: Number, ep: Number, sp: Number, cp: Number
+    },
+    
+    // Carrying Capacity
+    carryingCapacity: {
+      current: Number,
+      max: Number,         // Str score * 15
+      encumbered: Number   // Str score * 5
+    },
     
     // Saving Throws (proficiency flags)
     savingThrows: {
@@ -59,7 +188,7 @@ This guide details the implementation of D&D Beyond-style character sheets and c
       int: Boolean, wis: Boolean, cha: Boolean
     },
     
-    // Skills with modifiers
+    // Skills with proficiency levels (0=none, 1=proficient, 2=expertise)
     skills: {
       acrobatics: Number, animalHandling: Number,
       arcana: Number, athletics: Number,
@@ -72,76 +201,118 @@ This guide details the implementation of D&D Beyond-style character sheets and c
       stealth: Number, survival: Number
     },
     
-    // Dynamic Arrays
-    spells: Array,        // Spell objects
-    inventory: Array,     // Item objects
-    features: Array,      // Class/racial features
-    notes: String         // Freeform notes
+    // Session Data
+    notes: String,           // Session notes
+    backstory: String,       // Character backstory
+    allies: String,          // Allies and organizations
+    enemies: String,         // Enemies and rivals
+    treasures: String,       // Important treasures/items
+    characterReminders: String // Character-specific reminders
   },
   
   // Enemy-specific
-  pdfUrl: String | null   // PDF reference for enemies
+  pdfUrl: String | null      // PDF reference for enemies
 }
 ```
 
-## Character Sheet Tabs
+## Enhanced Character Sheet Tabs
 
-### 1. Overview Tab
-**Purpose**: Primary character information and core stats
+### 1. Overview Tab (Enhanced)
+**Purpose**: Comprehensive character information and core stats
 
-**Layout**: 2-column grid on large screens, single column on mobile
+**Layout**: 3-column grid on extra-large screens, 2-column on large, single column on mobile
 
-**Sections**:
-- **Health Block**: Current/Max/Temp HP with large, prominent numbers
-- **Ability Scores**: 3x2 grid showing STR, DEX, CON, INT, WIS, CHA with modifiers
-- **Combat Stats**: AC, Initiative, Speed in horizontal layout
-- **Character Info**: Race, Class, Level, Background, Proficiency Bonus
+**Enhanced Sections**:
+- **Health & Vitality**: Current/Max/Temp HP, Hit Dice, Inspiration, Death Saves
+- **Ability Scores**: All six abilities with scores and modifiers
+- **Combat**: AC, Initiative, Proficiency Bonus
+- **Movement & Senses**: Walking speed, special movement, darkvision, passive perception
+- **Character Info**: Race, Class, Level, Background, Alignment, Experience
+- **Appearance**: Age, height, weight, physical features
+- **Proficiencies**: Languages, tools, weapons, armor
+- **Resistances & Immunities**: Damage and condition resistances/immunities
 
-**Styling**: Uses `stat-block` class with green headers and proper contrast
+### 2. Actions Tab (Enhanced)
+**Purpose**: All combat actions and abilities
 
-### 2. Actions Tab
-**Purpose**: Combat actions, attacks, and quick-use abilities
+**Enhanced Sections**:
+- **Character Actions**: Custom character-specific actions with damage/range
+- **Standard Actions**: Complete D&D 5e action list with descriptions
+- **Bonus Actions**: Off-hand attacks, two-weapon fighting
+- **Reactions**: Opportunity attacks and other reactive abilities
 
-**Layout**: Vertical list of action cards
+### 3. Spells Tab (Enhanced)
+**Purpose**: Complete spellcasting system
 
-**Action Card Structure**:
-```html
-<div class="bg-gray-700 rounded p-3">
-  <div class="font-semibold text-white">[Action Name]</div>
-  <div class="text-sm text-gray-300">[Description/Stats]</div>
-</div>
-```
+**Enhanced Features**:
+- **Spellcasting Info**: Class, ability, save DC, attack bonus
+- **Spell Slots**: Visual tracking for all spell levels 1-9
+- **Known Spells**: Comprehensive spell list with details, components, duration
 
-**Examples**:
-- Weapon attacks with to-hit bonuses and damage
-- Standard actions (Dash, Dodge, Help)
-- Class features and spells
-- Resource tracking
+### 4. Inventory Tab (Enhanced)
+**Purpose**: Complete equipment and item management
 
-### 3. Spells Tab
-**Purpose**: Spell management and casting
+**Enhanced Sections**:
+- **Equipment & Inventory**: Items with descriptions, properties, rarity
+- **Currency**: All five D&D currency types (pp, gp, ep, sp, cp)
+- **Carrying Capacity**: Current weight, max capacity, encumbrance limits
 
-**Planned Features**:
-- Spell slot tracking by level
-- Prepared spells toggle
-- Spell search and filtering
-- Spellcasting ability display
-- Ritual spell indicators
+### 5. Features Tab (Enhanced)
+**Purpose**: Character abilities and proficiencies
 
-### 4. Inventory Tab
-**Purpose**: Equipment and item management
+**Enhanced Sections**:
+- **Class Features**: All class abilities with usage tracking
+- **Racial Traits**: Race-specific abilities and traits
+- **Feats**: Character feats with prerequisites
+- **Saving Throws**: Visual display with proficiency indicators
+- **Skills**: All 18 skills with ability associations and expertise tracking
 
-**Planned Sections**:
-- Equipped items (armor, weapons, shields)
-- Backpack contents
-- Currency tracking
-- Item descriptions and properties
-- Weight/encumbrance
+### 6. Description Tab (Enhanced)
+**Purpose**: Character roleplay and background information
 
-### 5. Features & Traits Tab
-**Purpose**: Class features, racial traits, and feats
+**Enhanced Sections**:
+- **Character Description**: Backstory with proper formatting
+- **Personality**: Traits, ideals, bonds, flaws organized in grid
+- **Relationships**: Allies, enemies, and important connections
+- **Organizations**: Faction membership, rank, renown
+- **Treasures**: Important items and achievements
 
-**Organization**:
+### 7. Notes Tab (Enhanced)
+**Purpose**: Session management and quick reference
+
+**Enhanced Features**:
+- **Session Notes**: Large text area for campaign notes
+- **Quick Reference**: Combat actions and conditions summary
+- **Character Reminders**: Character-specific notes and abilities
+
+### 8. Extras Tab (Enhanced)
+**Purpose**: Advanced features and special abilities
+
+**Enhanced Sections**:
+- **Companions & Pets**: Animal companions with stats
+- **Wild Shape Forms**: Druid transformation options
+- **Magical Items**: Magic items with charges and properties
+- **Custom Abilities**: Homebrew or special abilities
+- **Vehicles & Mounts**: Transportation with stats
+- **Additional Resources**: Custom resource tracking
+
+## Module Drag and Drop Issue
+
+### Problem Analysis
+Located in lines 3320-3450, the module dragging system has a documented position misalignment issue.
+
+### Root Cause
+Coordinate system mismatch between:
+1. Position capture via `getBoundingClientRect()` (viewport-relative)
+2. Position setting via `style.left/top` (absolute positioning)
+3. Mouse delta calculations (screen coordinates)
+
+### Documentation Added
+Comprehensive inline comments explaining:
+- The exact mechanism of the issue
+- Why dragging follows correctly but landing position misaligns
+- Potential solutions for future maintainers
+- Critical points where misalignment occurs
 - Class features by level
 - Racial traits
 - Background features
