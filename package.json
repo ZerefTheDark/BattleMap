@@ -1,0 +1,25 @@
+{
+  "name": "battlemap-testing",
+  "version": "1.0.0",
+  "description": "Testing infrastructure for BattleMap D&D application",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:headed": "playwright test --headed",
+    "install:browsers": "playwright install",
+    "serve": "python -m http.server 8000",
+    "serve:bg": "python -m http.server 8000 > /dev/null 2>&1 &"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  },
+  "keywords": [
+    "dnd",
+    "battlemap",
+    "testing",
+    "playwright"
+  ],
+  "author": "BattleMap Contributors",
+  "license": "MIT"
+}
