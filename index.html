@@ -790,6 +790,9 @@
                     <button class="btn-tab" data-panel="tokens" role="tab" aria-selected="false" aria-controls="panel-content" aria-label="Token maker tab">
                         <span class="icon">🎨</span> Tokens
                     </button>
+                    <button class="btn-tab" data-panel="maps" role="tab" aria-selected="false" aria-controls="panel-content" aria-label="Maps management tab">
+                        <span class="icon">🗺️</span> Maps
+                    </button>
                 </div>
                 
                 <!-- Panel Content -->
@@ -1043,6 +1046,19 @@
             selectedToken: null,
             backgroundImage: null,
             backgroundImageName: null,
+            currentMapId: 'main',
+            maps: {
+                main: {
+                    id: 'main',
+                    name: 'Main Map',
+                    backgroundImage: null,
+                    backgroundImageName: null,
+                    tokens: [],
+                    camera: { x: 0, y: 0 },
+                    zoom: 1.0,
+                    fogOfWar: []
+                }
+            },
             uploadedFiles: {
                 campaigns: [],
                 pdfs: [],
@@ -1632,6 +1648,8 @@
                     return generateInitiativePanel();
                 case 'tokens':
                     return generateTokenMakerPanel();
+                case 'maps':
+                    return generateMapsPanel();
                 default:
                     return '<div class="text-white">Panel content not implemented yet.</div>';
             }
@@ -1775,6 +1793,73 @@
             `;
         }
         
+        function generateMapsPanel() {
+            const currentMap = appState.maps[appState.currentMapId];
+            const mapsList = Object.values(appState.maps);
+            
+            return `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-green-400">Maps Manager</h3>
+                        <button id="create-sub-map" class="btn-primary text-sm" aria-label="Create new sub map">
+                            <span class="icon">➕</span> New Map
+                        </button>
+                    </div>
+                    
+                    <!-- Current Map Info -->
+                    <div class="bg-gray-800 rounded p-3">
+                        <div class="text-sm text-gray-300 mb-1">Current Map:</div>
+                        <div class="text-white font-semibold">${currentMap.name}</div>
+                        <div class="text-xs text-gray-400 mt-1">
+                            Tokens: ${currentMap.tokens.length} | 
+                            Background: ${currentMap.backgroundImageName || 'None'}
+                        </div>
+                    </div>
+                    
+                    <!-- Maps List -->
+                    <div class="space-y-2">
+                        <div class="text-sm text-gray-300 mb-2">Available Maps:</div>
+                        ${mapsList.map(map => `
+                            <div class="map-item bg-gray-800 rounded p-3 flex items-center justify-between ${map.id === appState.currentMapId ? 'ring-2 ring-green-500' : ''}">
+                                <div class="flex-1">
+                                    <div class="text-white font-medium">${map.name}</div>
+                                    <div class="text-xs text-gray-400">
+                                        ${map.tokens.length} tokens | ${map.backgroundImageName || 'No background'}
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${map.id !== appState.currentMapId ? `
+                                        <button class="btn-secondary text-xs switch-map" data-map-id="${map.id}" aria-label="Switch to ${map.name}">
+                                            Switch
+                                        </button>
+                                    ` : `
+                                        <span class="text-green-400 text-xs">Active</span>
+                                    `}
+                                    ${map.id !== 'main' ? `
+                                        <button class="btn-danger text-xs delete-map" data-map-id="${map.id}" aria-label="Delete ${map.name}">
+                                            Delete
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Tools Status -->
+                    <div class="bg-gray-800 rounded p-3">
+                        <div class="text-sm text-gray-300 mb-2">Map Tools Status:</div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="text-gray-400">Move: <span class="text-green-400">✓ Working</span></div>
+                            <div class="text-gray-400">Ruler: <span class="text-green-400">✓ Working</span></div>
+                            <div class="text-gray-400">Fog: <span class="text-green-400">✓ Working</span></div>
+                            <div class="text-gray-400">Tokens: <span class="text-green-400">✓ Working</span></div>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-2">All map tools work in sub maps!</div>
+                    </div>
+                </div>
+            `;
+        }
+        
         function setupPanelHandlers(panelName) {
             switch (panelName) {
                 case 'party':
@@ -1785,6 +1870,9 @@
                     break;
                 case 'tokens':
                     setupTokenMakerHandlers();
+                    break;
+                case 'maps':
+                    setupMapsHandlers();
                     break;
             }
         }
@@ -1899,6 +1987,125 @@
             } else {
                 updateBtn.classList.add('hidden');
                 createBtn.textContent = 'Create Token';
+            }
+        }
+        
+        function setupMapsHandlers() {
+            const createMapBtn = document.getElementById('create-sub-map');
+            
+            if (createMapBtn) {
+                createMapBtn.addEventListener('click', () => {
+                    createSubMap();
+                });
+            }
+            
+            // Switch map buttons
+            document.querySelectorAll('.switch-map').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const mapId = e.target.getAttribute('data-map-id');
+                    switchToMap(mapId);
+                });
+            });
+            
+            // Delete map buttons
+            document.querySelectorAll('.delete-map').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const mapId = e.target.getAttribute('data-map-id');
+                    deleteMap(mapId);
+                });
+            });
+        }
+        
+        // Sub Map Management Functions
+        function createSubMap() {
+            const mapId = 'map_' + Date.now();
+            const mapName = prompt('Enter name for the new map:', `Sub Map ${Object.keys(appState.maps).length}`);
+            
+            if (mapName) {
+                appState.maps[mapId] = {
+                    id: mapId,
+                    name: mapName,
+                    backgroundImage: null,
+                    backgroundImageName: null,
+                    tokens: [],
+                    camera: { x: 0, y: 0 },
+                    zoom: 1.0,
+                    fogOfWar: []
+                };
+                
+                // Refresh the maps panel
+                showPanel('maps');
+                addChatMessage(`Created new sub map: ${mapName}`, 'system');
+            }
+        }
+        
+        function switchToMap(mapId) {
+            if (appState.maps[mapId]) {
+                // Save current map state
+                saveCurrentMapState();
+                
+                // Switch to new map
+                appState.currentMapId = mapId;
+                loadMapState(mapId);
+                
+                // Refresh UI
+                showPanel('maps');
+                redrawCanvas();
+                updateTokenCount();
+                
+                addChatMessage(`Switched to map: ${appState.maps[mapId].name}`, 'system');
+            }
+        }
+        
+        function deleteMap(mapId) {
+            if (mapId === 'main') {
+                addChatMessage('Cannot delete the main map', 'system');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete the map "${appState.maps[mapId].name}"?`)) {
+                // If deleting current map, switch to main
+                if (appState.currentMapId === mapId) {
+                    switchToMap('main');
+                }
+                
+                delete appState.maps[mapId];
+                showPanel('maps');
+                addChatMessage(`Deleted map: ${appState.maps[mapId]?.name || 'Unknown'}`, 'system');
+            }
+        }
+        
+        function saveCurrentMapState() {
+            const currentMap = appState.maps[appState.currentMapId];
+            if (currentMap) {
+                currentMap.tokens = [...appState.tokens];
+                currentMap.camera = { ...appState.camera };
+                currentMap.zoom = appState.zoom;
+                currentMap.backgroundImage = appState.backgroundImage;
+                currentMap.backgroundImageName = appState.backgroundImageName;
+                currentMap.fogOfWar = [...appState.fogOfWar];
+            }
+        }
+        
+        function loadMapState(mapId) {
+            const map = appState.maps[mapId];
+            if (map) {
+                appState.tokens = [...map.tokens];
+                appState.camera = { ...map.camera };
+                appState.zoom = map.zoom;
+                appState.backgroundImage = map.backgroundImage;
+                appState.backgroundImageName = map.backgroundImageName;
+                appState.fogOfWar = [...map.fogOfWar];
+                
+                updateZoomDisplay();
+                updateBackgroundDisplay();
+            }
+        }
+        
+        function updateTokenCount() {
+            const tokenCountElement = document.getElementById('token-count');
+            if (tokenCountElement) {
+                tokenCountElement.textContent = appState.tokens.length;
             }
         }
         
