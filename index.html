@@ -867,7 +867,7 @@
         </div>
         
         <!-- Top Toolbar -->
-        <div class="bg-gray-900 border-b-2 border-green-500 shadow-lg p-3 flex items-center justify-between gap-4 relative">
+        <div class="bg-gray-900 border-b-2 border-green-500 shadow-lg p-2 flex items-center justify-between gap-4 relative">
             <div class="decorative-border absolute inset-x-0 bottom-0"></div>
             
             <!-- Title and Info -->
@@ -3137,13 +3137,7 @@
                 <div class="resize-handle resize-handle-sw" data-direction="sw"></div>
             `;
             
-            // Add to canvas area
-            document.querySelector('#battle-canvas').parentElement.appendChild(moduleElement);
-            
-            // Setup module functionality
-            setupModuleHandlers(moduleElement, moduleName);
-            
-            // Store module state
+            // Store module state BEFORE setting up handlers
             moduleState[moduleName] = {
                 element: moduleElement,
                 collapsed: false,
@@ -3151,6 +3145,12 @@
                 size: { width: 400, height: 500 },
                 cleanup: null
             };
+            
+            // Add to canvas area
+            document.querySelector('#battle-canvas').parentElement.appendChild(moduleElement);
+            
+            // Setup module functionality (after state is initialized)
+            setupModuleHandlers(moduleElement, moduleName);
         }
         
         function getModuleConfig(moduleName) {
@@ -3301,8 +3301,10 @@
             // Collapse/expand functionality
             collapseBtn.addEventListener('click', () => {
                 moduleElement.classList.toggle('collapsed');
-                moduleState[moduleName].collapsed = !moduleState[moduleName].collapsed;
-                collapseBtn.querySelector('span').textContent = moduleState[moduleName].collapsed ? '+' : '−';
+                if (moduleState[moduleName]) {
+                    moduleState[moduleName].collapsed = !moduleState[moduleName].collapsed;
+                    collapseBtn.querySelector('span').textContent = moduleState[moduleName].collapsed ? '+' : '−';
+                }
             });
             
             // Close functionality
@@ -3392,8 +3394,10 @@
                     moduleElement.style.left = clampedX + 'px';
                     moduleElement.style.top = clampedY + 'px';
                     
-                    // Update state
-                    moduleState[moduleName].position = { x: clampedX, y: clampedY };
+                    // Update state (with error checking)
+                    if (moduleState[moduleName]) {
+                        moduleState[moduleName].position = { x: clampedX, y: clampedY };
+                    }
                 }
                 
                 if (isResizing && currentResizeDirection) {
@@ -3434,9 +3438,11 @@
                     moduleElement.style.width = newWidth + 'px';
                     moduleElement.style.height = newHeight + 'px';
                     
-                    // Update state
-                    moduleState[moduleName].position = { x: newX, y: newY };
-                    moduleState[moduleName].size = { width: newWidth, height: newHeight };
+                    // Update state (with error checking)
+                    if (moduleState[moduleName]) {
+                        moduleState[moduleName].position = { x: newX, y: newY };
+                        moduleState[moduleName].size = { width: newWidth, height: newHeight };
+                    }
                 }
             };
             
@@ -3456,11 +3462,13 @@
             document.addEventListener('mousemove', mouseMoveHandler);
             document.addEventListener('mouseup', mouseUpHandler);
             
-            // Store cleanup function
-            moduleState[moduleName].cleanup = () => {
-                document.removeEventListener('mousemove', mouseMoveHandler);
-                document.removeEventListener('mouseup', mouseUpHandler);
-            };
+            // Store cleanup function (with error checking)
+            if (moduleState[moduleName]) {
+                moduleState[moduleName].cleanup = () => {
+                    document.removeEventListener('mousemove', mouseMoveHandler);
+                    document.removeEventListener('mouseup', mouseUpHandler);
+                };
+            }
         }
         
         function setupModuleSpecificHandlers(moduleElement, moduleName) {
