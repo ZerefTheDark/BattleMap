@@ -657,9 +657,11 @@
                     <span class="icon">📏</span>
                     <span class="btn-text hidden sm:inline">Ruler</span>
                 </button>
-                <button id="tool-fog" class="btn-tool relative" title="Fog of War" aria-label="Fog of war tool" aria-pressed="false">
-                    <span class="icon">👁️</span>
-                    <span class="btn-text hidden sm:inline">Fog</span>
+                <div class="relative">
+                    <button id="tool-fog" class="btn-tool" title="Fog of War" aria-label="Fog of war tool" aria-pressed="false">
+                        <span class="icon">👁️</span>
+                        <span class="btn-text hidden sm:inline">Fog</span>
+                    </button>
                     <div id="fog-submenu" class="hidden absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded shadow-lg z-50 min-w-32">
                         <button class="btn-secondary w-full active" data-fog-mode="brush" aria-label="Fog brush mode">
                             <span>🖌️</span> Brush
@@ -674,7 +676,7 @@
                             <span>🧹</span> Clear
                         </button>
                     </div>
-                </button>
+                </div>
                 <button id="tool-token" class="btn-tool" title="Add Token" aria-label="Add token tool" aria-pressed="false">
                     <span class="icon">👥</span>
                     <span class="btn-text hidden sm:inline">Token</span>
