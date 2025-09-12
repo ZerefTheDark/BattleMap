@@ -867,7 +867,7 @@
         </div>
         
         <!-- Top Toolbar -->
-        <div class="bg-gray-900 border-b-2 border-green-500 shadow-lg p-2 flex items-center justify-between gap-4 relative">
+        <div class="bg-gray-900 border-b-2 border-green-500 shadow-lg p-1 flex items-center justify-between gap-4 relative">
             <div class="decorative-border absolute inset-x-0 bottom-0"></div>
             
             <!-- Title and Info -->
@@ -3759,9 +3759,9 @@
             let dragStartY = 0;
             let moduleStartX = 0;
             let moduleStartY = 0;
-            // TODO: Add these variables to fix drag-and-drop positioning issue:
-            // let moduleStartWidth = 0;
-            // let moduleStartHeight = 0;
+            // Fixed: Cache dimensions to prevent drag-and-drop positioning issues
+            let moduleStartWidth = 0;
+            let moduleStartHeight = 0;
             
             header.addEventListener('mousedown', (e) => {
                 // Don't start dragging if clicking on control buttons
@@ -3779,9 +3779,9 @@
                 const rect = moduleElement.getBoundingClientRect();
                 moduleStartX = rect.left;
                 moduleStartY = rect.top;
-                // TODO: To fix drag positioning, also cache the dimensions here:
-                // moduleStartWidth = rect.width;
-                // moduleStartHeight = rect.height;
+                // Fixed: Cache dimensions to prevent positioning glitches during drag
+                moduleStartWidth = rect.width;
+                moduleStartHeight = rect.height;
                 
                 e.preventDefault();
             });
@@ -3829,18 +3829,10 @@
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
                     
-                    // BUG IDENTIFIED: This getBoundingClientRect() call during drag operation
-                    // causes incorrect drop positioning. The moduleRect is recalculated during
-                    // each mouse move, which can lead to inconsistent width/height values
-                    // if the module has already been repositioned. This should use cached
-                    // dimensions from the initial mousedown event instead.
-                    // 
-                    // POTENTIAL FIX: Store moduleStartWidth/Height during mousedown and use those
-                    // for boundary calculations instead of recalculating getBoundingClientRect()
-                    const moduleRect = moduleElement.getBoundingClientRect();
-                    
-                    const clampedX = Math.max(0, Math.min(newX, viewportWidth - moduleRect.width));
-                    const clampedY = Math.max(0, Math.min(newY, viewportHeight - moduleRect.height));
+                    // FIXED: Use cached dimensions instead of recalculating getBoundingClientRect()
+                    // during drag operation to prevent incorrect drop positioning.
+                    const clampedX = Math.max(0, Math.min(newX, viewportWidth - moduleStartWidth));
+                    const clampedY = Math.max(0, Math.min(newY, viewportHeight - moduleStartHeight));
                     
                     moduleElement.style.left = clampedX + 'px';
                     moduleElement.style.top = clampedY + 'px';
