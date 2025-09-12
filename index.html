@@ -234,6 +234,29 @@
             box-shadow: var(--dragon-shadow);
         }
         
+        /* Chat Sidebar Styles */
+        .chat-sidebar {
+            z-index: 998;
+        }
+        
+        .chat-sidebar.expanded {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+        }
+        
+        .chat-sidebar-tab.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: white;
+            border-left: 3px solid #10b981;
+        }
+        
+        /* Ensure toggle button stays on top */
+        #chat-sidebar-toggle {
+            z-index: 1001;
+            position: relative;
+        }
+        
         .chat-window-header {
             background: linear-gradient(135deg, #047857, #059669);
             border-bottom: 1px solid #10b981;
@@ -771,12 +794,46 @@
                 
                 <!-- Floating Chat & Dice Window -->
                 <div id="chat-window" class="chat-window absolute bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
+                    <!-- Chat Window Sidebar (initially hidden) -->
+                    <div id="chat-sidebar" class="chat-sidebar absolute right-full top-0 w-64 h-full bg-gray-900 border border-gray-700 rounded-l-lg shadow-lg transform -translate-x-2 transition-transform duration-300 ease-in-out opacity-0 pointer-events-none">
+                        <!-- Sidebar Tabs -->
+                        <div class="flex flex-col h-full">
+                            <div class="bg-gray-800 border-b border-gray-700 p-2">
+                                <div class="text-sm font-semibold text-green-400 text-center">Quick Access</div>
+                            </div>
+                            <div class="flex-1 overflow-y-auto">
+                                <div class="space-y-1 p-2">
+                                    <button class="chat-sidebar-tab w-full flex items-center gap-2 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors" data-chat-panel="party">
+                                        <span class="text-lg">👥</span>
+                                        <span class="text-sm">Party</span>
+                                    </button>
+                                    <button class="chat-sidebar-tab w-full flex items-center gap-2 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors" data-chat-panel="initiative">
+                                        <span class="text-lg">⚡</span>
+                                        <span class="text-sm">Initiative</span>
+                                    </button>
+                                    <button class="chat-sidebar-tab w-full flex items-center gap-2 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors" data-chat-panel="dice">
+                                        <span class="text-lg">🎲</span>
+                                        <span class="text-sm">Dice</span>
+                                    </button>
+                                    <button class="chat-sidebar-tab w-full flex items-center gap-2 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors" data-chat-panel="tokens">
+                                        <span class="text-lg">🎨</span>
+                                        <span class="text-sm">Tokens</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Window Header (draggable) -->
-                    <div id="chat-window-header" class="chat-window-header bg-gray-800 px-4 py-2 rounded-t-lg cursor-move border-b border-gray-700">
+                    <div id="chat-window-header" class="chat-window-header bg-gray-800 px-4 py-2 rounded-t-lg cursor-move border-b border-gray-700 relative">
                         <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                             <span class="icon w-5 h-5">💬</span>
                             Chat & Dice
                         </h3>
+                        <!-- Expand/Collapse Button -->
+                        <button id="chat-sidebar-toggle" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-green-600 hover:bg-green-700 text-white rounded flex items-center justify-center text-sm transition-colors" title="Toggle chat sidebar" aria-label="Toggle chat sidebar">
+                            <span id="chat-sidebar-toggle-icon">›</span>
+                        </button>
                     </div>
                     
                     <!-- Window Content -->
@@ -2288,6 +2345,9 @@
         // Chat Window Drag and Resize Functionality
         const chatWindow = document.getElementById('chat-window');
         const chatWindowHeader = document.getElementById('chat-window-header');
+        const chatSidebar = document.getElementById('chat-sidebar');
+        const chatSidebarToggle = document.getElementById('chat-sidebar-toggle');
+        const chatSidebarToggleIcon = document.getElementById('chat-sidebar-toggle-icon');
         const resizeHandles = document.querySelectorAll('.resize-handle');
         
         let isDragging = false;
@@ -2301,9 +2361,50 @@
         let windowStartWidth = 0;
         let windowStartHeight = 0;
         let currentResizeHandle = null;
+        let chatSidebarExpanded = false;
+        
+        // Chat Sidebar Toggle Functionality
+        chatSidebarToggle.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering drag
+            chatSidebarExpanded = !chatSidebarExpanded;
+            
+            if (chatSidebarExpanded) {
+                chatSidebar.classList.add('expanded');
+                chatSidebarToggleIcon.textContent = '‹';
+            } else {
+                chatSidebar.classList.remove('expanded');
+                chatSidebarToggleIcon.textContent = '›';
+            }
+        });
+        
+        // Chat Sidebar Tab Functionality
+        document.querySelectorAll('.chat-sidebar-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const panelName = tab.dataset.chatPanel;
+                
+                // Update active tab in chat sidebar
+                document.querySelectorAll('.chat-sidebar-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Switch to the corresponding panel in the main sidebar
+                showPanel(panelName);
+                
+                // Optional: Close chat sidebar after selection for mobile-like behavior
+                // chatSidebarExpanded = false;
+                // chatSidebar.classList.remove('expanded');
+                // chatSidebarToggleIcon.textContent = '›';
+                
+                addChatMessage(`Switched to ${panelName} panel`, 'system');
+            });
+        });
         
         // Dragging functionality
         chatWindowHeader.addEventListener('mousedown', (e) => {
+            // Don't start dragging if clicking on the toggle button
+            if (e.target === chatSidebarToggle || chatSidebarToggle.contains(e.target)) {
+                return;
+            }
+            
             if (e.target === chatWindowHeader || chatWindowHeader.contains(e.target)) {
                 isDragging = true;
                 chatWindow.classList.add('dragging');
