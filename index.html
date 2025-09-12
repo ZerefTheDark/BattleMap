@@ -213,6 +213,28 @@
             background: rgba(251, 191, 36, 0.2);
         }
         
+        /* Map Creation Modal Styles */
+        .tab-button {
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button.active {
+            border-bottom-color: currentColor;
+        }
+        
+        .tab-content {
+            min-height: 200px;
+        }
+        
+        .image-gallery-item {
+            transition: all 0.2s ease;
+        }
+        
+        .image-gallery-item:hover {
+            background-color: #374151 !important;
+        }
+        
         .token-selected {
             border: 3px solid #fbbf24;
             box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
@@ -996,6 +1018,76 @@
                 </div>
                 <div class="flex-1 p-4">
                     <iframe id="pdf-iframe" class="w-full h-full border-0 rounded" src=""></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Creation Modal -->
+    <div id="map-creation-modal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center">
+        <div class="modal-content bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-white">Create New Map</h2>
+                <button id="close-map-creation-modal" class="btn-icon text-2xl" aria-label="Close map creation dialog">&times;</button>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Map Name -->
+                <div>
+                    <label for="map-name-input" class="block text-sm font-medium text-gray-300 mb-2">Map Name</label>
+                    <input type="text" id="map-name-input" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter map name">
+                </div>
+                
+                <!-- Image Selection Options -->
+                <div>
+                    <h3 class="text-lg text-green-400 mb-3">Background Image (Optional)</h3>
+                    
+                    <!-- Option Tabs -->
+                    <div class="flex border-b border-gray-700 mb-4">
+                        <button id="upload-new-tab" class="tab-button active px-4 py-2 text-sm font-medium text-green-400 border-b-2 border-green-400">Upload New</button>
+                        <button id="select-existing-tab" class="tab-button px-4 py-2 text-sm font-medium text-gray-400 hover:text-white border-b-2 border-transparent">Select Existing</button>
+                    </div>
+                    
+                    <!-- Upload New Image Tab -->
+                    <div id="upload-new-content" class="tab-content">
+                        <div id="map-image-drop-area" class="drag-drop-area rounded-lg p-8 text-center border-2 border-dashed border-gray-600 hover:border-green-500 transition-colors cursor-pointer">
+                            <div class="text-gray-300 mb-2">
+                                <span class="text-4xl">🗺️</span>
+                            </div>
+                            <p class="text-white mb-2">Drag & drop map image here</p>
+                            <p class="text-gray-400 text-sm">PNG, JPG, JPEG, GIF, WebP files • or click to browse</p>
+                            <input type="file" id="map-image-file-input" class="hidden" accept=".png,.jpg,.jpeg,.gif,.webp">
+                        </div>
+                        <div id="upload-preview" class="mt-3 hidden">
+                            <div class="text-sm text-gray-300 mb-2">Selected Image:</div>
+                            <div class="flex items-center bg-gray-800 rounded p-3">
+                                <img id="upload-preview-img" class="w-16 h-16 object-cover rounded mr-3" src="" alt="Preview">
+                                <div class="flex-1">
+                                    <div id="upload-preview-name" class="text-white font-medium"></div>
+                                    <div class="text-xs text-gray-400">New upload</div>
+                                </div>
+                                <button id="clear-upload-preview" class="text-red-400 hover:text-red-300 text-sm">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Select Existing Image Tab -->
+                    <div id="select-existing-content" class="tab-content hidden">
+                        <div id="image-gallery" class="space-y-2 max-h-64 overflow-y-auto">
+                            <!-- Image gallery will be populated dynamically -->
+                        </div>
+                        <div id="no-images-message" class="text-center text-gray-400 py-8 hidden">
+                            <span class="text-2xl">📁</span>
+                            <p class="mt-2">No images uploaded yet</p>
+                            <p class="text-sm">Upload images first using the main upload button or the "Upload New" tab</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                    <button id="cancel-map-creation" class="btn-secondary">Cancel</button>
+                    <button id="create-map-confirm" class="btn-primary">Create Map</button>
                 </div>
             </div>
         </div>
@@ -2018,25 +2110,148 @@
         
         // Sub Map Management Functions
         function createSubMap() {
-            const mapId = 'map_' + Date.now();
-            const mapName = prompt('Enter name for the new map:', `Sub Map ${Object.keys(appState.maps).length}`);
+            // Show the map creation modal instead of simple prompt
+            showMapCreationModal();
+        }
+        
+        function showMapCreationModal() {
+            const modal = document.getElementById('map-creation-modal');
+            const mapNameInput = document.getElementById('map-name-input');
             
-            if (mapName) {
-                appState.maps[mapId] = {
-                    id: mapId,
-                    name: mapName,
-                    backgroundImage: null,
-                    backgroundImageName: null,
-                    tokens: [],
-                    camera: { x: 0, y: 0 },
-                    zoom: 1.0,
-                    fogOfWar: []
-                };
-                
-                // Refresh the maps panel
-                showPanel('maps');
-                addChatMessage(`Created new sub map: ${mapName}`, 'system');
+            // Clear previous values
+            mapNameInput.value = `Sub Map ${Object.keys(appState.maps).length}`;
+            clearUploadPreview();
+            clearSelectedImage();
+            
+            // Populate image gallery
+            populateImageGallery();
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            mapNameInput.focus();
+        }
+        
+        function populateImageGallery() {
+            const gallery = document.getElementById('image-gallery');
+            const noImagesMessage = document.getElementById('no-images-message');
+            
+            // Clear existing content
+            gallery.innerHTML = '';
+            
+            if (appState.uploadedFiles.images.length === 0) {
+                noImagesMessage.classList.remove('hidden');
+                return;
             }
+            
+            noImagesMessage.classList.add('hidden');
+            
+            appState.uploadedFiles.images.forEach((imageFile, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-gallery-item flex items-center bg-gray-800 rounded p-3 hover:bg-gray-700 cursor-pointer transition-colors';
+                imageItem.dataset.imageIndex = index;
+                
+                imageItem.innerHTML = `
+                    <div class="w-16 h-16 bg-gray-700 rounded mr-3 overflow-hidden">
+                        <img class="w-full h-full object-cover" src="${imageFile.image.src}" alt="${imageFile.name}">
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-white font-medium">${imageFile.name}</div>
+                        <div class="text-xs text-gray-400">Uploaded ${imageFile.timestamp.toLocaleDateString()}</div>
+                    </div>
+                    <div class="text-green-400 hidden selected-indicator">✓</div>
+                `;
+                
+                imageItem.addEventListener('click', () => selectGalleryImage(index, imageItem));
+                gallery.appendChild(imageItem);
+            });
+        }
+        
+        let selectedImageIndex = null;
+        let uploadedImageData = null;
+        
+        function selectGalleryImage(index, element) {
+            // Clear previous selection
+            document.querySelectorAll('.image-gallery-item').forEach(item => {
+                item.classList.remove('ring-2', 'ring-green-500');
+                item.querySelector('.selected-indicator').classList.add('hidden');
+            });
+            
+            // Select new image
+            element.classList.add('ring-2', 'ring-green-500');
+            element.querySelector('.selected-indicator').classList.remove('hidden');
+            selectedImageIndex = index;
+            uploadedImageData = null; // Clear uploaded image data
+        }
+        
+        function clearSelectedImage() {
+            document.querySelectorAll('.image-gallery-item').forEach(item => {
+                item.classList.remove('ring-2', 'ring-green-500');
+                item.querySelector('.selected-indicator').classList.add('hidden');
+            });
+            selectedImageIndex = null;
+        }
+        
+        function clearUploadPreview() {
+            const preview = document.getElementById('upload-preview');
+            preview.classList.add('hidden');
+            uploadedImageData = null;
+        }
+        
+        function createMapWithImage() {
+            const mapNameInput = document.getElementById('map-name-input');
+            const mapName = mapNameInput.value.trim();
+            
+            if (!mapName) {
+                addChatMessage('Please enter a map name', 'system');
+                return;
+            }
+            
+            const mapId = 'map_' + Date.now();
+            let backgroundImage = null;
+            let backgroundImageName = null;
+            
+            // Determine which image to use
+            if (uploadedImageData) {
+                // Use newly uploaded image
+                backgroundImage = uploadedImageData.image;
+                backgroundImageName = uploadedImageData.name;
+                
+                // Add to uploaded files if not already there
+                const existingImage = appState.uploadedFiles.images.find(img => img.name === uploadedImageData.name);
+                if (!existingImage) {
+                    appState.uploadedFiles.images.push({
+                        name: uploadedImageData.name,
+                        image: uploadedImageData.image,
+                        timestamp: new Date()
+                    });
+                }
+            } else if (selectedImageIndex !== null) {
+                // Use selected existing image
+                const selectedImage = appState.uploadedFiles.images[selectedImageIndex];
+                backgroundImage = selectedImage.image;
+                backgroundImageName = selectedImage.name;
+            }
+            
+            // Create the map
+            appState.maps[mapId] = {
+                id: mapId,
+                name: mapName,
+                backgroundImage: backgroundImage,
+                backgroundImageName: backgroundImageName,
+                tokens: [],
+                camera: { x: 0, y: 0 },
+                zoom: 1.0,
+                fogOfWar: []
+            };
+            
+            // Close modal
+            document.getElementById('map-creation-modal').classList.add('hidden');
+            
+            // Refresh the maps panel
+            showPanel('maps');
+            
+            const imageMessage = backgroundImageName ? ` with background image: ${backgroundImageName}` : '';
+            addChatMessage(`Created new sub map: ${mapName}${imageMessage}`, 'system');
         }
         
         function switchToMap(mapId) {
@@ -2442,6 +2657,52 @@
             }
         }
         
+        function handleMapImageFiles(files) {
+            // Handle image files for map creation modal
+            Array.from(files).forEach(file => {
+                // Check if file is an image
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            // Store the uploaded image data for map creation
+                            uploadedImageData = {
+                                name: file.name,
+                                image: img,
+                                timestamp: new Date()
+                            };
+                            
+                            // Show preview
+                            showUploadPreview(uploadedImageData);
+                            
+                            // Clear any selected gallery image
+                            clearSelectedImage();
+                            
+                            addChatMessage(`Map image ready for upload: ${file.name}`, 'system');
+                        };
+                        img.onerror = () => {
+                            addChatMessage(`Error loading image: ${file.name}`, 'system');
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    addChatMessage(`Invalid file type. Please upload image files only (PNG, JPG, JPEG, GIF, WebP).`, 'system');
+                }
+            });
+        }
+        
+        function showUploadPreview(imageData) {
+            const preview = document.getElementById('upload-preview');
+            const previewImg = document.getElementById('upload-preview-img');
+            const previewName = document.getElementById('upload-preview-name');
+            
+            previewImg.src = imageData.image.src;
+            previewName.textContent = imageData.name;
+            preview.classList.remove('hidden');
+        }
+        
         function setupModalHandlers() {
             // Character sheet modal
             const characterModal = document.getElementById('character-sheet-modal');
@@ -2475,9 +2736,82 @@
                 pdfModal.classList.add('hidden');
             });
             
+            // Map creation modal
+            const mapCreationModal = document.getElementById('map-creation-modal');
+            const closeMapCreationBtn = document.getElementById('close-map-creation-modal');
+            const cancelMapCreationBtn = document.getElementById('cancel-map-creation');
+            const createMapConfirmBtn = document.getElementById('create-map-confirm');
+            const uploadNewTab = document.getElementById('upload-new-tab');
+            const selectExistingTab = document.getElementById('select-existing-tab');
+            const uploadNewContent = document.getElementById('upload-new-content');
+            const selectExistingContent = document.getElementById('select-existing-content');
+            const mapImageDropArea = document.getElementById('map-image-drop-area');
+            const mapImageFileInput = document.getElementById('map-image-file-input');
+            const clearUploadPreviewBtn = document.getElementById('clear-upload-preview');
+            
+            // Close modal handlers
+            closeMapCreationBtn.addEventListener('click', () => {
+                mapCreationModal.classList.add('hidden');
+            });
+            
+            cancelMapCreationBtn.addEventListener('click', () => {
+                mapCreationModal.classList.add('hidden');
+            });
+            
+            // Create map button
+            createMapConfirmBtn.addEventListener('click', () => {
+                createMapWithImage();
+            });
+            
+            // Tab switching
+            uploadNewTab.addEventListener('click', () => {
+                uploadNewTab.classList.add('active', 'text-green-400', 'border-green-400');
+                uploadNewTab.classList.remove('text-gray-400', 'border-transparent');
+                selectExistingTab.classList.remove('active', 'text-green-400', 'border-green-400');
+                selectExistingTab.classList.add('text-gray-400', 'border-transparent');
+                uploadNewContent.classList.remove('hidden');
+                selectExistingContent.classList.add('hidden');
+            });
+            
+            selectExistingTab.addEventListener('click', () => {
+                selectExistingTab.classList.add('active', 'text-green-400', 'border-green-400');
+                selectExistingTab.classList.remove('text-gray-400', 'border-transparent');
+                uploadNewTab.classList.remove('active', 'text-green-400', 'border-green-400');
+                uploadNewTab.classList.add('text-gray-400', 'border-transparent');
+                selectExistingContent.classList.remove('hidden');
+                uploadNewContent.classList.add('hidden');
+                populateImageGallery(); // Refresh gallery when tab is opened
+            });
+            
+            // Image upload handlers
+            mapImageDropArea.addEventListener('click', () => mapImageFileInput.click());
+            mapImageDropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                mapImageDropArea.classList.add('border-green-500');
+                mapImageDropArea.classList.remove('border-gray-600');
+            });
+            mapImageDropArea.addEventListener('dragleave', () => {
+                mapImageDropArea.classList.remove('border-green-500');
+                mapImageDropArea.classList.add('border-gray-600');
+            });
+            mapImageDropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                mapImageDropArea.classList.remove('border-green-500');
+                mapImageDropArea.classList.add('border-gray-600');
+                handleMapImageFiles(e.dataTransfer.files);
+            });
+            mapImageFileInput.addEventListener('change', (e) => {
+                handleMapImageFiles(e.target.files);
+            });
+            
+            // Clear upload preview
+            clearUploadPreviewBtn.addEventListener('click', () => {
+                clearUploadPreview();
+            });
+            
             // Close modals on background click
             const uploadModal = document.getElementById('upload-modal');
-            [uploadModal, characterModal, pdfModal].forEach(modal => {
+            [uploadModal, characterModal, pdfModal, mapCreationModal].forEach(modal => {
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
                         modal.classList.add('hidden');
