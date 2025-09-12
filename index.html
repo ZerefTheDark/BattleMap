@@ -883,11 +883,28 @@
     <div id="upload-modal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center">
         <div class="modal-content bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-2xl mx-4">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold text-white">Upload D&D Beyond Campaign</h2>
+                <h2 class="text-xl font-bold text-white">Upload Files</h2>
                 <button id="close-upload-modal" class="btn-icon text-2xl" aria-label="Close upload dialog">&times;</button>
             </div>
             
             <div class="space-y-4">
+                <!-- Background Map Images -->
+                <div>
+                    <h3 class="text-lg text-green-400 mb-2">Background Map Images</h3>
+                    <div id="image-drop-area" class="drag-drop-area rounded-lg p-8 text-center">
+                        <div class="text-gray-300 mb-2">
+                            <span class="text-4xl">🗺️</span>
+                        </div>
+                        <p class="text-white mb-2">Drag & drop map images here</p>
+                        <p class="text-gray-400 text-sm">PNG, JPG, JPEG, GIF, WebP files • or click to browse</p>
+                        <input type="file" id="image-file-input" class="hidden" accept=".png,.jpg,.jpeg,.gif,.webp" multiple>
+                    </div>
+                    <div id="current-background" class="mt-2 text-sm text-gray-400 hidden">
+                        Current: <span id="current-background-name">None</span>
+                        <button id="clear-background" class="ml-2 text-red-400 hover:text-red-300">Clear</button>
+                    </div>
+                </div>
+                
                 <!-- Campaign File Upload -->
                 <div>
                     <h3 class="text-lg text-green-400 mb-2">Campaign Files</h3>
@@ -1024,9 +1041,12 @@
             isDragging: false,
             dragStart: { x: 0, y: 0 },
             selectedToken: null,
+            backgroundImage: null,
+            backgroundImageName: null,
             uploadedFiles: {
                 campaigns: [],
-                pdfs: []
+                pdfs: [],
+                images: []
             },
             characterSheets: new Map(),
             enemyPdfs: new Map(),
@@ -1290,6 +1310,32 @@
             // Apply camera transformation
             ctx.translate(appState.camera.x, appState.camera.y);
             ctx.scale(appState.zoom, appState.zoom);
+            
+            // Draw background image if present
+            if (appState.backgroundImage) {
+                // Calculate centered position and scaling to fit canvas
+                const imageAspect = appState.backgroundImage.width / appState.backgroundImage.height;
+                const canvasAspect = canvas.width / canvas.height;
+                
+                let drawWidth, drawHeight, drawX, drawY;
+                
+                // Scale to fit canvas while maintaining aspect ratio
+                if (imageAspect > canvasAspect) {
+                    // Image is wider than canvas ratio
+                    drawWidth = canvas.width / appState.zoom;
+                    drawHeight = drawWidth / imageAspect;
+                } else {
+                    // Image is taller than canvas ratio
+                    drawHeight = canvas.height / appState.zoom;
+                    drawWidth = drawHeight * imageAspect;
+                }
+                
+                // Center the image
+                drawX = -appState.camera.x / appState.zoom + (canvas.width / appState.zoom - drawWidth) / 2;
+                drawY = -appState.camera.y / appState.zoom + (canvas.height / appState.zoom - drawHeight) / 2;
+                
+                ctx.drawImage(appState.backgroundImage, drawX, drawY, drawWidth, drawHeight);
+            }
             
             // Draw tokens
             appState.tokens.forEach(token => {
@@ -2062,6 +2108,32 @@
             pdfFileInput.addEventListener('change', (e) => {
                 handlePdfFiles(e.target.files);
             });
+            
+            // Image file drag & drop
+            const imageDropArea = document.getElementById('image-drop-area');
+            const imageFileInput = document.getElementById('image-file-input');
+            imageDropArea.addEventListener('click', () => imageFileInput.click());
+            imageDropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imageDropArea.classList.add('drag-over');
+            });
+            imageDropArea.addEventListener('dragleave', () => {
+                imageDropArea.classList.remove('drag-over');
+            });
+            imageDropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageDropArea.classList.remove('drag-over');
+                handleImageFiles(e.dataTransfer.files);
+            });
+            imageFileInput.addEventListener('change', (e) => {
+                handleImageFiles(e.target.files);
+            });
+            
+            // Clear background button
+            const clearBackgroundBtn = document.getElementById('clear-background');
+            clearBackgroundBtn.addEventListener('click', () => {
+                clearBackgroundImage();
+            });
         }
         
         function handleCampaignFiles(files) {
@@ -2103,6 +2175,64 @@
                     addChatMessage(`Invalid file type. Please upload PDF files only.`, 'system');
                 }
             });
+        }
+        
+        function handleImageFiles(files) {
+            Array.from(files).forEach(file => {
+                // Check if file is an image
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            // Set as background image
+                            appState.backgroundImage = img;
+                            appState.backgroundImageName = file.name;
+                            
+                            // Store in uploaded files
+                            appState.uploadedFiles.images.push({
+                                name: file.name,
+                                image: img,
+                                timestamp: new Date()
+                            });
+                            
+                            // Update UI
+                            updateBackgroundDisplay();
+                            redrawCanvas();
+                            
+                            addChatMessage(`Background image loaded: ${file.name}`, 'system');
+                        };
+                        img.onerror = () => {
+                            addChatMessage(`Error loading image: ${file.name}`, 'system');
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    addChatMessage(`Invalid file type. Please upload image files only (PNG, JPG, JPEG, GIF, WebP).`, 'system');
+                }
+            });
+        }
+        
+        function clearBackgroundImage() {
+            appState.backgroundImage = null;
+            appState.backgroundImageName = null;
+            updateBackgroundDisplay();
+            redrawCanvas();
+            addChatMessage('Background image cleared', 'system');
+        }
+        
+        function updateBackgroundDisplay() {
+            const currentBackground = document.getElementById('current-background');
+            const currentBackgroundName = document.getElementById('current-background-name');
+            
+            if (appState.backgroundImageName) {
+                currentBackground.classList.remove('hidden');
+                currentBackgroundName.textContent = appState.backgroundImageName;
+            } else {
+                currentBackground.classList.add('hidden');
+                currentBackgroundName.textContent = 'None';
+            }
         }
         
         function setupModalHandlers() {
