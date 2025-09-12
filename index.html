@@ -2361,7 +2361,7 @@
         const controlCenterHeader = document.getElementById('control-center-header');
         const resizeHandles = document.querySelectorAll('.resize-handle');
         
-        let isDragging = false;
+        let isControlCenterDragging = false;
         let isResizing = false;
         let dragStartX = 0;
         let dragStartY = 0;
@@ -2726,37 +2726,38 @@
         // Control Center Dragging functionality
         if (controlCenterHeader) {
             controlCenterHeader.addEventListener('mousedown', (e) => {
-            // Don't start dragging if clicking on the close button
-            if (e.target === controlCenterClose || controlCenterClose.contains(e.target)) {
-                return;
-            }
-            
-            if (e.target === controlCenterHeader || controlCenterHeader.contains(e.target)) {
-                isDragging = true;
-                controlCenter.classList.add('dragging');
+                // Don't start dragging if clicking on the close button
+                if (e.target === controlCenterClose || controlCenterClose.contains(e.target)) {
+                    return;
+                }
                 
-                dragStartX = e.clientX;
-                dragStartY = e.clientY;
-                
-                const rect = controlCenter.getBoundingClientRect();
-                windowStartX = rect.left;
-                windowStartY = rect.top;
-                
-                e.preventDefault();
-            }
-        });
+                if (e.target === controlCenterHeader || controlCenterHeader.contains(e.target)) {
+                    isControlCenterDragging = true;
+                    controlCenter.classList.add('dragging');
+                    
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    
+                    const rect = controlCenter.getBoundingClientRect();
+                    windowStartX = rect.left;
+                    windowStartY = rect.top;
+                    
+                    e.preventDefault();
+                }
+            });
+        }
         
         // Resize functionality
         resizeHandles.forEach(handle => {
             handle.addEventListener('mousedown', (e) => {
                 isResizing = true;
-                chatWindow.classList.add('resizing');
+                controlCenter.classList.add('resizing');
                 currentResizeHandle = handle.dataset.direction;
                 
                 resizeStartX = e.clientX;
                 resizeStartY = e.clientY;
                 
-                const rect = chatWindow.getBoundingClientRect();
+                const rect = controlCenter.getBoundingClientRect();
                 windowStartX = rect.left;
                 windowStartY = rect.top;
                 windowStartWidth = rect.width;
@@ -2769,7 +2770,7 @@
         
         // Mouse move handler for both drag and resize
         document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
+            if (isControlCenterDragging) {
                 const deltaX = e.clientX - dragStartX;
                 const deltaY = e.clientY - dragStartY;
                 
@@ -2779,15 +2780,15 @@
                 // Keep window within viewport bounds
                 const viewportWidth = window.innerWidth;
                 const viewportHeight = window.innerHeight;
-                const windowRect = chatWindow.getBoundingClientRect();
+                const windowRect = controlCenter.getBoundingClientRect();
                 
                 const clampedX = Math.max(0, Math.min(newX, viewportWidth - windowRect.width));
                 const clampedY = Math.max(0, Math.min(newY, viewportHeight - windowRect.height));
                 
-                chatWindow.style.left = clampedX + 'px';
-                chatWindow.style.top = clampedY + 'px';
-                chatWindow.style.right = 'auto';
-                chatWindow.style.bottom = 'auto';
+                controlCenter.style.left = clampedX + 'px';
+                controlCenter.style.top = clampedY + 'px';
+                controlCenter.style.right = 'auto';
+                controlCenter.style.bottom = 'auto';
             }
             
             if (isResizing && currentResizeHandle) {
@@ -2825,31 +2826,31 @@
                 newHeight = Math.min(newHeight, maxHeight);
                 
                 // Update window position and size
-                chatWindow.style.left = newX + 'px';
-                chatWindow.style.top = newY + 'px';
-                chatWindow.style.width = newWidth + 'px';
-                chatWindow.style.height = newHeight + 'px';
-                chatWindow.style.right = 'auto';
-                chatWindow.style.bottom = 'auto';
+                controlCenter.style.left = newX + 'px';
+                controlCenter.style.top = newY + 'px';
+                controlCenter.style.width = newWidth + 'px';
+                controlCenter.style.height = newHeight + 'px';
+                controlCenter.style.right = 'auto';
+                controlCenter.style.bottom = 'auto';
             }
         });
         
         // Mouse up handler
         document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                chatWindow.classList.remove('dragging');
+            if (isControlCenterDragging) {
+                isControlCenterDragging = false;
+                controlCenter.classList.remove('dragging');
             }
             if (isResizing) {
                 isResizing = false;
-                chatWindow.classList.remove('resizing');
+                controlCenter.classList.remove('resizing');
                 currentResizeHandle = null;
             }
         });
         
         // Prevent text selection during drag/resize
         document.addEventListener('selectstart', (e) => {
-            if (isDragging || isResizing) {
+            if (isControlCenterDragging || isResizing) {
                 e.preventDefault();
             }
         });
