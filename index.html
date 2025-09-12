@@ -1784,14 +1784,65 @@
         }
         
         function generateActionsTab(sheet) {
+            const getModifier = (score) => Math.floor((score - 10) / 2);
+            const formatModifier = (mod) => mod >= 0 ? `+${mod}` : `${mod}`;
+            
             return `
                 <div class="space-y-6">
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Actions</h3>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Combat Stats</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${sheet.ac || 10}</div>
+                                <div class="text-sm text-gray-300">Armor Class</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${formatModifier(sheet.initiative || 0)}</div>
+                                <div class="text-sm text-gray-300">Initiative</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${sheet.speed || 30} ft</div>
+                                <div class="text-sm text-gray-300">Speed</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Saving Throws</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Strength</span>
+                                <span class="text-gray-300">${formatModifier(getModifier(sheet.stats.str) + (sheet.savingThrows?.str ? sheet.proficiencyBonus : 0))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Dexterity</span>
+                                <span class="text-gray-300">${formatModifier(getModifier(sheet.stats.dex) + (sheet.savingThrows?.dex ? sheet.proficiencyBonus : 0))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Constitution</span>
+                                <span class="text-gray-300">${formatModifier(getModifier(sheet.stats.con) + (sheet.savingThrows?.con ? sheet.proficiencyBonus : 0))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Intelligence</span>
+                                <span class="text-gray-300">${formatModifier(getModifier(sheet.stats.int) + (sheet.savingThrows?.int ? sheet.proficiencyBonus : 0))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Wisdom</span>
+                                <span class="text-gray-300">${formatModifier(getModifier(sheet.stats.wis) + (sheet.savingThrows?.wis ? sheet.proficiencyBonus : 0))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Charisma</span>
+                                <span class="text-gray-300">${formatModifier(getModifier(sheet.stats.cha) + (sheet.savingThrows?.cha ? sheet.proficiencyBonus : 0))}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Standard Actions</h3>
                         <div class="space-y-2">
                             <div class="bg-gray-700 rounded p-3">
                                 <div class="font-semibold text-white">Attack</div>
-                                <div class="text-sm text-gray-300">Make a weapon attack</div>
+                                <div class="text-sm text-gray-300">Make a weapon attack roll</div>
                             </div>
                             <div class="bg-gray-700 rounded p-3">
                                 <div class="font-semibold text-white">Dash</div>
@@ -1801,6 +1852,18 @@
                                 <div class="font-semibold text-white">Dodge</div>
                                 <div class="text-sm text-gray-300">Focus entirely on avoiding attacks</div>
                             </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Help</div>
+                                <div class="text-sm text-gray-300">Aid an ally with their next action</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Hide</div>
+                                <div class="text-sm text-gray-300">Make a Stealth check to hide</div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-3">
+                                <div class="font-semibold text-white">Search</div>
+                                <div class="text-sm text-gray-300">Make a Perception or Investigation check</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1808,34 +1871,248 @@
         }
         
         function generateSpellsTab(sheet) {
+            const getModifier = (score) => Math.floor((score - 10) / 2);
+            const formatModifier = (mod) => mod >= 0 ? `+${mod}` : `${mod}`;
+            
+            // Display spells if available
+            const spellsContent = sheet.spells && sheet.spells.length > 0 
+                ? sheet.spells.map(spell => `
+                    <div class="bg-gray-700 rounded p-3">
+                        <div class="font-semibold text-white">${spell.name}</div>
+                        <div class="text-sm text-gray-300">Level ${spell.level} ${spell.school}</div>
+                        ${spell.description ? `<div class="text-xs text-gray-400 mt-1">${spell.description}</div>` : ''}
+                    </div>
+                `).join('')
+                : '<div class="text-gray-300">No spells available</div>';
+            
             return `
                 <div class="space-y-6">
                     <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Skills</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Acrobatics (Dex)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.acrobatics || getModifier(sheet.stats.dex))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Animal Handling (Wis)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.animalHandling || getModifier(sheet.stats.wis))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Arcana (Int)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.arcana || getModifier(sheet.stats.int))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Athletics (Str)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.athletics || getModifier(sheet.stats.str))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Deception (Cha)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.deception || getModifier(sheet.stats.cha))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">History (Int)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.history || getModifier(sheet.stats.int))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Insight (Wis)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.insight || getModifier(sheet.stats.wis))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Intimidation (Cha)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.intimidation || getModifier(sheet.stats.cha))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Investigation (Int)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.investigation || getModifier(sheet.stats.int))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Medicine (Wis)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.medicine || getModifier(sheet.stats.wis))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Nature (Int)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.nature || getModifier(sheet.stats.int))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Perception (Wis)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.perception || getModifier(sheet.stats.wis))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Performance (Cha)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.performance || getModifier(sheet.stats.cha))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Persuasion (Cha)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.persuasion || getModifier(sheet.stats.cha))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Religion (Int)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.religion || getModifier(sheet.stats.int))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Sleight of Hand (Dex)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.sleightOfHand || getModifier(sheet.stats.dex))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Stealth (Dex)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.stealth || getModifier(sheet.stats.dex))}</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span class="text-white">Survival (Wis)</span>
+                                <span class="text-gray-300">${formatModifier(sheet.skills?.survival || getModifier(sheet.stats.wis))}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
                         <h3 class="text-lg font-semibold text-green-400 mb-3">Spells</h3>
-                        <div class="text-gray-300">No spells available</div>
+                        <div class="space-y-2">
+                            ${spellsContent}
+                        </div>
                     </div>
                 </div>
             `;
         }
         
         function generateInventoryTab(sheet) {
+            // Display inventory items if available
+            const inventoryContent = sheet.inventory && sheet.inventory.length > 0 
+                ? sheet.inventory.map(item => `
+                    <div class="bg-gray-700 rounded p-3">
+                        <div class="flex justify-between">
+                            <div class="font-semibold text-white">${item.name}</div>
+                            ${item.quantity ? `<div class="text-gray-300">${item.quantity}</div>` : ''}
+                        </div>
+                        ${item.type ? `<div class="text-sm text-gray-400">${item.type}</div>` : ''}
+                        ${item.description ? `<div class="text-xs text-gray-400 mt-1">${item.description}</div>` : ''}
+                        ${item.weight ? `<div class="text-xs text-gray-500">Weight: ${item.weight} lbs</div>` : ''}
+                    </div>
+                `).join('')
+                : '<div class="text-gray-300">No items in inventory</div>';
+            
             return `
                 <div class="space-y-6">
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Equipment</h3>
-                        <div class="text-gray-300">No equipment configured</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Equipment Overview</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${sheet.ac || 10}</div>
+                                <div class="text-sm text-gray-300">Armor Class</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${sheet.proficiencyBonus || 2}</div>
+                                <div class="text-sm text-gray-300">Proficiency</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${sheet.inventory?.length || 0}</div>
+                                <div class="text-sm text-gray-300">Items</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Inventory</h3>
+                        <div class="space-y-2">
+                            ${inventoryContent}
+                        </div>
+                    </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Currency</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm">
+                            <div class="text-center p-2 bg-gray-700 rounded">
+                                <div class="font-semibold text-yellow-400">${sheet.currency?.cp || 0}</div>
+                                <div class="text-gray-300">CP</div>
+                            </div>
+                            <div class="text-center p-2 bg-gray-700 rounded">
+                                <div class="font-semibold text-gray-400">${sheet.currency?.sp || 0}</div>
+                                <div class="text-gray-300">SP</div>
+                            </div>
+                            <div class="text-center p-2 bg-gray-700 rounded">
+                                <div class="font-semibold text-yellow-600">${sheet.currency?.ep || 0}</div>
+                                <div class="text-gray-300">EP</div>
+                            </div>
+                            <div class="text-center p-2 bg-gray-700 rounded">
+                                <div class="font-semibold text-yellow-500">${sheet.currency?.gp || 0}</div>
+                                <div class="text-gray-300">GP</div>
+                            </div>
+                            <div class="text-center p-2 bg-gray-700 rounded">
+                                <div class="font-semibold text-white">${sheet.currency?.pp || 0}</div>
+                                <div class="text-gray-300">PP</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
         }
         
         function generateFeaturesTab(sheet) {
+            // Display features if available
+            const featuresContent = sheet.features && sheet.features.length > 0 
+                ? sheet.features.map(feature => `
+                    <div class="bg-gray-700 rounded p-3">
+                        <div class="font-semibold text-white">${feature.name}</div>
+                        ${feature.source ? `<div class="text-sm text-gray-400">${feature.source}</div>` : ''}
+                        ${feature.description ? `<div class="text-sm text-gray-300 mt-1">${feature.description}</div>` : ''}
+                        ${feature.uses ? `<div class="text-xs text-gray-400 mt-1">Uses: ${feature.uses}</div>` : ''}
+                    </div>
+                `).join('')
+                : '<div class="text-gray-300">No features configured</div>';
+            
             return `
                 <div class="space-y-6">
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Features & Traits</h3>
-                        <div class="text-gray-300">No features configured</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Character Details</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-sm text-gray-400">Race</div>
+                                <div class="text-white font-semibold">${sheet.race || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Class</div>
+                                <div class="text-white font-semibold">${sheet.class || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Level</div>
+                                <div class="text-white font-semibold">${sheet.level || 1}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Background</div>
+                                <div class="text-white font-semibold">${sheet.background || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Proficiency Bonus</div>
+                                <div class="text-white font-semibold">+${sheet.proficiencyBonus || 2}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Experience Points</div>
+                                <div class="text-white font-semibold">${sheet.experience || 0}</div>
+                            </div>
+                        </div>
                     </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Features & Traits</h3>
+                        <div class="space-y-2">
+                            ${featuresContent}
+                        </div>
+                    </div>
+                    
+                    ${sheet.classFeatures ? `
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Class Features</h3>
+                        <div class="space-y-2">
+                            ${sheet.classFeatures.map(feature => `
+                                <div class="bg-gray-700 rounded p-3">
+                                    <div class="font-semibold text-white">${feature.name}</div>
+                                    <div class="text-sm text-gray-400">Level ${feature.level}</div>
+                                    ${feature.description ? `<div class="text-sm text-gray-300 mt-1">${feature.description}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -1844,8 +2121,88 @@
             return `
                 <div class="space-y-6">
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Character Description</h3>
-                        <div class="text-gray-300">No description provided</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Physical Description</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-sm text-gray-400">Age</div>
+                                <div class="text-white">${sheet.description?.age || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Height</div>
+                                <div class="text-white">${sheet.description?.height || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Weight</div>
+                                <div class="text-white">${sheet.description?.weight || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Eyes</div>
+                                <div class="text-white">${sheet.description?.eyes || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Hair</div>
+                                <div class="text-white">${sheet.description?.hair || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Skin</div>
+                                <div class="text-white">${sheet.description?.skin || 'Unknown'}</div>
+                            </div>
+                        </div>
+                        ${sheet.description?.appearance ? `
+                        <div class="mt-4">
+                            <div class="text-sm text-gray-400">Appearance</div>
+                            <div class="text-white text-sm mt-1">${sheet.description.appearance}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Personality</h3>
+                        <div class="space-y-4">
+                            ${sheet.description?.personalityTraits ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Personality Traits</div>
+                                <div class="text-white text-sm">${sheet.description.personalityTraits}</div>
+                            </div>
+                            ` : ''}
+                            
+                            ${sheet.description?.ideals ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Ideals</div>
+                                <div class="text-white text-sm">${sheet.description.ideals}</div>
+                            </div>
+                            ` : ''}
+                            
+                            ${sheet.description?.bonds ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Bonds</div>
+                                <div class="text-white text-sm">${sheet.description.bonds}</div>
+                            </div>
+                            ` : ''}
+                            
+                            ${sheet.description?.flaws ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Flaws</div>
+                                <div class="text-white text-sm">${sheet.description.flaws}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Backstory</h3>
+                        <div class="space-y-4">
+                            ${sheet.description?.backstory ? `
+                            <div class="text-white text-sm">${sheet.description.backstory}</div>
+                            ` : '<div class="text-gray-300">No backstory provided</div>'}
+                            
+                            ${sheet.description?.allies ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Allies & Organizations</div>
+                                <div class="text-white text-sm">${sheet.description.allies}</div>
+                            </div>
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
             `;
@@ -1863,12 +2220,91 @@
         }
         
         function generateExtrasTab(sheet) {
+            // Display companions if available
+            const companionsContent = sheet.extras?.companions && sheet.extras.companions.length > 0 
+                ? sheet.extras.companions.map(companion => `
+                    <div class="bg-gray-700 rounded p-3">
+                        <div class="font-semibold text-white">${companion.name}</div>
+                        <div class="text-sm text-gray-400">${companion.type || 'Companion'}</div>
+                        ${companion.description ? `<div class="text-sm text-gray-300 mt-1">${companion.description}</div>` : ''}
+                        ${companion.stats ? `
+                        <div class="text-xs text-gray-400 mt-1">
+                            AC: ${companion.stats.ac || 'N/A'} | 
+                            HP: ${companion.stats.hp || 'N/A'} | 
+                            Speed: ${companion.stats.speed || 'N/A'}
+                        </div>
+                        ` : ''}
+                    </div>
+                `).join('')
+                : '<div class="text-gray-300">No companions</div>';
+            
+            // Display other extras
+            const extrasContent = sheet.extras?.other && sheet.extras.other.length > 0
+                ? sheet.extras.other.map(extra => `
+                    <div class="bg-gray-700 rounded p-3">
+                        <div class="font-semibold text-white">${extra.name}</div>
+                        <div class="text-sm text-gray-400">${extra.category || 'Extra'}</div>
+                        ${extra.description ? `<div class="text-sm text-gray-300 mt-1">${extra.description}</div>` : ''}
+                    </div>
+                `).join('')
+                : '<div class="text-gray-300">No additional extras</div>';
+            
             return `
                 <div class="space-y-6">
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Extras</h3>
-                        <div class="text-gray-300">No extras configured</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Proficiencies</h3>
+                        <div class="space-y-3">
+                            ${sheet.proficiencies?.languages ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Languages</div>
+                                <div class="text-white text-sm">${Array.isArray(sheet.proficiencies.languages) ? sheet.proficiencies.languages.join(', ') : sheet.proficiencies.languages}</div>
+                            </div>
+                            ` : ''}
+                            
+                            ${sheet.proficiencies?.weapons ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Weapon Proficiencies</div>
+                                <div class="text-white text-sm">${Array.isArray(sheet.proficiencies.weapons) ? sheet.proficiencies.weapons.join(', ') : sheet.proficiencies.weapons}</div>
+                            </div>
+                            ` : ''}
+                            
+                            ${sheet.proficiencies?.armor ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Armor Proficiencies</div>
+                                <div class="text-white text-sm">${Array.isArray(sheet.proficiencies.armor) ? sheet.proficiencies.armor.join(', ') : sheet.proficiencies.armor}</div>
+                            </div>
+                            ` : ''}
+                            
+                            ${sheet.proficiencies?.tools ? `
+                            <div>
+                                <div class="text-sm text-gray-400 mb-1">Tool Proficiencies</div>
+                                <div class="text-white text-sm">${Array.isArray(sheet.proficiencies.tools) ? sheet.proficiencies.tools.join(', ') : sheet.proficiencies.tools}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ${!sheet.proficiencies && '<div class="text-gray-300">No proficiencies configured</div>'}
                     </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Companions & Familiars</h3>
+                        <div class="space-y-2">
+                            ${companionsContent}
+                        </div>
+                    </div>
+                    
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Additional Extras</h3>
+                        <div class="space-y-2">
+                            ${extrasContent}
+                        </div>
+                    </div>
+                    
+                    ${sheet.extras?.treasure ? `
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Treasure & Valuables</h3>
+                        <div class="text-white text-sm">${sheet.extras.treasure}</div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -3323,6 +3759,9 @@
             let dragStartY = 0;
             let moduleStartX = 0;
             let moduleStartY = 0;
+            // TODO: Add these variables to fix drag-and-drop positioning issue:
+            // let moduleStartWidth = 0;
+            // let moduleStartHeight = 0;
             
             header.addEventListener('mousedown', (e) => {
                 // Don't start dragging if clicking on control buttons
@@ -3340,6 +3779,9 @@
                 const rect = moduleElement.getBoundingClientRect();
                 moduleStartX = rect.left;
                 moduleStartY = rect.top;
+                // TODO: To fix drag positioning, also cache the dimensions here:
+                // moduleStartWidth = rect.width;
+                // moduleStartHeight = rect.height;
                 
                 e.preventDefault();
             });
@@ -3386,6 +3828,15 @@
                     // Keep module within viewport bounds
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
+                    
+                    // BUG IDENTIFIED: This getBoundingClientRect() call during drag operation
+                    // causes incorrect drop positioning. The moduleRect is recalculated during
+                    // each mouse move, which can lead to inconsistent width/height values
+                    // if the module has already been repositioned. This should use cached
+                    // dimensions from the initial mousedown event instead.
+                    // 
+                    // POTENTIAL FIX: Store moduleStartWidth/Height during mousedown and use those
+                    // for boundary calculations instead of recalculating getBoundingClientRect()
                     const moduleRect = moduleElement.getBoundingClientRect();
                     
                     const clampedX = Math.max(0, Math.min(newX, viewportWidth - moduleRect.width));
