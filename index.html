@@ -677,14 +677,16 @@
                         </button>
                     </div>
                 </div>
-                <button id="tool-token" class="btn-tool" title="Add Token" aria-label="Add token tool" aria-pressed="false">
-                    <span class="icon">👥</span>
-                    <span class="btn-text hidden sm:inline">Token</span>
-                </button>
             </div>
             
             <!-- Controls -->
             <div class="flex items-center gap-4">
+                <!-- Token Button (moved from Tool Selection) -->
+                <button id="tool-token" class="btn-tool" title="Add Token" aria-label="Add token tool" aria-pressed="false">
+                    <span class="icon">👥</span>
+                    <span class="btn-text hidden sm:inline">Token</span>
+                </button>
+                
                 <!-- Zoom Controls -->
                 <div class="flex items-center gap-2">
                     <button id="zoom-out" class="btn-icon" title="Zoom Out" aria-label="Zoom out">
@@ -695,7 +697,7 @@
                     </button>
                 </div>
                 
-                <!-- Grid Toggle -->
+                <!-- Grid Toggle (moved from Controls) -->
                 <button id="grid-toggle" class="btn-secondary" title="Toggle Grid" aria-label="Toggle grid overlay" aria-pressed="true">
                     <span class="icon">#️⃣</span>
                     <span>Grid</span>
