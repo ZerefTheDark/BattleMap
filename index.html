@@ -3776,12 +3776,11 @@
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
                 
-                // FIXED: Use current CSS position values instead of getBoundingClientRect()
-                // to prevent coordinate system mismatch causing jump behavior
-                moduleStartX = parseInt(moduleElement.style.left) || 0;
-                moduleStartY = parseInt(moduleElement.style.top) || 0;
-                
+                // FIXED: Always use getBoundingClientRect() for the true current position
+                // The visual position is what matters for drag calculations, not stale CSS values
                 const rect = moduleElement.getBoundingClientRect();
+                moduleStartX = rect.left;
+                moduleStartY = rect.top;
                 moduleStartWidth = rect.width;
                 moduleStartHeight = rect.height;
                 
