@@ -30,6 +30,8 @@ This version represents a significant merge combining the advanced chat function
 - **Grid System**: Toggle grid overlay for precise positioning
 - **Token Management**: Add, select, and manage player and enemy tokens with enhanced token maker
 - **Enhanced Tools**: Pan/Move, Ruler, and advanced Fog of War with multiple modes
+- **Map Management**: Create and manage multiple submaps with individual background images
+- **Image Upload**: Upload and organize map images with gallery selection for easy reuse
 
 ### 👥 Party & Campaign Management
 - **Party Manager**: Track party members, HP, levels, and character details
@@ -152,6 +154,22 @@ npm run test:ui
 - **Cone Mode**: Create cone-shaped fog areas
 - **Circle Mode**: Create circular fog areas  
 - **Clear Mode**: Remove fog from specific areas
+
+### Map Management & Image Upload
+- **Create New Maps**: Click "New Map" button to create submaps with optional background images
+- **Image Upload**: Upload new images directly when creating maps via drag & drop or file browser
+- **Image Gallery**: Select from previously uploaded images when creating new maps
+- **Background Images**: Each map can have its own background image independent of others
+- **Map Switching**: Seamlessly switch between different maps while preserving individual settings
+- **Map Organization**: Main map and submaps are clearly organized with status indicators
+
+#### Creating Maps with Images
+1. **New Map Creation**: Click the "New Map" button in the Maps panel
+2. **Choose Image Option**: 
+   - **Upload New**: Drag & drop or browse for a new image file
+   - **Select Existing**: Choose from previously uploaded images in the gallery
+3. **Map Configuration**: Enter map name and optionally select/upload a background image
+4. **Create & Switch**: Maps are created instantly and can be switched between easily
 
 ### File Uploads
 - **Campaign Files**: Drag JSON, XML, or ZIP files to import races, classes, items, spells
