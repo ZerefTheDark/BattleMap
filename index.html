@@ -218,62 +218,99 @@
             box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
         }
         
-        /* Chat Window Styles */
-        .chat-window {
+        /* Control Center Styles */
+        .control-center {
             z-index: 1000;
-            width: 320px;
-            height: 400px;
-            top: 100px;
+            width: 420px;
+            height: 500px;
+            top: 80px;
             right: 20px;
-            min-width: 280px;
-            min-height: 200px;
-            max-width: 600px;
+            min-width: 350px;
+            min-height: 300px;
+            max-width: 700px;
             max-height: 80vh;
             background: linear-gradient(145deg, #1f2937, #374151);
             border: 1px solid #10b981;
             box-shadow: var(--dragon-shadow);
         }
         
-        /* Chat Sidebar Styles */
-        .chat-sidebar {
-            z-index: 998;
-        }
-        
-        .chat-sidebar.expanded {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(0);
-        }
-        
-        .chat-sidebar-tab.active {
-            background: rgba(16, 185, 129, 0.2);
-            color: white;
-            border-left: 3px solid #10b981;
-        }
-        
-        /* Ensure toggle button stays on top */
-        #chat-sidebar-toggle {
+        .control-center.dragging {
+            opacity: 0.9;
+            cursor: move;
             z-index: 1001;
-            position: relative;
         }
         
-        .chat-window-header {
+        .control-center.resizing {
+            pointer-events: none;
+        }
+        
+        .control-center-header {
             background: linear-gradient(135deg, #047857, #059669);
             border-bottom: 1px solid #10b981;
             user-select: none;
         }
         
-        .chat-window-header:hover {
+        .control-center-header:hover {
             background: linear-gradient(135deg, #059669, #10b981);
         }
         
-        .chat-window-content {
+        .control-center-content {
             height: calc(100% - 60px);
+            display: flex;
+            flex-direction: column;
         }
         
-        .chat-messages {
+        /* Control Center Tabs */
+        .control-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            background: transparent;
+            color: #d1d5db;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .control-tab:hover {
+            color: white;
+            background: rgba(75, 85, 99, 0.3);
+            border-bottom-color: #fbbf24;
+        }
+        
+        .control-tab.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: white;
+            border-bottom-color: #10b981;
+        }
+        
+        .control-tab:focus {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+        }
+        
+        /* Control Content Area */
+        #control-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        /* Chat Messages in Control Center */
+        .control-chat-messages {
             height: 200px;
             min-height: 100px;
+            background: #374151;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            overflow-y: auto;
+            font-size: 0.875rem;
         }
         
         /* Resize Handles */
@@ -704,12 +741,6 @@
             
             <!-- Controls -->
             <div class="flex items-center gap-4">
-                <!-- Token Button (moved from Tool Selection) -->
-                <button id="tool-token" class="btn-tool" title="Add Token" aria-label="Add token tool" aria-pressed="false">
-                    <span class="icon">👥</span>
-                    <span class="btn-text hidden sm:inline">Token</span>
-                </button>
-                
                 <!-- Zoom Controls -->
                 <div class="flex items-center gap-2">
                     <button id="zoom-out" class="btn-icon" title="Zoom Out" aria-label="Zoom out">
@@ -720,7 +751,7 @@
                     </button>
                 </div>
                 
-                <!-- Grid Toggle (moved from Controls) -->
+                <!-- Grid Toggle -->
                 <button id="grid-toggle" class="btn-secondary" title="Toggle Grid" aria-label="Toggle grid overlay" aria-pressed="true">
                     <span class="icon">#️⃣</span>
                     <span>Grid</span>
@@ -736,15 +767,10 @@
                     <span class="icon">📦</span>
                 </button>
                 
-                <!-- Panel Toggles -->
-                <button id="chat-toggle" class="btn-icon" title="Chat Panel" aria-label="Toggle chat panel">
-                    <span class="icon">💬</span>
-                </button>
-                <button id="dice-toggle" class="btn-icon" title="Dice Roller" aria-label="Toggle dice roller">
-                    <span class="icon">🎲</span>
-                </button>
-                <button id="storage-toggle" class="btn-icon" title="Storage" aria-label="Toggle storage panel">
-                    <span class="icon">💾</span>
+                <!-- Unified Control Center Toggle -->
+                <button id="control-center-toggle" class="btn-primary" title="Toggle Control Center" aria-label="Toggle unified control center">
+                    <span class="icon">🎛️</span>
+                    <span>Controls</span>
                 </button>
             </div>
         </div>
@@ -792,70 +818,41 @@
                     <div id="ruler-display" class="hidden absolute bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs"></div>
                 </div>
                 
-                <!-- Floating Chat & Dice Window -->
-                <div id="chat-window" class="chat-window absolute bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
-                    <!-- Chat Window Sidebar (initially hidden) -->
-                    <div id="chat-sidebar" class="chat-sidebar absolute right-full top-0 w-64 h-full bg-gray-900 border border-gray-700 rounded-l-lg shadow-lg transform -translate-x-2 transition-transform duration-300 ease-in-out opacity-0 pointer-events-none">
-                        <!-- Sidebar Tabs -->
-                        <div class="flex flex-col h-full">
-                            <div class="bg-gray-800 border-b border-gray-700 p-2">
-                                <div class="text-sm font-semibold text-green-400 text-center">Quick Access</div>
-                            </div>
-                            <div class="flex-1 overflow-y-auto">
-                                <div class="space-y-1 p-2">
-                                    <button class="chat-sidebar-tab w-full flex items-center gap-2 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors" data-chat-panel="party">
-                                        <span class="text-lg">👥</span>
-                                        <span class="text-sm">Party</span>
-                                    </button>
-                                    <button class="chat-sidebar-tab w-full flex items-center gap-2 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors" data-chat-panel="initiative">
-                                        <span class="text-lg">⚡</span>
-                                        <span class="text-sm">Initiative</span>
-                                    </button>
-                                    <button class="chat-sidebar-tab w-full flex items-center gap-2 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors" data-chat-panel="dice">
-                                        <span class="text-lg">🎲</span>
-                                        <span class="text-sm">Dice</span>
-                                    </button>
-                                    <button class="chat-sidebar-tab w-full flex items-center gap-2 px-3 py-2 text-left text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors" data-chat-panel="tokens">
-                                        <span class="text-lg">🎨</span>
-                                        <span class="text-sm">Tokens</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Window Header (draggable) -->
-                    <div id="chat-window-header" class="chat-window-header bg-gray-800 px-4 py-2 rounded-t-lg cursor-move border-b border-gray-700 relative">
+                <!-- Unified Floating Control Center -->
+                <div id="control-center" class="control-center absolute bg-gray-900 border border-gray-700 rounded-lg shadow-lg hidden">
+                    <!-- Control Center Header (draggable) -->
+                    <div id="control-center-header" class="control-center-header bg-gray-800 px-4 py-2 rounded-t-lg cursor-move border-b border-gray-700 relative">
                         <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                            <span class="icon w-5 h-5">💬</span>
-                            Chat & Dice
+                            <span class="icon w-5 h-5">🎛️</span>
+                            Control Center
                         </h3>
-                        <!-- Expand/Collapse Button -->
-                        <button id="chat-sidebar-toggle" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-green-600 hover:bg-green-700 text-white rounded flex items-center justify-center text-sm transition-colors" title="Toggle chat sidebar" aria-label="Toggle chat sidebar">
-                            <span id="chat-sidebar-toggle-icon">›</span>
+                        <!-- Close Button -->
+                        <button id="control-center-close" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded flex items-center justify-center text-sm transition-colors" title="Close control center" aria-label="Close control center">
+                            <span>×</span>
                         </button>
                     </div>
                     
-                    <!-- Window Content -->
-                    <div class="chat-window-content p-4 flex flex-col">
-                        <!-- Chat Messages -->
-                        <div id="chat-messages" class="chat-messages bg-gray-800 rounded p-3 mb-3 overflow-y-auto text-sm">
-                            <div class="text-gray-400 text-xs mb-2">Welcome to The Dragon Stones!</div>
-                            <div class="text-green-400 text-xs">System: Battle map loaded successfully.</div>
+                    <!-- Control Center Content -->
+                    <div class="control-center-content">
+                        <!-- Tab Navigation -->
+                        <div class="flex bg-gray-800 border-b border-gray-700" role="tablist" aria-label="Control center navigation">
+                            <button class="control-tab active" data-control-tab="tools" role="tab" aria-selected="true" aria-controls="control-content" aria-label="Tools tab">
+                                <span class="icon">🛠️</span> Tools
+                            </button>
+                            <button class="control-tab" data-control-tab="chat" role="tab" aria-selected="false" aria-controls="control-content" aria-label="Chat tab">
+                                <span class="icon">💬</span> Chat
+                            </button>
+                            <button class="control-tab" data-control-tab="dice" role="tab" aria-selected="false" aria-controls="control-content" aria-label="Dice tab">
+                                <span class="icon">🎲</span> Dice
+                            </button>
+                            <button class="control-tab" data-control-tab="panels" role="tab" aria-selected="false" aria-controls="control-content" aria-label="Panels tab">
+                                <span class="icon">📋</span> Panels
+                            </button>
                         </div>
                         
-                        <!-- Chat Input -->
-                        <div class="flex gap-2">
-                            <input 
-                                id="chat-input" 
-                                type="text" 
-                                placeholder="Type message or /roll 1d20..." 
-                                class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm"
-                                aria-label="Chat message input"
-                            >
-                            <button id="send-chat" class="btn-secondary" aria-label="Send chat message">
-                                <span class="icon">📤</span>
-                            </button>
+                        <!-- Tab Content -->
+                        <div id="control-content" class="p-4">
+                            <!-- Content will be dynamically populated -->
                         </div>
                     </div>
                     
@@ -2268,16 +2265,22 @@
                 });
             });
         }
-        const chatMessages = document.getElementById('chat-messages');
-        const chatInput = document.getElementById('chat-input');
-        const sendButton = document.getElementById('send-chat');
+        // Legacy chat elements (for compatibility with existing references)
+        const chatMessages = document.getElementById('chat-messages') || document.createElement('div');
+        const chatInput = document.getElementById('chat-input') || null;
+        const sendButton = document.getElementById('send-chat') || null;
         
         function addChatMessage(message, type = 'user') {
             const messageDiv = document.createElement('div');
             messageDiv.className = `mb-1 text-xs ${type === 'system' ? 'text-green-400' : type === 'dice' ? 'text-yellow-400' : 'text-white'}`;
             messageDiv.textContent = message;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            if (chatMessages && chatMessages.appendChild) {
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Also log to console for debugging
+            console.log(`[${type}] ${message}`);
         }
         
         function rollDice(diceString) {
@@ -2305,31 +2308,40 @@
             };
         }
         
+        // Note: Chat functionality moved to Control Center
+        // Legacy sendChatMessage for compatibility
         function sendChatMessage() {
-            const message = chatInput.value.trim();
-            if (!message) return;
-            
-            if (message.startsWith('/roll ') || message.startsWith('/r ')) {
-                const diceString = message.split(' ')[1];
-                const result = rollDice(diceString);
-                if (result) {
-                    addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+            if (chatInput && chatInput.value) {
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                if (message.startsWith('/roll ') || message.startsWith('/r ')) {
+                    const diceString = message.split(' ')[1];
+                    const result = rollDice(diceString);
+                    if (result) {
+                        addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+                    } else {
+                        addChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
+                    }
                 } else {
-                    addChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
+                    addChatMessage(`Player: ${message}`, 'user');
                 }
-            } else {
-                addChatMessage(`Player: ${message}`, 'user');
+                
+                chatInput.value = '';
             }
-            
-            chatInput.value = '';
         }
         
-        sendButton.addEventListener('click', sendChatMessage);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        });
+        // Setup legacy chat event listeners if elements exist
+        if (sendButton) {
+            sendButton.addEventListener('click', sendChatMessage);
+        }
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+        }
         
         // Quick dice buttons
         document.querySelectorAll('.dice-btn').forEach(btn => {
@@ -2342,12 +2354,11 @@
             });
         });
         
-        // Chat Window Drag and Resize Functionality
-        const chatWindow = document.getElementById('chat-window');
-        const chatWindowHeader = document.getElementById('chat-window-header');
-        const chatSidebar = document.getElementById('chat-sidebar');
-        const chatSidebarToggle = document.getElementById('chat-sidebar-toggle');
-        const chatSidebarToggleIcon = document.getElementById('chat-sidebar-toggle-icon');
+        // Control Center Functionality
+        const controlCenter = document.getElementById('control-center');
+        const controlCenterToggle = document.getElementById('control-center-toggle');
+        const controlCenterClose = document.getElementById('control-center-close');
+        const controlCenterHeader = document.getElementById('control-center-header');
         const resizeHandles = document.querySelectorAll('.resize-handle');
         
         let isDragging = false;
@@ -2361,58 +2372,373 @@
         let windowStartWidth = 0;
         let windowStartHeight = 0;
         let currentResizeHandle = null;
-        let chatSidebarExpanded = false;
         
-        // Chat Sidebar Toggle Functionality
-        chatSidebarToggle.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering drag
-            chatSidebarExpanded = !chatSidebarExpanded;
+        // Control Center Toggle Functionality
+        if (controlCenterToggle) {
+            controlCenterToggle.addEventListener('click', () => {
+                if (controlCenter.classList.contains('hidden')) {
+                    controlCenter.classList.remove('hidden');
+                    showControlTab('tools'); // Default to tools tab
+                } else {
+                    controlCenter.classList.add('hidden');
+                }
+            });
+        }
+        
+        if (controlCenterClose) {
+            controlCenterClose.addEventListener('click', () => {
+                controlCenter.classList.add('hidden');
+            });
+        }
+        
+        // Control Center Tab Functions (these were referenced but not defined)
+        function showControlTab(tabName) {
+            // Update active tab
+            document.querySelectorAll('.control-tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
+            });
             
-            if (chatSidebarExpanded) {
-                chatSidebar.classList.add('expanded');
-                chatSidebarToggleIcon.textContent = '‹';
-            } else {
-                chatSidebar.classList.remove('expanded');
-                chatSidebarToggleIcon.textContent = '›';
+            const activeTab = document.querySelector(`[data-control-tab="${tabName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+                activeTab.setAttribute('aria-selected', 'true');
             }
-        });
+            
+            // Update content
+            const content = document.getElementById('control-content');
+            if (content) {
+                content.innerHTML = generateControlContent(tabName);
+                setupControlHandlers(tabName);
+            }
+        }
         
-        // Chat Sidebar Tab Functionality
-        document.querySelectorAll('.chat-sidebar-tab').forEach(tab => {
+        function generateControlContent(tabName) {
+            switch (tabName) {
+                case 'tools':
+                    return `
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-green-400">Tool Selection</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="btn-tool control-tool-btn ${appState.currentTool === 'move' ? 'active' : ''}" data-tool="move">
+                                    <span class="icon">⬅️</span> Move
+                                </button>
+                                <button class="btn-tool control-tool-btn ${appState.currentTool === 'ruler' ? 'active' : ''}" data-tool="ruler">
+                                    <span class="icon">📏</span> Ruler
+                                </button>
+                                <button class="btn-tool control-tool-btn ${appState.currentTool === 'fog' ? 'active' : ''}" data-tool="fog">
+                                    <span class="icon">👁️</span> Fog
+                                </button>
+                                <button class="btn-tool control-tool-btn ${appState.currentTool === 'token' ? 'active' : ''}" data-tool="token">
+                                    <span class="icon">👥</span> Token
+                                </button>
+                            </div>
+                            
+                            <h4 class="text-lg font-semibold text-green-400 mt-4">Quick Actions</h4>
+                            <div class="space-y-2">
+                                <button id="control-create-token" class="btn-primary w-full">
+                                    <span class="icon">➕</span> Create Token
+                                </button>
+                                <button id="control-toggle-fog" class="btn-secondary w-full">
+                                    <span class="icon">👁️</span> Toggle Fog Mode
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                case 'chat':
+                    return `
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-green-400">Chat Messages</h4>
+                            <div id="control-chat-messages" class="control-chat-messages">
+                                <div class="text-gray-400 text-xs mb-2">Welcome to The Dragon Stones!</div>
+                                <div class="text-green-400 text-xs">System: Control Center active.</div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <input 
+                                    id="control-chat-input" 
+                                    type="text" 
+                                    placeholder="Type message or /roll 1d20..." 
+                                    class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm"
+                                    aria-label="Chat message input"
+                                >
+                                <button id="control-send-chat" class="btn-secondary" aria-label="Send chat message">
+                                    <span class="icon">📤</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                case 'dice':
+                    return `
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-green-400">Dice Roller</h4>
+                            
+                            <div class="grid grid-cols-3 gap-2">
+                                <button class="btn-dice" data-dice="1d4">d4</button>
+                                <button class="btn-dice" data-dice="1d6">d6</button>
+                                <button class="btn-dice" data-dice="1d8">d8</button>
+                                <button class="btn-dice" data-dice="1d10">d10</button>
+                                <button class="btn-dice" data-dice="1d12">d12</button>
+                                <button class="btn-dice" data-dice="1d20">d20</button>
+                            </div>
+                            
+                            <div>
+                                <label class="text-sm text-gray-300 block mb-1">Custom Roll:</label>
+                                <div class="flex gap-2">
+                                    <input 
+                                        id="control-custom-dice-input" 
+                                        type="text" 
+                                        placeholder="2d6+3, 1d20+5, etc." 
+                                        class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm"
+                                    >
+                                    <button id="control-roll-custom" class="btn-primary">
+                                        <span class="icon">🎲</span> Roll
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="control-recent-rolls" class="bg-gray-800 rounded p-3 max-h-32 overflow-y-auto">
+                                <div class="text-gray-400 text-xs">Recent rolls will appear here</div>
+                            </div>
+                        </div>
+                    `;
+                case 'panels':
+                    return `
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-green-400">Quick Panel Access</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="btn-secondary control-panel-btn" data-panel="party">
+                                    <span class="icon">👥</span> Party
+                                </button>
+                                <button class="btn-secondary control-panel-btn" data-panel="initiative">
+                                    <span class="icon">⚡</span> Initiative
+                                </button>
+                                <button class="btn-secondary control-panel-btn" data-panel="dice">
+                                    <span class="icon">🎲</span> Dice
+                                </button>
+                                <button class="btn-secondary control-panel-btn" data-panel="tokens">
+                                    <span class="icon">🎨</span> Tokens
+                                </button>
+                            </div>
+                            
+                            <h4 class="text-lg font-semibold text-green-400 mt-4">Actions</h4>
+                            <div class="space-y-2">
+                                <button id="control-upload-campaign" class="btn-secondary w-full">
+                                    <span class="icon">📂</span> Upload Campaign
+                                </button>
+                                <button id="control-upload-expansion" class="btn-secondary w-full">
+                                    <span class="icon">📦</span> Upload Expansion
+                                </button>
+                                <button id="control-save-scenario" class="btn-secondary w-full">
+                                    <span class="icon">💾</span> Save Scenario
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                default:
+                    return '<div class="text-white">Content not available</div>';
+            }
+        }
+        
+        function setupControlHandlers(tabName) {
+            switch (tabName) {
+                case 'tools':
+                    setupToolsHandlers();
+                    break;
+                case 'chat':
+                    setupChatHandlers();
+                    break;
+                case 'dice':
+                    setupDiceHandlers();
+                    break;
+                case 'panels':
+                    setupPanelsHandlers();
+                    break;
+            }
+        }
+        
+        function setupToolsHandlers() {
+            document.querySelectorAll('.control-tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tool = btn.dataset.tool;
+                    selectTool(tool);
+                    
+                    // Update visual state
+                    document.querySelectorAll('.control-tool-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+            
+            const createTokenBtn = document.getElementById('control-create-token');
+            if (createTokenBtn) {
+                createTokenBtn.addEventListener('click', () => {
+                    showPanel('tokens');
+                    addChatMessage('Switched to Token Maker panel', 'system');
+                });
+            }
+            
+            const toggleFogBtn = document.getElementById('control-toggle-fog');
+            if (toggleFogBtn) {
+                toggleFogBtn.addEventListener('click', () => {
+                    selectTool('fog');
+                    addChatMessage('Fog of War tool selected', 'system');
+                });
+            }
+        }
+        
+        function setupChatHandlers() {
+            const chatInput = document.getElementById('control-chat-input');
+            const sendButton = document.getElementById('control-send-chat');
+            
+            function sendControlChatMessage() {
+                const message = chatInput.value.trim();
+                if (message === '') return;
+                
+                if (message.startsWith('/roll ')) {
+                    const diceString = message.split(' ')[1];
+                    const result = rollDice(diceString);
+                    if (result) {
+                        addControlChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+                    } else {
+                        addControlChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
+                    }
+                } else {
+                    addControlChatMessage(`Player: ${message}`, 'user');
+                }
+                
+                chatInput.value = '';
+            }
+            
+            if (sendButton) {
+                sendButton.addEventListener('click', sendControlChatMessage);
+            }
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendControlChatMessage();
+                    }
+                });
+            }
+        }
+        
+        function setupDiceHandlers() {
+            document.querySelectorAll('.btn-dice').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const diceString = btn.dataset.dice;
+                    const result = rollDice(diceString);
+                    if (result) {
+                        addControlChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}] = ${result.total}`, 'dice');
+                        addToControlRecentRolls(`${result.diceString}: ${result.total}`);
+                    }
+                });
+            });
+            
+            const customInput = document.getElementById('control-custom-dice-input');
+            const rollBtn = document.getElementById('control-roll-custom');
+            
+            function rollCustomDice() {
+                const diceString = customInput.value.trim();
+                if (diceString) {
+                    const result = rollDice(diceString);
+                    if (result) {
+                        addControlChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+                        addToControlRecentRolls(`${result.diceString}: ${result.total}`);
+                        customInput.value = '';
+                    } else {
+                        addControlChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
+                    }
+                }
+            }
+            
+            if (rollBtn) {
+                rollBtn.addEventListener('click', rollCustomDice);
+            }
+            if (customInput) {
+                customInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        rollCustomDice();
+                    }
+                });
+            }
+        }
+        
+        function setupPanelsHandlers() {
+            document.querySelectorAll('.control-panel-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const panel = btn.dataset.panel;
+                    showPanel(panel);
+                    addChatMessage(`Switched to ${panel} panel`, 'system');
+                });
+            });
+            
+            const uploadCampaignBtn = document.getElementById('control-upload-campaign');
+            if (uploadCampaignBtn) {
+                uploadCampaignBtn.addEventListener('click', () => {
+                    document.getElementById('upload-campaign').click();
+                });
+            }
+            
+            const uploadExpansionBtn = document.getElementById('control-upload-expansion');
+            if (uploadExpansionBtn) {
+                uploadExpansionBtn.addEventListener('click', () => {
+                    document.getElementById('upload-expansion').click();
+                });
+            }
+        }
+        
+        function addControlChatMessage(message, type = 'user') {
+            const messagesContainer = document.getElementById('control-chat-messages');
+            if (messagesContainer) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `text-${type === 'system' ? 'green-400' : type === 'dice' ? 'yellow-400' : 'white'} text-xs mb-1`;
+                messageDiv.textContent = message;
+                
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+            
+            // Also add to main chat if available
+            addChatMessage(message, type);
+        }
+        
+        function addToControlRecentRolls(rollText) {
+            const recentRolls = document.getElementById('control-recent-rolls');
+            if (recentRolls) {
+                const rollDiv = document.createElement('div');
+                rollDiv.className = 'text-white text-xs mb-1';
+                rollDiv.textContent = rollText;
+                recentRolls.appendChild(rollDiv);
+                recentRolls.scrollTop = recentRolls.scrollHeight;
+            }
+        }
+        
+        // Control Center Tab Event Listeners
+        document.querySelectorAll('.control-tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                const panelName = tab.dataset.chatPanel;
-                
-                // Update active tab in chat sidebar
-                document.querySelectorAll('.chat-sidebar-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Switch to the corresponding panel in the main sidebar
-                showPanel(panelName);
-                
-                // Optional: Close chat sidebar after selection for mobile-like behavior
-                // chatSidebarExpanded = false;
-                // chatSidebar.classList.remove('expanded');
-                // chatSidebarToggleIcon.textContent = '›';
-                
-                addChatMessage(`Switched to ${panelName} panel`, 'system');
+                const tabName = tab.dataset.controlTab;
+                showControlTab(tabName);
             });
         });
         
-        // Dragging functionality
-        chatWindowHeader.addEventListener('mousedown', (e) => {
-            // Don't start dragging if clicking on the toggle button
-            if (e.target === chatSidebarToggle || chatSidebarToggle.contains(e.target)) {
+        // Remove old chat sidebar functionality and replace with Control Center
+        // Note: Legacy code removed for cleaner interface
+        
+        // Control Center Dragging functionality
+        if (controlCenterHeader) {
+            controlCenterHeader.addEventListener('mousedown', (e) => {
+            // Don't start dragging if clicking on the close button
+            if (e.target === controlCenterClose || controlCenterClose.contains(e.target)) {
                 return;
             }
             
-            if (e.target === chatWindowHeader || chatWindowHeader.contains(e.target)) {
+            if (e.target === controlCenterHeader || controlCenterHeader.contains(e.target)) {
                 isDragging = true;
-                chatWindow.classList.add('dragging');
+                controlCenter.classList.add('dragging');
                 
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
                 
-                const rect = chatWindow.getBoundingClientRect();
+                const rect = controlCenter.getBoundingClientRect();
                 windowStartX = rect.left;
                 windowStartY = rect.top;
                 

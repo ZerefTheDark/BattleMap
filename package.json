@@ -12,9 +12,14 @@
     "serve:bg": "python -m http.server 8000 > /dev/null 2>&1 &"
   },
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.55.0"
   },
-  "keywords": ["dnd", "battlemap", "testing", "playwright"],
+  "keywords": [
+    "dnd",
+    "battlemap",
+    "testing",
+    "playwright"
+  ],
   "author": "BattleMap Contributors",
   "license": "MIT"
 }
