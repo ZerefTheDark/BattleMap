@@ -4,6 +4,25 @@
 
 This guide details the implementation of D&D Beyond-style character sheets and campaign import functionality in BattleMap. The system provides a comprehensive digital character sheet experience similar to D&D Beyond's interface, integrated seamlessly into the battle map application.
 
+## Recent Updates
+
+### UI Consolidation (Latest)
+The interface has been consolidated to eliminate duplicate features:
+- **Floating Center Module**: New centralized quick actions panel
+- **Streamlined Access**: Single access point for each feature
+- **Removed Duplications**: Eliminated redundant chat sidebar and toolbar buttons
+- **Enhanced UX**: Cleaner, more intuitive interface
+
+For detailed information about the UI changes, see [UI_CONSOLIDATION.md](UI_CONSOLIDATION.md).
+
+### Playwright MCP Server Support
+Added comprehensive support for Model Context Protocol (MCP) server with Playwright automation:
+- **MCP Tools**: Battle map manipulation, dice rolling, party management
+- **Playwright Integration**: Browser automation and testing capabilities  
+- **Troubleshooting Guide**: Comprehensive setup and debugging documentation
+
+For troubleshooting Playwright issues, see [PLAYWRIGHT_TROUBLESHOOTING.md](PLAYWRIGHT_TROUBLESHOOTING.md).
+
 ## Architecture
 
 ### Core Components
