@@ -1514,39 +1514,148 @@
         }
         
         // Create default character sheet structure
+        // Enhanced with comprehensive D&D 5e fields and metadata
         function createDefaultCharacterSheet() {
             return {
+                // Basic Character Information
                 name: 'New Character',
                 level: 1,
                 class: 'Fighter',
                 race: 'Human',
                 background: 'Soldier',
+                alignment: 'Lawful Neutral',
+                
+                // Core Ability Scores
                 stats: {
                     str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10
                 },
+                
+                // Health and Vitality
                 health: {
                     current: 10,
                     max: 10,
                     temp: 0
                 },
+                hitDice: {
+                    total: 1,
+                    current: 1,
+                    type: 'd10'
+                },
+                deathSaves: {
+                    successes: 0,
+                    failures: 0
+                },
+                
+                // Combat Stats
                 ac: 10,
                 speed: 30,
                 initiative: 0,
                 proficiencyBonus: 2,
+                
+                // Character Progression
+                experiencePoints: 0,
+                inspiration: false,
+                
+                // Saving Throws (proficiency flags)
                 savingThrows: {
-                    str: false, dex: false, con: false, int: false, wis: false, cha: false
+                    str: false, dex: false, con: false, 
+                    int: false, wis: false, cha: false
                 },
+                
+                // Skills (proficiency and expertise modifiers)
                 skills: {
-                    acrobatics: 0, animalHandling: 0, arcana: 0, athletics: 0,
-                    deception: 0, history: 0, insight: 0, intimidation: 0,
-                    investigation: 0, medicine: 0, nature: 0, perception: 0,
-                    performance: 0, persuasion: 0, religion: 0, sleightOfHand: 0,
-                    stealth: 0, survival: 0
+                    acrobatics: { proficient: false, expertise: false },
+                    animalHandling: { proficient: false, expertise: false },
+                    arcana: { proficient: false, expertise: false },
+                    athletics: { proficient: false, expertise: false },
+                    deception: { proficient: false, expertise: false },
+                    history: { proficient: false, expertise: false },
+                    insight: { proficient: false, expertise: false },
+                    intimidation: { proficient: false, expertise: false },
+                    investigation: { proficient: false, expertise: false },
+                    medicine: { proficient: false, expertise: false },
+                    nature: { proficient: false, expertise: false },
+                    perception: { proficient: false, expertise: false },
+                    performance: { proficient: false, expertise: false },
+                    persuasion: { proficient: false, expertise: false },
+                    religion: { proficient: false, expertise: false },
+                    sleightOfHand: { proficient: false, expertise: false },
+                    stealth: { proficient: false, expertise: false },
+                    survival: { proficient: false, expertise: false }
                 },
+                
+                // Senses and Perception
+                passivePerception: 10,
+                senses: {
+                    darkvision: 0,
+                    blindsight: 0,
+                    tremorsense: 0,
+                    truesight: 0
+                },
+                
+                // Movement
+                movement: {
+                    walk: 30,
+                    fly: 0,
+                    swim: 0,
+                    climb: 0,
+                    burrow: 0
+                },
+                
+                // Resistances and Immunities
+                damageResistances: [],
+                damageImmunities: [],
+                damageVulnerabilities: [],
+                conditionImmunities: [],
+                
+                // Languages and Proficiencies
+                languages: ['Common'],
+                toolProficiencies: [],
+                weaponProficiencies: ['Simple weapons'],
+                armorProficiencies: ['Light armor'],
+                
+                // Spellcasting
+                spellcasting: {
+                    class: null,
+                    ability: null,
+                    spellSaveDC: null,
+                    spellAttackBonus: null,
+                    spellSlots: {
+                        1: { max: 0, current: 0 },
+                        2: { max: 0, current: 0 },
+                        3: { max: 0, current: 0 },
+                        4: { max: 0, current: 0 },
+                        5: { max: 0, current: 0 },
+                        6: { max: 0, current: 0 },
+                        7: { max: 0, current: 0 },
+                        8: { max: 0, current: 0 },
+                        9: { max: 0, current: 0 }
+                    }
+                },
+                
+                // Character Content
                 spells: [],
                 inventory: [],
                 features: [],
-                notes: ''
+                conditions: [],
+                notes: '',
+                
+                // Additional Character Details
+                appearance: {
+                    age: '',
+                    height: '',
+                    weight: '',
+                    eyes: '',
+                    skin: '',
+                    hair: ''
+                },
+                personality: {
+                    traits: '',
+                    ideals: '',
+                    bonds: '',
+                    flaws: ''
+                },
+                backstory: ''
             };
         }
         
@@ -1715,22 +1824,37 @@
             const formatModifier = (mod) => mod >= 0 ? `+${mod}` : `${mod}`;
             
             return `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Health -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Health & Vitality -->
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Health</h3>
-                        <div class="grid grid-cols-3 gap-4">
-                            <div class="text-center">
-                                <div class="text-2xl font-bold text-white">${sheet.health.current}</div>
-                                <div class="text-xs text-gray-400">Current HP</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Health & Vitality</h3>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-white">${sheet.health.current}</div>
+                                    <div class="text-xs text-gray-400">Current HP</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-white">${sheet.health.max}</div>
+                                    <div class="text-xs text-gray-400">Max HP</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-yellow-400">${sheet.health.temp}</div>
+                                    <div class="text-xs text-gray-400">Temp HP</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="text-center">
+                                    <div class="text-lg font-bold text-white">${sheet.hitDice.current}/${sheet.hitDice.total}</div>
+                                    <div class="text-xs text-gray-400">Hit Dice (${sheet.hitDice.type})</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-lg font-bold ${sheet.inspiration ? 'text-yellow-400' : 'text-gray-500'}">${sheet.inspiration ? '✨' : '○'}</div>
+                                    <div class="text-xs text-gray-400">Inspiration</div>
+                                </div>
                             </div>
                             <div class="text-center">
-                                <div class="text-2xl font-bold text-white">${sheet.health.max}</div>
-                                <div class="text-xs text-gray-400">Max HP</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-2xl font-bold text-yellow-400">${sheet.health.temp}</div>
-                                <div class="text-xs text-gray-400">Temp HP</div>
+                                <div class="text-sm text-gray-400">Death Saves: ${sheet.deathSaves.successes}/3 ✓ ${sheet.deathSaves.failures}/3 ✗</div>
                             </div>
                         </div>
                     </div>
@@ -1752,7 +1876,7 @@
                     <!-- Combat Stats -->
                     <div class="stat-block rounded-lg p-4">
                         <h3 class="text-lg font-semibold text-green-400 mb-3">Combat</h3>
-                        <div class="grid grid-cols-3 gap-4">
+                        <div class="grid grid-cols-2 gap-4">
                             <div class="text-center">
                                 <div class="text-xl font-bold text-white">${sheet.ac}</div>
                                 <div class="text-xs text-gray-400">Armor Class</div>
@@ -1763,23 +1887,96 @@
                             </div>
                             <div class="text-center">
                                 <div class="text-xl font-bold text-white">${sheet.speed} ft</div>
-                                <div class="text-xs text-gray-400">Speed</div>
+                                <div class="text-xs text-gray-400">Walk Speed</div>
                             </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-white">${sheet.passivePerception}</div>
+                                <div class="text-xs text-gray-400">Passive Perception</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-sm">
+                            <div class="text-gray-400">Proficiency Bonus: <span class="text-white">+${sheet.proficiencyBonus}</span></div>
                         </div>
                     </div>
                     
                     <!-- Character Info -->
                     <div class="stat-block rounded-lg p-4">
                         <h3 class="text-lg font-semibold text-green-400 mb-3">Character Info</h3>
-                        <div class="space-y-2">
+                        <div class="space-y-2 text-sm">
                             <div><span class="text-gray-400">Race:</span> <span class="text-white">${sheet.race}</span></div>
                             <div><span class="text-gray-400">Class:</span> <span class="text-white">${sheet.class}</span></div>
                             <div><span class="text-gray-400">Level:</span> <span class="text-white">${sheet.level}</span></div>
                             <div><span class="text-gray-400">Background:</span> <span class="text-white">${sheet.background}</span></div>
-                            <div><span class="text-gray-400">Proficiency Bonus:</span> <span class="text-white">+${sheet.proficiencyBonus}</span></div>
+                            <div><span class="text-gray-400">Alignment:</span> <span class="text-white">${sheet.alignment}</span></div>
+                            <div><span class="text-gray-400">Experience:</span> <span class="text-white">${sheet.experiencePoints} XP</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Movement & Senses -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Movement & Senses</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="text-gray-400 font-semibold">Movement:</div>
+                            ${Object.entries(sheet.movement).filter(([type, speed]) => speed > 0).map(([type, speed]) => `
+                                <div class="ml-2">${type.charAt(0).toUpperCase() + type.slice(1)}: ${speed} ft</div>
+                            `).join('')}
+                            
+                            <div class="text-gray-400 font-semibold mt-3">Senses:</div>
+                            ${Object.entries(sheet.senses).filter(([type, range]) => range > 0).map(([type, range]) => `
+                                <div class="ml-2">${type.charAt(0).toUpperCase() + type.slice(1)}: ${range} ft</div>
+                            `).join('') || '<div class="ml-2 text-gray-500">None</div>'}
+                        </div>
+                    </div>
+                    
+                    <!-- Proficiencies & Languages -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Proficiencies</h3>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="text-gray-400">Languages:</span> <span class="text-white">${sheet.languages.join(', ')}</span></div>
+                            <div><span class="text-gray-400">Weapons:</span> <span class="text-white">${sheet.weaponProficiencies.join(', ')}</span></div>
+                            <div><span class="text-gray-400">Armor:</span> <span class="text-white">${sheet.armorProficiencies.join(', ')}</span></div>
+                            ${sheet.toolProficiencies.length > 0 ? `<div><span class="text-gray-400">Tools:</span> <span class="text-white">${sheet.toolProficiencies.join(', ')}</span></div>` : ''}
                         </div>
                     </div>
                 </div>
+                
+                <!-- Resistances & Immunities (if any) -->
+                ${(sheet.damageResistances.length > 0 || sheet.damageImmunities.length > 0 || sheet.damageVulnerabilities.length > 0 || sheet.conditionImmunities.length > 0) ? `
+                <div class="stat-block rounded-lg p-4 mt-6">
+                    <h3 class="text-lg font-semibold text-green-400 mb-3">Resistances & Immunities</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        ${sheet.damageResistances.length > 0 ? `<div><span class="text-yellow-400">Resistances:</span> <span class="text-white">${sheet.damageResistances.join(', ')}</span></div>` : ''}
+                        ${sheet.damageImmunities.length > 0 ? `<div><span class="text-green-400">Immunities:</span> <span class="text-white">${sheet.damageImmunities.join(', ')}</span></div>` : ''}
+                        ${sheet.damageVulnerabilities.length > 0 ? `<div><span class="text-red-400">Vulnerabilities:</span> <span class="text-white">${sheet.damageVulnerabilities.join(', ')}</span></div>` : ''}
+                        ${sheet.conditionImmunities.length > 0 ? `<div><span class="text-blue-400">Condition Immunities:</span> <span class="text-white">${sheet.conditionImmunities.join(', ')}</span></div>` : ''}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <!-- Spellcasting (if applicable) -->
+                ${sheet.spellcasting.class ? `
+                <div class="stat-block rounded-lg p-4 mt-6">
+                    <h3 class="text-lg font-semibold text-green-400 mb-3">Spellcasting</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div><span class="text-gray-400">Class:</span> <span class="text-white">${sheet.spellcasting.class}</span></div>
+                        <div><span class="text-gray-400">Spell Save DC:</span> <span class="text-white">${sheet.spellcasting.spellSaveDC}</span></div>
+                        <div><span class="text-gray-400">Spell Attack:</span> <span class="text-white">${formatModifier(sheet.spellcasting.spellAttackBonus)}</span></div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-gray-400 mb-2">Spell Slots:</div>
+                        <div class="grid grid-cols-9 gap-1">
+                            ${Object.entries(sheet.spellcasting.spellSlots).map(([level, slots]) => 
+                                slots.max > 0 ? `
+                                    <div class="text-center">
+                                        <div class="text-xs text-gray-400">${level}</div>
+                                        <div class="text-sm text-white">${slots.current}/${slots.max}</div>
+                                    </div>
+                                ` : ''
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
             `;
         }
         
@@ -1810,9 +2007,50 @@
         function generateSpellsTab(sheet) {
             return `
                 <div class="space-y-6">
+                    <!-- Spellcasting Info -->
+                    ${sheet.spellcasting.class ? `
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Spells</h3>
-                        <div class="text-gray-300">No spells available</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Spellcasting Ability</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div><span class="text-gray-400">Spellcasting Class:</span> <span class="text-white">${sheet.spellcasting.class}</span></div>
+                            <div><span class="text-gray-400">Spellcasting Ability:</span> <span class="text-white">${sheet.spellcasting.ability || 'None'}</span></div>
+                            <div><span class="text-gray-400">Spell Save DC:</span> <span class="text-white">${sheet.spellcasting.spellSaveDC || 'N/A'}</span></div>
+                            <div><span class="text-gray-400">Spell Attack Bonus:</span> <span class="text-white">${sheet.spellcasting.spellAttackBonus !== null ? (sheet.spellcasting.spellAttackBonus >= 0 ? '+' + sheet.spellcasting.spellAttackBonus : sheet.spellcasting.spellAttackBonus) : 'N/A'}</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Spell Slots -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Spell Slots</h3>
+                        <div class="grid grid-cols-9 gap-2">
+                            ${Object.entries(sheet.spellcasting.spellSlots).map(([level, slots]) => 
+                                slots.max > 0 ? `
+                                    <div class="text-center bg-gray-700 rounded p-2">
+                                        <div class="text-xs text-gray-400">Level ${level}</div>
+                                        <div class="text-lg font-bold text-white">${slots.current}</div>
+                                        <div class="text-xs text-gray-400">/ ${slots.max}</div>
+                                    </div>
+                                ` : ''
+                            ).join('')}
+                        </div>
+                        ${Object.values(sheet.spellcasting.spellSlots).every(slots => slots.max === 0) ? '<div class="text-gray-300">No spell slots available</div>' : ''}
+                    </div>
+                    ` : ''}
+                    
+                    <!-- Known Spells -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Known Spells</h3>
+                        ${sheet.spells && sheet.spells.length > 0 ? `
+                            <div class="space-y-2">
+                                ${sheet.spells.map(spell => `
+                                    <div class="bg-gray-700 rounded p-3">
+                                        <div class="font-semibold text-white">${spell.name || 'Unnamed Spell'}</div>
+                                        <div class="text-sm text-gray-300">${spell.level ? `Level ${spell.level}` : 'Cantrip'} ${spell.school || ''}</div>
+                                        ${spell.description ? `<div class="text-sm text-gray-400 mt-1">${spell.description}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="text-gray-300">No spells known</div>'}
                     </div>
                 </div>
             `;
@@ -1843,10 +2081,59 @@
         function generateDescriptionTab(sheet) {
             return `
                 <div class="space-y-6">
+                    <!-- Physical Appearance -->
                     <div class="stat-block rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-green-400 mb-3">Character Description</h3>
-                        <div class="text-gray-300">No description provided</div>
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Physical Appearance</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div><span class="text-gray-400">Age:</span> <span class="text-white">${sheet.appearance.age || 'Unknown'}</span></div>
+                            <div><span class="text-gray-400">Height:</span> <span class="text-white">${sheet.appearance.height || 'Unknown'}</span></div>
+                            <div><span class="text-gray-400">Weight:</span> <span class="text-white">${sheet.appearance.weight || 'Unknown'}</span></div>
+                            <div><span class="text-gray-400">Eyes:</span> <span class="text-white">${sheet.appearance.eyes || 'Unknown'}</span></div>
+                            <div><span class="text-gray-400">Skin:</span> <span class="text-white">${sheet.appearance.skin || 'Unknown'}</span></div>
+                            <div><span class="text-gray-400">Hair:</span> <span class="text-white">${sheet.appearance.hair || 'Unknown'}</span></div>
+                        </div>
                     </div>
+                    
+                    <!-- Personality Traits -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Personality</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="text-gray-400 font-semibold mb-1">Personality Traits:</div>
+                                <div class="text-white text-sm bg-gray-700 rounded p-2">${sheet.personality.traits || 'No traits defined'}</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400 font-semibold mb-1">Ideals:</div>
+                                <div class="text-white text-sm bg-gray-700 rounded p-2">${sheet.personality.ideals || 'No ideals defined'}</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400 font-semibold mb-1">Bonds:</div>
+                                <div class="text-white text-sm bg-gray-700 rounded p-2">${sheet.personality.bonds || 'No bonds defined'}</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400 font-semibold mb-1">Flaws:</div>
+                                <div class="text-white text-sm bg-gray-700 rounded p-2">${sheet.personality.flaws || 'No flaws defined'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Backstory -->
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Backstory</h3>
+                        <div class="text-white text-sm bg-gray-700 rounded p-3">${sheet.backstory || 'No backstory provided'}</div>
+                    </div>
+                    
+                    <!-- Current Conditions -->
+                    ${sheet.conditions && sheet.conditions.length > 0 ? `
+                    <div class="stat-block rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-400 mb-3">Current Conditions</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            ${sheet.conditions.map(condition => `
+                                <div class="bg-red-800 text-white text-sm rounded p-2">${condition}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -3317,7 +3604,33 @@
                 }
             });
             
-            // Dragging functionality
+            // ==========================================
+            // MODULE DRAGGING FUNCTIONALITY
+            // ==========================================
+            // 
+            // ISSUE ANALYSIS: Drag position calculation causes windows to follow 
+            // mouse movements but not land in the correct final position.
+            //
+            // ROOT CAUSE: The position calculation logic has several issues:
+            // 1. getBoundingClientRect() captures current position at drag start,
+            //    but doesn't account for any existing CSS transforms
+            // 2. Viewport bounds checking can constrain movement unexpectedly
+            // 3. Z-index changes during drag may affect coordinate calculations
+            // 4. No compensation for scroll offset or zoom level changes
+            //
+            // POSITION CALCULATION FLOW:
+            // - mousedown: Record starting mouse position (dragStartX/Y) and 
+            //   element position (moduleStartX/Y) via getBoundingClientRect()
+            // - mousemove: Calculate delta from start position, add to initial
+            //   element position to get new position
+            // - Viewport bounds checking constrains the final position
+            //
+            // POTENTIAL FIXES NEEDED:
+            // - Account for CSS transforms and scroll offset
+            // - Improve viewport bounds calculation
+            // - Consider using transform3d instead of left/top positioning
+            // - Add compensation for zoom level and coordinate system changes
+            //
             let isDragging = false;
             let dragStartX = 0;
             let dragStartY = 0;
@@ -3334,9 +3647,15 @@
                 moduleElement.classList.add('dragging');
                 moduleElement.style.zIndex = ++nextModuleZIndex;
                 
+                // DRAG START POSITION CAPTURE
+                // Record the mouse position in screen coordinates when drag begins
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
                 
+                // ELEMENT POSITION CAPTURE
+                // getBoundingClientRect() returns the element's position relative to viewport
+                // ISSUE: This doesn't account for CSS transforms or scroll offset
+                // which can cause position drift during drag operations
                 const rect = moduleElement.getBoundingClientRect();
                 moduleStartX = rect.left;
                 moduleStartY = rect.top;
@@ -3377,13 +3696,22 @@
             // Global mouse move handler for this module
             const mouseMoveHandler = (e) => {
                 if (isDragging) {
+                    // POSITION CALCULATION LOGIC
+                    // Calculate how far the mouse has moved from the drag start point
                     const deltaX = e.clientX - dragStartX;
                     const deltaY = e.clientY - dragStartY;
                     
+                    // Add the movement delta to the original element position
+                    // ISSUE: This assumes the element hasn't been moved by other means
+                    // and doesn't account for coordinate system changes or transforms
                     const newX = moduleStartX + deltaX;
                     const newY = moduleStartY + deltaY;
                     
+                    // VIEWPORT BOUNDS CHECKING
                     // Keep module within viewport bounds
+                    // ISSUE: This constraint checking can cause position jumps
+                    // when the calculated position exceeds bounds, leading to
+                    // the "window follows but doesn't land correctly" behavior
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
                     const moduleRect = moduleElement.getBoundingClientRect();
@@ -3674,6 +4002,14 @@
 
         // Module system implementation complete
 
+        // ==========================================
+        // CONTROL CENTER DRAGGING FUNCTIONALITY  
+        // ==========================================
+        //
+        // Similar position calculation issues exist here as with module dragging.
+        // The same root causes apply: getBoundingClientRect() positioning,
+        // viewport bounds constraints, and lack of transform compensation.
+        //
         // Control Center Dragging functionality
         if (controlCenterHeader) {
             controlCenterHeader.addEventListener('mousedown', (e) => {
@@ -3686,6 +4022,7 @@
                     isControlCenterDragging = true;
                     controlCenter.classList.add('dragging');
                     
+                    // Same position capture logic as modules - same potential issues
                     dragStartX = e.clientX;
                     dragStartY = e.clientY;
                     
@@ -3722,13 +4059,16 @@
         // Mouse move handler for both drag and resize
         document.addEventListener('mousemove', (e) => {
             if (isControlCenterDragging) {
+                // CONTROL CENTER POSITION CALCULATION
+                // Same delta-based calculation as modules with same issues
                 const deltaX = e.clientX - dragStartX;
                 const deltaY = e.clientY - dragStartY;
                 
                 const newX = windowStartX + deltaX;
                 const newY = windowStartY + deltaY;
                 
-                // Keep window within viewport bounds
+                // VIEWPORT BOUNDS CONSTRAINT
+                // Keep window within viewport bounds - can cause position snapping
                 const viewportWidth = window.innerWidth;
                 const viewportHeight = window.innerHeight;
                 const windowRect = controlCenter.getBoundingClientRect();
