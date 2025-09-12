@@ -330,6 +330,57 @@
         .chat-window.resizing {
             user-select: none;
         }
+        
+        /* Panel Tab Styles */
+        .panel-tab {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .panel-tab:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .active-panel-tab {
+            background: rgba(16, 185, 129, 0.2);
+            border-bottom-color: #fbbf24 !important;
+        }
+        
+        .panel-content {
+            background: linear-gradient(145deg, #1f2937, #374151);
+        }
+        
+        /* Enhanced Fog Tool Styles */
+        .fog-mode-selector {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+        }
+        
+        .fog-mode-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .fog-mode-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+        
+        .fog-mode-btn.active {
+            background: rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+        }
+        
+        #fog-submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            margin-top: 4px;
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            min-width: 8rem;
+        }
     </style>
 </head>
 <body>
@@ -364,9 +415,23 @@
                     <span class="icon">📏</span>
                     <span class="hidden sm:inline text-xs">Ruler</span>
                 </button>
-                <button id="tool-fog" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Fog of War">
+                <button id="tool-fog" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1 relative" title="Fog of War">
                     <span class="icon">👁️</span>
                     <span class="hidden sm:inline text-xs">Fog</span>
+                    <div id="fog-submenu" class="hidden absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded shadow-lg z-50 min-w-32">
+                        <button class="fog-mode-btn w-full px-3 py-2 text-xs text-white hover:bg-gray-700 flex items-center gap-2 active" data-fog-mode="brush">
+                            <span>🖌️</span> Brush
+                        </button>
+                        <button class="fog-mode-btn w-full px-3 py-2 text-xs text-white hover:bg-gray-700 flex items-center gap-2" data-fog-mode="cone">
+                            <span>📐</span> Cone
+                        </button>
+                        <button class="fog-mode-btn w-full px-3 py-2 text-xs text-white hover:bg-gray-700 flex items-center gap-2" data-fog-mode="circle">
+                            <span>⭕</span> Circle
+                        </button>
+                        <button class="fog-mode-btn w-full px-3 py-2 text-xs text-white hover:bg-gray-700 flex items-center gap-2" data-fog-mode="clear">
+                            <span>🧹</span> Clear
+                        </button>
+                    </div>
                 </button>
                 <button id="tool-token" class="tool-button px-3 py-2 text-white rounded hover:bg-gray-600 flex items-center gap-1" title="Add Token">
                     <span class="icon">👥</span>
@@ -397,6 +462,11 @@
                     <span class="icon">📂</span>
                 </button>
                 
+                <!-- Upload Expansion Button -->
+                <button id="upload-expansion" class="p-2 text-gray-400 hover:text-white" title="Upload Expansion">
+                    <span class="icon">📦</span>
+                </button>
+                
                 <!-- Panel Toggles -->
                 <button id="chat-toggle" class="p-2 text-gray-400 hover:text-white" title="Chat Panel">
                     <span class="icon">💬</span>
@@ -411,9 +481,35 @@
         </div>
         
         <!-- Main Content Area -->
-        <div class="flex-1 relative">
+        <div class="flex-1 relative flex">
+            <!-- Left Sidebar Panel -->
+            <div id="sidebar-panel" class="w-80 bg-gray-900 border-r border-gray-700 flex flex-col">
+                <!-- Panel Tabs -->
+                <div class="flex bg-gray-800 border-b border-gray-700">
+                    <button class="panel-tab active-panel-tab flex-1 px-3 py-2 text-xs text-white border-b-2 border-yellow-400" data-panel="party">
+                        <span class="icon">👥</span> Party
+                    </button>
+                    <button class="panel-tab flex-1 px-3 py-2 text-xs text-white border-b-2 border-transparent" data-panel="initiative">
+                        <span class="icon">⚡</span> Initiative
+                    </button>
+                    <button class="panel-tab flex-1 px-3 py-2 text-xs text-white border-b-2 border-transparent" data-panel="dice">
+                        <span class="icon">🎲</span> Dice
+                    </button>
+                    <button class="panel-tab flex-1 px-3 py-2 text-xs text-white border-b-2 border-transparent" data-panel="tokens">
+                        <span class="icon">🎨</span> Tokens
+                    </button>
+                </div>
+                
+                <!-- Panel Content -->
+                <div class="flex-1 overflow-y-auto">
+                    <div id="panel-content" class="p-4">
+                        <!-- Panel content will be dynamically populated -->
+                    </div>
+                </div>
+            </div>
+            
             <!-- Battle Map Canvas -->
-            <div class="w-full h-full relative overflow-hidden">
+            <div class="flex-1 h-full relative overflow-hidden">
                 <canvas 
                     id="battle-canvas" 
                     class="battle-canvas w-full h-full grid-overlay"
@@ -634,6 +730,8 @@
         // Battle Map Application State
         const appState = {
             currentTool: 'move',
+            currentPanel: 'party',
+            fogMode: 'brush',
             zoom: 1.0,
             gridEnabled: true,
             camera: { x: 0, y: 0 },
@@ -646,7 +744,10 @@
                 pdfs: []
             },
             characterSheets: new Map(),
-            enemyPdfs: new Map()
+            enemyPdfs: new Map(),
+            party: [],
+            initiative: [],
+            fogOfWar: []
         };
         
         // Get canvas and context
@@ -677,6 +778,13 @@
                 appState.currentTool = toolId;
                 document.getElementById('current-tool').textContent = toolId.charAt(0).toUpperCase() + toolId.slice(1);
                 
+                // Show fog submenu if fog tool selected
+                if (toolId === 'fog') {
+                    document.getElementById('fog-submenu').classList.remove('hidden');
+                } else {
+                    document.getElementById('fog-submenu').classList.add('hidden');
+                }
+                
                 // Update cursor
                 canvas.className = `battle-canvas w-full h-full ${appState.gridEnabled ? 'grid-overlay' : ''}`;
                 if (toolId === 'move') {
@@ -684,10 +792,53 @@
                 } else if (toolId === 'ruler') {
                     canvas.style.cursor = 'crosshair';
                 } else if (toolId === 'fog') {
-                    canvas.style.cursor = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M9 9a3 3 0 1 1 6 0\'/%3E%3Cpath d=\'M6 8a6 6 0 0 1 12 0c0 7-3 9-6 9s-6-2-6-9\'/%3E%3Cpath d=\'M6 10a6 6 0 0 1 12 0c0 7-3 9-6 9s-6-2-6-9\'/%3E%3C/svg%3E") 12 12, auto';
+                    canvas.style.cursor = getFogCursor();
                 } else {
                     canvas.style.cursor = 'pointer';
                 }
+            });
+        });
+        
+        // Fog mode selection
+        document.addEventListener('click', (e) => {
+            const fogModeBtn = e.target.closest('.fog-mode-btn');
+            if (fogModeBtn) {
+                // Update active fog mode
+                document.querySelectorAll('.fog-mode-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                fogModeBtn.classList.add('active');
+                
+                appState.fogMode = fogModeBtn.dataset.fogMode;
+                canvas.style.cursor = getFogCursor();
+                
+                addChatMessage(`Fog mode: ${appState.fogMode}`, 'system');
+            } else if (!e.target.closest('#fog-submenu') && !e.target.closest('#tool-fog')) {
+                // Hide fog submenu when clicking outside
+                document.getElementById('fog-submenu').classList.add('hidden');
+            }
+        });
+        
+        function getFogCursor() {
+            switch (appState.fogMode) {
+                case 'brush':
+                    return 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'%3E%3Cpath d=\'M9 9a3 3 0 1 1 6 0\'/%3E%3Cpath d=\'M6 8a6 6 0 0 1 12 0c0 7-3 9-6 9s-6-2-6-9\'/%3E%3C/svg%3E") 12 12, auto';
+                case 'cone':
+                    return 'crosshair';
+                case 'circle':
+                    return 'crosshair';
+                case 'clear':
+                    return 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'%3E%3Cpath d=\'M3 6h18\'/%3E%3Cpath d=\'M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\'/%3E%3Cpath d=\'M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\'/%3E%3C/svg%3E") 12 12, auto';
+                default:
+                    return 'crosshair';
+            }
+        }
+        
+        // Panel tab selection
+        document.querySelectorAll('.panel-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const panelName = tab.dataset.panel;
+                showPanel(panelName);
             });
         });
         
@@ -1111,6 +1262,555 @@
             `;
         }
         
+        // Panel Management Functions
+        function showPanel(panelName) {
+            // Update active tab
+            document.querySelectorAll('.panel-tab').forEach(tab => {
+                tab.classList.remove('active-panel-tab');
+            });
+            document.querySelector(`[data-panel="${panelName}"]`).classList.add('active-panel-tab');
+            
+            // Update panel content
+            appState.currentPanel = panelName;
+            const content = document.getElementById('panel-content');
+            content.innerHTML = generatePanelContent(panelName);
+            
+            // Setup panel-specific event handlers
+            setupPanelHandlers(panelName);
+        }
+        
+        function generatePanelContent(panelName) {
+            switch (panelName) {
+                case 'party':
+                    return generatePartyPanel();
+                case 'initiative':
+                    return generateInitiativePanel();
+                case 'dice':
+                    return generateDicePanel();
+                case 'tokens':
+                    return generateTokenMakerPanel();
+                default:
+                    return '<div class="text-white">Panel content not implemented yet.</div>';
+            }
+        }
+        
+        function generatePartyPanel() {
+            return `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-green-400">Party Manager</h3>
+                        <button id="add-party-member" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+                            <span class="icon">➕</span> Add Member
+                        </button>
+                    </div>
+                    
+                    <div id="party-list" class="space-y-2">
+                        ${appState.party.length === 0 ? 
+                            '<div class="text-gray-400 text-sm text-center py-4">No party members yet</div>' :
+                            appState.party.map(member => `
+                                <div class="party-member bg-gray-800 rounded p-3 flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full" style="background-color: ${member.color}"></div>
+                                        <div>
+                                            <div class="text-white font-semibold">${member.name}</div>
+                                            <div class="text-gray-400 text-xs">${member.class} Level ${member.level}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm text-green-400">${member.hp}/${member.maxHp} HP</span>
+                                        <button class="text-red-400 hover:text-red-300" onclick="removePartyMember('${member.id}')">🗑️</button>
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateInitiativePanel() {
+            return `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-green-400">Initiative Tracker</h3>
+                        <div class="flex gap-2">
+                            <button id="roll-initiative" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                                🎲 Roll Initiative
+                            </button>
+                            <button id="next-turn" class="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm">
+                                ⏭️ Next Turn
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="initiative-list" class="space-y-2">
+                        ${appState.initiative.length === 0 ? 
+                            '<div class="text-gray-400 text-sm text-center py-4">No initiative order set</div>' :
+                            appState.initiative.map((entry, index) => `
+                                <div class="initiative-entry bg-gray-800 rounded p-3 flex items-center justify-between ${entry.isActive ? 'ring-2 ring-yellow-400' : ''}">
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-lg font-bold text-yellow-400">${entry.initiative}</div>
+                                        <div>
+                                            <div class="text-white font-semibold">${entry.name}</div>
+                                            <div class="text-gray-400 text-xs">${entry.type}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        ${entry.isActive ? '<span class="text-yellow-400">🔄</span>' : ''}
+                                        <button class="text-red-400 hover:text-red-300" onclick="removeFromInitiative('${entry.id}')">🗑️</button>
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateDicePanel() {
+            return `
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-green-400">Dice Roller</h3>
+                    
+                    <!-- Custom Dice Input -->
+                    <div class="space-y-2">
+                        <label class="text-sm text-gray-300">Custom Roll:</label>
+                        <div class="flex gap-2">
+                            <input id="custom-dice-input" type="text" placeholder="e.g., 2d6+3" class="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm">
+                            <button id="roll-custom-dice" class="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700">Roll</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Standard Dice -->
+                    <div class="space-y-2">
+                        <label class="text-sm text-gray-300">Standard Dice:</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d4">d4</button>
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d6">d6</button>
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d8">d8</button>
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d10">d10</button>
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d12">d12</button>
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="1d20">d20</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Multiple Dice -->
+                    <div class="space-y-2">
+                        <label class="text-sm text-gray-300">Multiple Dice:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="2d6">2d6</button>
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="3d6">3d6</button>
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="4d6">4d6</button>
+                            <button class="static-dice-btn px-3 py-2 bg-gray-700 text-white rounded hover:bg-gray-600" data-dice="2d20">2d20</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Rolls -->
+                    <div class="space-y-2">
+                        <label class="text-sm text-gray-300">Recent Rolls:</label>
+                        <div id="recent-rolls" class="bg-gray-800 rounded p-3 h-32 overflow-y-auto text-xs">
+                            <div class="text-gray-400">No recent rolls</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateTokenMakerPanel() {
+            return `
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-green-400">Token Maker</h3>
+                    
+                    <!-- Token Preview -->
+                    <div class="text-center">
+                        <div id="token-preview" class="w-16 h-16 rounded-full mx-auto mb-2" style="background-color: #ef4444; border: 2px solid #ffffff;"></div>
+                        <div class="text-sm text-gray-300">Preview</div>
+                    </div>
+                    
+                    <!-- Token Properties -->
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-sm text-gray-300 block mb-1">Name:</label>
+                            <input id="token-name" type="text" value="New Token" class="w-full bg-gray-700 text-white px-3 py-2 rounded text-sm">
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-300 block mb-1">Type:</label>
+                            <select id="token-type" class="w-full bg-gray-700 text-white px-3 py-2 rounded text-sm">
+                                <option value="player">Player Character</option>
+                                <option value="npc">NPC</option>
+                                <option value="enemy">Enemy</option>
+                                <option value="object">Object</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-300 block mb-1">Color:</label>
+                            <div class="grid grid-cols-5 gap-2 mb-2">
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-white" style="background-color: #ef4444" data-color="#ef4444"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #3b82f6" data-color="#3b82f6"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #10b981" data-color="#10b981"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #f59e0b" data-color="#f59e0b"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #8b5cf6" data-color="#8b5cf6"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #ec4899" data-color="#ec4899"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #6b7280" data-color="#6b7280"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #374151" data-color="#374151"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #7c3aed" data-color="#7c3aed"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border-2 border-transparent" style="background-color: #dc2626" data-color="#dc2626"></button>
+                            </div>
+                            <input id="custom-color" type="color" value="#ef4444" class="w-full h-8 bg-gray-700 rounded">
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-300 block mb-1">Size:</label>
+                            <input id="token-size" type="range" min="10" max="50" value="20" class="w-full">
+                            <div class="text-xs text-gray-400 text-center">
+                                <span id="size-display">20</span> pixels
+                            </div>
+                        </div>
+                        
+                        <button id="create-token" class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            Create Token
+                        </button>
+                        
+                        <button id="update-selected-token" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">
+                            Update Selected Token
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function setupPanelHandlers(panelName) {
+            switch (panelName) {
+                case 'party':
+                    setupPartyHandlers();
+                    break;
+                case 'initiative':
+                    setupInitiativeHandlers();
+                    break;
+                case 'dice':
+                    setupDiceHandlers();
+                    break;
+                case 'tokens':
+                    setupTokenMakerHandlers();
+                    break;
+            }
+        }
+        
+        function setupPartyHandlers() {
+            const addBtn = document.getElementById('add-party-member');
+            if (addBtn) {
+                addBtn.addEventListener('click', () => {
+                    // Add a party member from selected token or create new
+                    if (appState.selectedToken) {
+                        addToParty(appState.selectedToken);
+                    } else {
+                        // Create new party member
+                        const newMember = {
+                            id: Date.now().toString(),
+                            name: 'New Member',
+                            class: 'Fighter',
+                            level: 1,
+                            hp: 10,
+                            maxHp: 10,
+                            color: '#10b981'
+                        };
+                        appState.party.push(newMember);
+                        showPanel('party');
+                        addChatMessage(`Added ${newMember.name} to party`, 'system');
+                    }
+                });
+            }
+        }
+        
+        function setupInitiativeHandlers() {
+            const rollBtn = document.getElementById('roll-initiative');
+            const nextBtn = document.getElementById('next-turn');
+            
+            if (rollBtn) {
+                rollBtn.addEventListener('click', () => {
+                    rollInitiativeForAll();
+                });
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    nextTurn();
+                });
+            }
+        }
+        
+        function setupDiceHandlers() {
+            const customInput = document.getElementById('custom-dice-input');
+            const rollBtn = document.getElementById('roll-custom-dice');
+            
+            if (customInput && rollBtn) {
+                rollBtn.addEventListener('click', () => {
+                    rollCustomDice();
+                });
+                
+                customInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        rollCustomDice();
+                    }
+                });
+            }
+            
+            // Static dice buttons
+            document.querySelectorAll('.static-dice-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const diceString = btn.dataset.dice;
+                    const result = rollDice(diceString);
+                    if (result) {
+                        addToRecentRolls(`${result.diceString}: ${result.total}`);
+                        addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+                    }
+                });
+            });
+        }
+        
+        function setupTokenMakerHandlers() {
+            const nameInput = document.getElementById('token-name');
+            const typeSelect = document.getElementById('token-type');
+            const customColor = document.getElementById('custom-color');
+            const sizeSlider = document.getElementById('token-size');
+            const sizeDisplay = document.getElementById('size-display');
+            const createBtn = document.getElementById('create-token');
+            const updateBtn = document.getElementById('update-selected-token');
+            const preview = document.getElementById('token-preview');
+            
+            // Color selection
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update border to show selection
+                    document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
+                    btn.style.borderColor = '#ffffff';
+                    
+                    const color = btn.dataset.color;
+                    customColor.value = color;
+                    preview.style.backgroundColor = color;
+                });
+            });
+            
+            customColor.addEventListener('input', () => {
+                preview.style.backgroundColor = customColor.value;
+                // Reset color button selections
+                document.querySelectorAll('.color-btn').forEach(b => b.style.borderColor = 'transparent');
+            });
+            
+            // Size slider
+            sizeSlider.addEventListener('input', () => {
+                const size = sizeSlider.value;
+                sizeDisplay.textContent = size;
+                preview.style.width = size + 'px';
+                preview.style.height = size + 'px';
+            });
+            
+            // Create token
+            if (createBtn) {
+                createBtn.addEventListener('click', () => {
+                    createTokenFromMaker();
+                });
+            }
+            
+            // Update selected token
+            if (updateBtn) {
+                updateBtn.addEventListener('click', () => {
+                    updateSelectedTokenFromMaker();
+                });
+            }
+            
+            // Update UI based on selected token
+            if (appState.selectedToken) {
+                nameInput.value = appState.selectedToken.name;
+                typeSelect.value = appState.selectedToken.type;
+                customColor.value = appState.selectedToken.color;
+                sizeSlider.value = appState.selectedToken.size;
+                sizeDisplay.textContent = appState.selectedToken.size;
+                preview.style.backgroundColor = appState.selectedToken.color;
+                preview.style.width = appState.selectedToken.size + 'px';
+                preview.style.height = appState.selectedToken.size + 'px';
+                
+                updateBtn.classList.remove('hidden');
+                createBtn.textContent = 'Create New Token';
+            } else {
+                updateBtn.classList.add('hidden');
+                createBtn.textContent = 'Create Token';
+            }
+        }
+        
+        // Party Management Functions
+        function addToParty(token) {
+            const member = {
+                id: token.id.toString(),
+                name: token.name,
+                class: token.characterSheet.class,
+                level: token.characterSheet.level,
+                hp: token.characterSheet.health.current,
+                maxHp: token.characterSheet.health.max,
+                color: token.color
+            };
+            
+            // Check if already in party
+            if (!appState.party.find(p => p.id === member.id)) {
+                appState.party.push(member);
+                showPanel('party');
+                addChatMessage(`Added ${member.name} to party`, 'system');
+            }
+        }
+        
+        function removePartyMember(id) {
+            appState.party = appState.party.filter(member => member.id !== id);
+            showPanel('party');
+            addChatMessage(`Removed party member`, 'system');
+        }
+        
+        // Initiative Management Functions
+        function rollInitiativeForAll() {
+            appState.initiative = [];
+            
+            // Add party members to initiative
+            appState.party.forEach(member => {
+                const initiative = Math.floor(Math.random() * 20) + 1;
+                appState.initiative.push({
+                    id: member.id,
+                    name: member.name,
+                    type: 'Player',
+                    initiative: initiative,
+                    isActive: false
+                });
+            });
+            
+            // Add enemies/NPCs from tokens
+            appState.tokens.filter(t => t.type === 'enemy' || t.type === 'npc').forEach(token => {
+                const initiative = Math.floor(Math.random() * 20) + 1;
+                appState.initiative.push({
+                    id: token.id.toString(),
+                    name: token.name,
+                    type: token.type === 'enemy' ? 'Enemy' : 'NPC',
+                    initiative: initiative,
+                    isActive: false
+                });
+            });
+            
+            // Sort by initiative (highest first)
+            appState.initiative.sort((a, b) => b.initiative - a.initiative);
+            
+            // Set first entry as active
+            if (appState.initiative.length > 0) {
+                appState.initiative[0].isActive = true;
+            }
+            
+            showPanel('initiative');
+            addChatMessage(`Initiative rolled for ${appState.initiative.length} participants`, 'system');
+        }
+        
+        function nextTurn() {
+            if (appState.initiative.length === 0) return;
+            
+            const currentIndex = appState.initiative.findIndex(entry => entry.isActive);
+            if (currentIndex !== -1) {
+                appState.initiative[currentIndex].isActive = false;
+                const nextIndex = (currentIndex + 1) % appState.initiative.length;
+                appState.initiative[nextIndex].isActive = true;
+                
+                showPanel('initiative');
+                addChatMessage(`Next turn: ${appState.initiative[nextIndex].name}`, 'system');
+            }
+        }
+        
+        function removeFromInitiative(id) {
+            appState.initiative = appState.initiative.filter(entry => entry.id !== id);
+            showPanel('initiative');
+        }
+        
+        // Dice Functions
+        function rollCustomDice() {
+            const input = document.getElementById('custom-dice-input');
+            const diceString = input.value.trim();
+            
+            if (diceString) {
+                const result = rollDice(diceString);
+                if (result) {
+                    addToRecentRolls(`${result.diceString}: ${result.total}`);
+                    addChatMessage(`Rolling ${result.diceString}: [${result.rolls.join(', ')}]${result.modifier ? ' + ' + result.modifier : ''} = ${result.total}`, 'dice');
+                    input.value = '';
+                } else {
+                    addChatMessage('Invalid dice format. Use format like "1d20" or "2d6+3"', 'system');
+                }
+            }
+        }
+        
+        function addToRecentRolls(rollText) {
+            const recentRolls = document.getElementById('recent-rolls');
+            if (recentRolls) {
+                const rollDiv = document.createElement('div');
+                rollDiv.className = 'text-yellow-400 mb-1';
+                rollDiv.textContent = rollText;
+                recentRolls.appendChild(rollDiv);
+                recentRolls.scrollTop = recentRolls.scrollHeight;
+                
+                // Keep only last 10 rolls
+                while (recentRolls.children.length > 10) {
+                    recentRolls.removeChild(recentRolls.firstChild);
+                }
+            }
+        }
+        
+        // Token Maker Functions
+        function createTokenFromMaker() {
+            const name = document.getElementById('token-name').value;
+            const type = document.getElementById('token-type').value;
+            const color = document.getElementById('custom-color').value;
+            const size = parseInt(document.getElementById('token-size').value);
+            
+            // Create token at center of canvas
+            const centerX = canvas.width / 2 - appState.camera.x;
+            const centerY = canvas.height / 2 - appState.camera.y;
+            
+            const token = {
+                id: Date.now(),
+                x: centerX,
+                y: centerY,
+                color: color,
+                size: size,
+                type: type,
+                name: name,
+                characterSheet: createDefaultCharacterSheet(),
+                pdfUrl: null
+            };
+            
+            // Update character sheet with token name and type
+            token.characterSheet.name = name;
+            if (type === 'enemy') {
+                token.characterSheet.class = 'Monster';
+            }
+            
+            appState.tokens.push(token);
+            document.getElementById('token-count').textContent = appState.tokens.length;
+            redrawCanvas();
+            addChatMessage(`Created ${name} token`, 'system');
+        }
+        
+        function updateSelectedTokenFromMaker() {
+            if (!appState.selectedToken) return;
+            
+            const name = document.getElementById('token-name').value;
+            const type = document.getElementById('token-type').value;
+            const color = document.getElementById('custom-color').value;
+            const size = parseInt(document.getElementById('token-size').value);
+            
+            appState.selectedToken.name = name;
+            appState.selectedToken.type = type;
+            appState.selectedToken.color = color;
+            appState.selectedToken.size = size;
+            appState.selectedToken.characterSheet.name = name;
+            
+            redrawCanvas();
+            addChatMessage(`Updated ${name} token`, 'system');
+        }
+        
         // Upload functionality
         function setupUploadHandlers() {
             const uploadBtn = document.getElementById('upload-campaign');
@@ -1133,6 +1833,13 @@
             // Close upload modal
             closeUploadBtn.addEventListener('click', () => {
                 uploadModal.classList.add('hidden');
+            });
+            
+            // Upload Expansion button
+            const uploadExpansionBtn = document.getElementById('upload-expansion');
+            uploadExpansionBtn.addEventListener('click', () => {
+                addChatMessage('Upload Expansion feature - Ready for future modules and expansions!', 'system');
+                // TODO: Implement expansion upload functionality
             });
             
             // Campaign file drag & drop
@@ -1479,10 +2186,14 @@
         setupUploadHandlers();
         setupModalHandlers();
         
+        // Initialize panel system
+        showPanel('party');
+        
         // Welcome message
         setTimeout(() => {
-            addChatMessage('Welcome to The Dragon Stones battle map! Try adding tokens by selecting the Token tool and clicking on the map.', 'system');
-            addChatMessage('Click the 📂 upload button to import D&D Beyond campaigns and enemy PDFs.', 'system');
+            addChatMessage('Welcome to The Dragon Stones battle map! Now with enhanced BattleGrounds features.', 'system');
+            addChatMessage('Use the left sidebar for Party Manager, Initiative Tracker, Dice Roller, and Token Maker.', 'system');
+            addChatMessage('Try the enhanced Fog of War tool with brush, cone, and circle modes.', 'system');
         }, 1000);
     </script>
 </body>
