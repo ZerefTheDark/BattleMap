@@ -114,10 +114,42 @@ test.describe('Modular Panel Drag Functionality', () => {
     // Get the header element
     const header = page.locator('.bg-gray-900.border-b-2.border-green-500');
     
-    // Check that header has p-2 class (reduced from p-3)
-    await expect(header).toHaveClass(/p-2/);
+    // Check that header has p-1 class (reduced from p-2 by twice the previous reduction amount)
+    await expect(header).toHaveClass(/p-1/);
     
-    // Verify header doesn't have the old p-3 class
-    await expect(header).not.toHaveClass(/p-3/);
+    // Verify header doesn't have the old p-2 class
+    await expect(header).not.toHaveClass(/p-2/);
+  });
+
+  test('should verify drag positioning accuracy', async ({ page }) => {
+    // Open control center and party module
+    await page.click('#control-center-toggle');
+    await page.click('[data-module="party"]');
+    
+    const partyModule = page.locator('#module-party');
+    const partyHeader = page.locator('#module-party .module-header');
+    await expect(partyHeader).toBeVisible();
+    
+    // Get initial position
+    const initialBox = await partyModule.boundingBox();
+    
+    // Drag to a specific location
+    const targetX = 300;
+    const targetY = 200;
+    await partyHeader.dragTo(page.locator('#battle-canvas'), {
+      targetPosition: { x: targetX, y: targetY }
+    });
+    
+    // Check final position is close to target (allowing for small offsets)
+    const finalBox = await partyModule.boundingBox();
+    
+    // Verify the module moved to approximately the right location
+    // Allow for a reasonable tolerance in positioning
+    expect(Math.abs(finalBox.x - targetX)).toBeLessThan(50);
+    expect(Math.abs(finalBox.y - targetY)).toBeLessThan(50);
+    
+    // Verify it's not jumping to incorrect locations
+    expect(finalBox.x).not.toBe(initialBox.x);
+    expect(finalBox.y).not.toBe(initialBox.y);
   });
 });
