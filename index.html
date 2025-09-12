@@ -1443,7 +1443,12 @@
         document.getElementById('grid-toggle').addEventListener('click', () => {
             appState.gridEnabled = !appState.gridEnabled;
             document.getElementById('grid-status').textContent = appState.gridEnabled ? 'On' : 'Off';
+            
+            // Update CSS grid for when no background image is present
             canvas.classList.toggle('grid-overlay', appState.gridEnabled);
+            
+            // Redraw canvas to show/hide canvas-drawn grid
+            redrawCanvas();
         });
         
         // Canvas mouse events
@@ -1608,6 +1613,11 @@
                 ctx.drawImage(appState.backgroundImage, drawX, drawY, drawWidth, drawHeight);
             }
             
+            // Draw grid on canvas if enabled (ensures grid appears above background image)
+            if (appState.gridEnabled) {
+                drawGridOnCanvas(ctx);
+            }
+            
             // Draw tokens
             appState.tokens.forEach(token => {
                 ctx.beginPath();
@@ -1651,6 +1661,35 @@
             
             // Restore context
             ctx.restore();
+        }
+        
+        // Draw grid on canvas to ensure it appears above background images
+        function drawGridOnCanvas(ctx) {
+            const gridSize = 40; // 40px grid size to match CSS grid
+            const canvasWidth = canvas.width / appState.zoom;
+            const canvasHeight = canvas.height / appState.zoom;
+            
+            // Calculate grid offset based on camera position
+            const startX = Math.floor(-appState.camera.x / appState.zoom / gridSize) * gridSize;
+            const startY = Math.floor(-appState.camera.y / appState.zoom / gridSize) * gridSize;
+            
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)'; // Same color as CSS grid
+            ctx.lineWidth = 1 / appState.zoom; // Adjust line width for zoom
+            ctx.beginPath();
+            
+            // Draw vertical lines
+            for (let x = startX; x < canvasWidth - appState.camera.x / appState.zoom + gridSize; x += gridSize) {
+                ctx.moveTo(x, -appState.camera.y / appState.zoom);
+                ctx.lineTo(x, canvasHeight - appState.camera.y / appState.zoom);
+            }
+            
+            // Draw horizontal lines
+            for (let y = startY; y < canvasHeight - appState.camera.y / appState.zoom + gridSize; y += gridSize) {
+                ctx.moveTo(-appState.camera.x / appState.zoom, y);
+                ctx.lineTo(canvasWidth - appState.camera.x / appState.zoom, y);
+            }
+            
+            ctx.stroke();
         }
         
         // Character Sheet Functions
