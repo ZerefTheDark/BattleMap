@@ -1443,7 +1443,12 @@
         document.getElementById('grid-toggle').addEventListener('click', () => {
             appState.gridEnabled = !appState.gridEnabled;
             document.getElementById('grid-status').textContent = appState.gridEnabled ? 'On' : 'Off';
+            
+            // Update CSS grid for when no background image is present
             canvas.classList.toggle('grid-overlay', appState.gridEnabled);
+            
+            // Redraw canvas to show/hide canvas-drawn grid
+            redrawCanvas();
         });
         
         // Canvas mouse events
@@ -1608,6 +1613,11 @@
                 ctx.drawImage(appState.backgroundImage, drawX, drawY, drawWidth, drawHeight);
             }
             
+            // Draw grid on canvas if enabled (ensures grid appears above background image)
+            if (appState.gridEnabled) {
+                drawGridOnCanvas(ctx);
+            }
+            
             // Draw tokens
             appState.tokens.forEach(token => {
                 ctx.beginPath();
@@ -1651,6 +1661,35 @@
             
             // Restore context
             ctx.restore();
+        }
+        
+        // Draw grid on canvas to ensure it appears above background images
+        function drawGridOnCanvas(ctx) {
+            const gridSize = 40; // 40px grid size to match CSS grid
+            const canvasWidth = canvas.width / appState.zoom;
+            const canvasHeight = canvas.height / appState.zoom;
+            
+            // Calculate grid offset based on camera position
+            const startX = Math.floor(-appState.camera.x / appState.zoom / gridSize) * gridSize;
+            const startY = Math.floor(-appState.camera.y / appState.zoom / gridSize) * gridSize;
+            
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)'; // Same color as CSS grid
+            ctx.lineWidth = 1 / appState.zoom; // Adjust line width for zoom
+            ctx.beginPath();
+            
+            // Draw vertical lines
+            for (let x = startX; x < canvasWidth - appState.camera.x / appState.zoom + gridSize; x += gridSize) {
+                ctx.moveTo(x, -appState.camera.y / appState.zoom);
+                ctx.lineTo(x, canvasHeight - appState.camera.y / appState.zoom);
+            }
+            
+            // Draw horizontal lines
+            for (let y = startY; y < canvasHeight - appState.camera.y / appState.zoom + gridSize; y += gridSize) {
+                ctx.moveTo(-appState.camera.x / appState.zoom, y);
+                ctx.lineTo(canvasWidth - appState.camera.x / appState.zoom, y);
+            }
+            
+            ctx.stroke();
         }
         
         // Character Sheet Functions
@@ -3759,6 +3798,9 @@
             let dragStartY = 0;
             let moduleStartX = 0;
             let moduleStartY = 0;
+            // Click offset within the module header for natural drag behavior
+            let clickOffsetX = 0;
+            let clickOffsetY = 0;
             // Fixed: Cache dimensions to prevent drag-and-drop positioning issues
             let moduleStartWidth = 0;
             let moduleStartHeight = 0;
@@ -3776,11 +3818,17 @@
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
                 
-                // FIXED: Always use getBoundingClientRect() for the true current position
-                // The visual position is what matters for drag calculations, not stale CSS values
+                // FIXED: Calculate click offset within the element for natural drag behavior
+                // This prevents jumping by accounting for where within the header the user clicked
                 const rect = moduleElement.getBoundingClientRect();
-                moduleStartX = rect.left;
-                moduleStartY = rect.top;
+                clickOffsetX = e.clientX - rect.left;
+                clickOffsetY = e.clientY - rect.top;
+                
+                // Use current position from style for consistent coordinate system
+                moduleStartX = parseInt(moduleElement.style.left) || 0;
+                moduleStartY = parseInt(moduleElement.style.top) || 0;
+                
+                // Cache dimensions to prevent layout thrashing during drag
                 moduleStartWidth = rect.width;
                 moduleStartHeight = rect.height;
                 
@@ -3818,18 +3866,16 @@
             // Global mouse move handler for this module
             const mouseMoveHandler = (e) => {
                 if (isDragging) {
-                    const deltaX = e.clientX - dragStartX;
-                    const deltaY = e.clientY - dragStartY;
-                    
-                    const newX = moduleStartX + deltaX;
-                    const newY = moduleStartY + deltaY;
+                    // FIXED: Calculate new position using click offset for natural drag behavior
+                    // This ensures the module follows the mouse precisely without jumping
+                    const newX = e.clientX - clickOffsetX;
+                    const newY = e.clientY - clickOffsetY;
                     
                     // Keep module within viewport bounds
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
                     
-                    // FIXED: Use cached dimensions instead of recalculating getBoundingClientRect()
-                    // during drag operation to prevent incorrect drop positioning.
+                    // Use cached dimensions to prevent layout thrashing during drag
                     const clampedX = Math.max(0, Math.min(newX, viewportWidth - moduleStartWidth));
                     const clampedY = Math.max(0, Math.min(newY, viewportHeight - moduleStartHeight));
                     
