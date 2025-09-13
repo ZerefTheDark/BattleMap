@@ -3820,7 +3820,7 @@
                 
                 // FIXED: Calculate click offset within the element for natural drag behavior
                 // This prevents jumping by accounting for where within the header the user clicked
-                const rect = moduleElement.getBoundingClientRect();
+                const rect = header.getBoundingClientRect();
                 clickOffsetX = e.clientX - rect.left;
                 clickOffsetY = e.clientY - rect.top;
                 
