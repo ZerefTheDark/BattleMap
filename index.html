@@ -405,6 +405,56 @@
             background: rgba(16, 185, 129, 0.3);
         }
         
+        /* Header drag-and-drop styles */
+        .header-drop-target {
+            transition: all 0.3s ease;
+        }
+        
+        .header-drop-target.drag-over {
+            background: linear-gradient(135deg, #047857, #059669, #10b981) !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            border-bottom-color: #fbbf24 !important;
+            transform: scale(1.02);
+        }
+        
+        .header-drop-target.drag-over::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(251, 191, 36, 0.1) 0%, 
+                rgba(16, 185, 129, 0.1) 50%, 
+                rgba(251, 191, 36, 0.1) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .header-drop-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(251, 191, 36, 0.9);
+            color: #1f2937;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .header-drop-target.drag-over .header-drop-hint {
+            opacity: 1;
+            visibility: visible;
+        }
+        
         /* Module System Styles */
         .module-window {
             position: absolute;
@@ -867,8 +917,11 @@
         </div>
         
         <!-- Top Toolbar -->
-        <div class="bg-gray-900 border-b-2 border-green-500 shadow-lg py-0 px-1 flex items-center justify-between gap-4 relative">
+        <div id="main-header" class="header-drop-target bg-gray-900 border-b-2 border-green-500 shadow-lg py-0 px-1 flex items-center justify-between gap-4 relative">
             <div class="decorative-border absolute inset-x-0 bottom-0"></div>
+            
+            <!-- Drop hint (hidden by default) -->
+            <div class="header-drop-hint">Drop module here to dock to header</div>
             
             <!-- Title and Info -->
             <div class="flex items-center gap-2">
@@ -4294,6 +4347,111 @@
                 e.preventDefault();
             }
         });
+        
+        // Header drag-and-drop functionality
+        const mainHeader = document.getElementById('main-header');
+        let isModuleBeingDragged = false;
+        let draggedModule = null;
+        
+        // Track when any module starts dragging
+        document.addEventListener('mousedown', (e) => {
+            const moduleHeader = e.target.closest('.module-header');
+            if (moduleHeader) {
+                isModuleBeingDragged = true;
+                draggedModule = moduleHeader.closest('.module-window');
+            }
+        });
+        
+        // Track when module drag ends
+        document.addEventListener('mouseup', () => {
+            if (isModuleBeingDragged) {
+                setTimeout(() => {
+                    isModuleBeingDragged = false;
+                    draggedModule = null;
+                }, 50); // Small delay to allow drop event to fire
+            }
+        });
+        
+        // Header drop target events
+        if (mainHeader) {
+            // Handle dragover event (required for drop to work)
+            mainHeader.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (isModuleBeingDragged) {
+                    mainHeader.classList.add('drag-over');
+                }
+            });
+            
+            // Handle mouse enter during module drag (for mouse-based drag, not HTML5 drag)
+            mainHeader.addEventListener('mouseenter', (e) => {
+                if (isModuleBeingDragged && draggedModule) {
+                    mainHeader.classList.add('drag-over');
+                }
+            });
+            
+            // Handle mouse leave
+            mainHeader.addEventListener('mouseleave', (e) => {
+                if (isModuleBeingDragged) {
+                    mainHeader.classList.remove('drag-over');
+                }
+            });
+            
+            // Handle drop/mouse up over header
+            mainHeader.addEventListener('mouseup', (e) => {
+                if (isModuleBeingDragged && draggedModule) {
+                    // Module was dropped on header
+                    handleModuleDropOnHeader(draggedModule);
+                    mainHeader.classList.remove('drag-over');
+                }
+            });
+            
+            // Handle dragleave (for HTML5 drag-and-drop)
+            mainHeader.addEventListener('dragleave', (e) => {
+                mainHeader.classList.remove('drag-over');
+            });
+            
+            // Handle actual drop event (for HTML5 drag-and-drop)
+            mainHeader.addEventListener('drop', (e) => {
+                e.preventDefault();
+                mainHeader.classList.remove('drag-over');
+                if (draggedModule) {
+                    handleModuleDropOnHeader(draggedModule);
+                }
+            });
+        }
+        
+        // Function to handle what happens when a module is dropped on the header
+        function handleModuleDropOnHeader(moduleElement) {
+            if (!moduleElement) return;
+            
+            // Get module name from ID
+            const moduleName = moduleElement.id.replace('module-', '');
+            
+            // Option 1: Snap to top of screen (just below header)
+            const headerHeight = mainHeader.offsetHeight;
+            const snapToTopY = headerHeight + 10; // 10px buffer below header
+            
+            // Position module at top-center of screen
+            const centerX = (window.innerWidth - moduleElement.offsetWidth) / 2;
+            
+            moduleElement.style.left = centerX + 'px';
+            moduleElement.style.top = snapToTopY + 'px';
+            moduleElement.style.zIndex = ++nextModuleZIndex;
+            
+            // Update module state
+            if (moduleState[moduleName]) {
+                moduleState[moduleName].position = { x: centerX, y: snapToTopY };
+            }
+            
+            // Provide user feedback
+            addChatMessage(`${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)} module docked to header area`, 'system');
+            
+            // Optional: Add a subtle animation effect
+            moduleElement.style.transition = 'all 0.3s ease';
+            setTimeout(() => {
+                moduleElement.style.transition = '';
+            }, 300);
+        }
         
         // Initialize application
         window.addEventListener('resize', resizeCanvas);
