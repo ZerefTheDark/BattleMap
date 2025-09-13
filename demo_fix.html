@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drag Fix Demonstration</title>
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #f0f0f0; }
+        .demo-container { display: flex; gap: 40px; }
+        .demo-section { flex: 1; }
+        .demo-section h2 { color: #333; margin-bottom: 20px; }
+        .module {
+            position: absolute;
+            width: 300px;
+            height: 200px;
+            border: 2px solid #333;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: default;
+        }
+        .module-header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            cursor: move;
+            height: 40px;
+            box-sizing: border-box;
+            font-weight: bold;
+        }
+        .module-content {
+            padding: 15px;
+            height: calc(100% - 40px);
+            box-sizing: border-box;
+        }
+        #fixedModule { left: 50px; top: 80px; }
+        #buggyModule { left: 400px; top: 80px; }
+        .status { 
+            position: fixed; 
+            top: 10px; 
+            right: 10px; 
+            background: white; 
+            border: 1px solid #ccc; 
+            padding: 15px; 
+            max-width: 350px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .good { color: #008000; font-weight: bold; }
+        .bad { color: #cc0000; font-weight: bold; }
+        .demo-explanation {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-explanation">
+        <h3>🐛 Drag-and-Drop Jump Bug Demonstration</h3>
+        <p><strong>Left Module:</strong> FIXED version - calculates offset using header position</p>
+        <p><strong>Right Module:</strong> BUGGY version - calculates offset using full module position</p>
+        <p><strong>Test:</strong> Click and drag each module by its header. The fixed version should not jump!</p>
+    </div>
+
+    <div class="status" id="status">
+        <h3>🧪 Test Status</h3>
+        <div id="results">Click and drag the module headers to test</div>
+    </div>
+    
+    <div class="module" id="fixedModule">
+        <div class="module-header" id="fixedHeader">
+            ✅ FIXED - No Jump
+        </div>
+        <div class="module-content">
+            <p>This module uses the FIXED drag logic:</p>
+            <p><code>header.getBoundingClientRect()</code></p>
+            <p>It should not jump when you start dragging!</p>
+        </div>
+    </div>
+
+    <div class="module" id="buggyModule">
+        <div class="module-header" id="buggyHeader">
+            🐛 BUGGY - Jumps!
+        </div>
+        <div class="module-content">
+            <p>This module uses the BUGGY drag logic:</p>
+            <p><code>moduleElement.getBoundingClientRect()</code></p>
+            <p>It will jump down by ~40px when dragging starts!</p>
+        </div>
+    </div>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function setupDrag(moduleId, headerId, useBuggyLogic = false) {
+            const moduleElement = document.getElementById(moduleId);
+            const header = document.getElementById(headerId);
+            
+            let isDragging = false;
+            let clickOffsetX = 0;
+            let clickOffsetY = 0;
+            let initialMouseX = 0;
+            let initialMouseY = 0;
+            let initialModuleX = 0;
+            let initialModuleY = 0;
+            
+            header.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                
+                // Store initial positions
+                initialMouseX = e.clientX;
+                initialMouseY = e.clientY;
+                const moduleRect = moduleElement.getBoundingClientRect();
+                initialModuleX = moduleRect.left;
+                initialModuleY = moduleRect.top;
+                
+                // FIXED vs BUGGY logic
+                let rect;
+                if (useBuggyLogic) {
+                    // BUGGY: Use module position (causes jump)
+                    rect = moduleElement.getBoundingClientRect();
+                } else {
+                    // FIXED: Use header position (no jump)
+                    rect = header.getBoundingClientRect();
+                }
+                
+                clickOffsetX = e.clientX - rect.left;
+                clickOffsetY = e.clientY - rect.top;
+                
+                const version = useBuggyLogic ? 'BUGGY' : 'FIXED';
+                results.innerHTML = \`
+                    <strong>\${version} Module - Drag Started</strong><br>
+                    Click: (\${e.clientX}, \${e.clientY})<br>
+                    Offset: (\${Math.round(clickOffsetX)}, \${Math.round(clickOffsetY)})<br>
+                    <em>Watch for jumping...</em>
+                \`;
+                
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const newX = e.clientX - clickOffsetX;
+                    const newY = e.clientY - clickOffsetY;
+                    
+                    moduleElement.style.left = newX + 'px';
+                    moduleElement.style.top = newY + 'px';
+                    
+                    // Check if module jumped significantly on first movement
+                    const mouseMoved = Math.abs(e.clientX - initialMouseX) + Math.abs(e.clientY - initialMouseY);
+                    if (mouseMoved > 5) {
+                        const currentRect = moduleElement.getBoundingClientRect();
+                        const jumpX = Math.abs(currentRect.left - (initialModuleX + (e.clientX - initialMouseX)));
+                        const jumpY = Math.abs(currentRect.top - (initialModuleY + (e.clientY - initialMouseY)));
+                        const totalJump = Math.round(jumpX + jumpY);
+                        
+                        const version = useBuggyLogic ? 'BUGGY' : 'FIXED';
+                        const status = totalJump > 10 ? 
+                            \`<span class="bad">❌ JUMPED \${totalJump}px!</span>\` : 
+                            \`<span class="good">✅ No jump detected</span>\`;
+                        
+                        results.innerHTML = \`
+                            <strong>\${version} Module - Dragging</strong><br>
+                            Position: (\${Math.round(newX)}, \${Math.round(newY)})<br>
+                            Jump distance: \${totalJump}px<br>
+                            \${status}
+                        \`;
+                    }
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    results.innerHTML += '<br><strong>Drag completed!</strong>';
+                }
+            });
+        }
+        
+        // Setup both modules
+        setupDrag('fixedModule', 'fixedHeader', false);  // FIXED version
+        setupDrag('buggyModule', 'buggyHeader', true);   // BUGGY version
+    </script>
+</body>
+</html>

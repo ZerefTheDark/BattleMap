@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Drag Fix</title>
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+        .module {
+            position: absolute;
+            width: 300px;
+            height: 200px;
+            border: 2px solid #333;
+            background: #f0f0f0;
+            left: 100px;
+            top: 100px;
+        }
+        .module-header {
+            background: #333;
+            color: white;
+            padding: 10px;
+            cursor: move;
+            height: 30px;
+            box-sizing: border-box;
+        }
+        .module-content {
+            padding: 10px;
+            height: calc(100% - 30px);
+            box-sizing: border-box;
+        }
+        .test-results {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-results">
+        <h3>Drag Test Results</h3>
+        <div id="results">Click and drag the module header to test</div>
+    </div>
+    
+    <div class="module" id="testModule">
+        <div class="module-header" id="testHeader">
+            Drag me by this header
+        </div>
+        <div class="module-content">
+            <p>This is module content.</p>
+            <p>The header should be draggable without jumping.</p>
+        </div>
+    </div>
+
+    <script>
+        const moduleElement = document.getElementById('testModule');
+        const header = document.getElementById('testHeader');
+        const results = document.getElementById('results');
+        
+        let isDragging = false;
+        let clickOffsetX = 0;
+        let clickOffsetY = 0;
+        let initialX = 0;
+        let initialY = 0;
+        
+        header.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            
+            // FIXED: Use header.getBoundingClientRect() instead of moduleElement.getBoundingClientRect()
+            const rect = header.getBoundingClientRect();
+            clickOffsetX = e.clientX - rect.left;
+            clickOffsetY = e.clientY - rect.top;
+            
+            initialX = e.clientX;
+            initialY = e.clientY;
+            
+            results.innerHTML = `
+                <strong>Drag Started</strong><br>
+                Click position: (${e.clientX}, ${e.clientY})<br>
+                Header rect: (${Math.round(rect.left)}, ${Math.round(rect.top)})<br>
+                Click offset: (${Math.round(clickOffsetX)}, ${Math.round(clickOffsetY)})<br>
+                <em>Module should not jump!</em>
+            `;
+            
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                // Calculate new position using click offset
+                const newX = e.clientX - clickOffsetX;
+                const newY = e.clientY - clickOffsetY;
+                
+                moduleElement.style.left = newX + 'px';
+                moduleElement.style.top = newY + 'px';
+                
+                const moved = Math.abs(e.clientX - initialX) + Math.abs(e.clientY - initialY);
+                if (moved > 5) {
+                    results.innerHTML = `
+                        <strong>Dragging</strong><br>
+                        Mouse: (${e.clientX}, ${e.clientY})<br>
+                        Module position: (${Math.round(newX)}, ${Math.round(newY)})<br>
+                        Moved: ${Math.round(moved)}px<br>
+                        <em>No jumping = SUCCESS!</em>
+                    `;
+                }
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                results.innerHTML += '<br><strong>✅ Drag test completed!</strong>';
+            }
+        });
+    </script>
+</body>
+</html>
