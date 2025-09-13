@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag-Drop Debug Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1f2937;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .debug-header {
+            background: #059669;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #10b981;
+            position: relative;
+        }
+        
+        .debug-header.drag-over {
+            background: #047857;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            border-color: #fbbf24;
+        }
+        
+        .test-module {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            width: 300px;
+            position: absolute;
+            top: 150px;
+            left: 50px;
+            z-index: 100;
+        }
+        
+        .test-module.dragging {
+            z-index: 1000;
+            opacity: 0.9;
+        }
+        
+        .module-header {
+            background: #4b5563;
+            padding: 10px;
+            cursor: move;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .module-content {
+            padding: 15px;
+        }
+        
+        .debug-log {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            height: 400px;
+            background: #000;
+            border: 1px solid #333;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .debug-log .error { color: #ff6b6b; }
+        .debug-log .success { color: #51cf66; }
+        .debug-log .info { color: #74c0fc; }
+        .debug-log .warning { color: #ffd43b; }
+    </style>
+</head>
+<body>
+    <div class="debug-header" id="debugHeader">
+        <h1>Debug Header - Drop Target</h1>
+        <p>Drag the module below onto this header to test drop functionality</p>
+    </div>
+    
+    <div class="test-module" id="testModule">
+        <div class="module-header" id="moduleHeader">
+            🧪 Test Module - Drag Me!
+        </div>
+        <div class="module-content">
+            <p>This is a test module for debugging drag-and-drop functionality.</p>
+        </div>
+    </div>
+    
+    <div class="debug-log" id="debugLog">
+        <h3>Debug Log:</h3>
+    </div>
+
+    <script>
+        const debugLog = document.getElementById('debugLog');
+        const debugHeader = document.getElementById('debugHeader');
+        const testModule = document.getElementById('testModule');
+        const moduleHeader = document.getElementById('moduleHeader');
+        
+        // Global state tracking (mirroring the main app)
+        let isModuleBeingDragged = false;
+        let draggedModule = null;
+        
+        // Module drag state
+        let isDragging = false;
+        let clickOffsetX = 0;
+        let clickOffsetY = 0;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            debugLog.appendChild(logEntry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        // Clear log
+        function clearLog() {
+            debugLog.innerHTML = '<h3>Debug Log:</h3>';
+        }
+        
+        // Module drag setup
+        moduleHeader.addEventListener('mousedown', (e) => {
+            log('Module mousedown detected', 'info');
+            
+            isDragging = true;
+            isModuleBeingDragged = true;
+            draggedModule = testModule;
+            
+            testModule.classList.add('dragging');
+            
+            // Calculate click offset using header position (FIXED approach)
+            const rect = moduleHeader.getBoundingClientRect();
+            clickOffsetX = e.clientX - rect.left;
+            clickOffsetY = e.clientY - rect.top;
+            
+            log(`Click offset: (${clickOffsetX}, ${clickOffsetY})`, 'success');
+            log(`isModuleBeingDragged: ${isModuleBeingDragged}`, 'info');
+            log(`draggedModule: ${draggedModule ? 'SET' : 'NULL'}`, 'info');
+            
+            e.preventDefault();
+        });
+        
+        // Global mouse move
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const newX = e.clientX - clickOffsetX;
+                const newY = e.clientY - clickOffsetY;
+                
+                testModule.style.left = newX + 'px';
+                testModule.style.top = newY + 'px';
+            }
+        });
+        
+        // Global mouse up
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                log('Global mouseup - ending drag', 'info');
+                isDragging = false;
+                testModule.classList.remove('dragging');
+                
+                // Delay reset to allow drop event to fire
+                setTimeout(() => {
+                    log('Resetting global drag state (delayed)', 'warning');
+                    isModuleBeingDragged = false;
+                    draggedModule = null;
+                }, 50);
+            }
+        });
+        
+        // Header event handlers (exactly matching main app)
+        
+        // 1. dragover
+        debugHeader.addEventListener('dragover', (e) => {
+            log('Header dragover event', 'info');
+            e.preventDefault();
+            if (isModuleBeingDragged) {
+                debugHeader.classList.add('drag-over');
+                log('Added drag-over class (dragover)', 'success');
+            }
+        });
+        
+        // 2. mouseenter
+        debugHeader.addEventListener('mouseenter', (e) => {
+            log('Header mouseenter event', 'info');
+            if (isModuleBeingDragged && draggedModule) {
+                debugHeader.classList.add('drag-over');
+                log('Added drag-over class (mouseenter)', 'success');
+            } else {
+                log(`Mouseenter conditions not met: dragged=${isModuleBeingDragged}, module=${draggedModule ? 'SET' : 'NULL'}`, 'warning');
+            }
+        });
+        
+        // 3. mouseleave
+        debugHeader.addEventListener('mouseleave', (e) => {
+            log('Header mouseleave event', 'info');
+            if (isModuleBeingDragged) {
+                debugHeader.classList.remove('drag-over');
+                log('Removed drag-over class (mouseleave)', 'success');
+            }
+        });
+        
+        // 4. mouseup
+        debugHeader.addEventListener('mouseup', (e) => {
+            log('Header mouseup event', 'info');
+            if (isModuleBeingDragged && draggedModule) {
+                log('Calling handleModuleDropOnHeader', 'success');
+                handleModuleDropOnHeader(draggedModule);
+                debugHeader.classList.remove('drag-over');
+            } else {
+                log(`Mouseup conditions not met: dragged=${isModuleBeingDragged}, module=${draggedModule ? 'SET' : 'NULL'}`, 'error');
+            }
+        });
+        
+        // 5. dragleave
+        debugHeader.addEventListener('dragleave', (e) => {
+            log('Header dragleave event', 'info');
+            debugHeader.classList.remove('drag-over');
+        });
+        
+        // 6. drop
+        debugHeader.addEventListener('drop', (e) => {
+            log('Header drop event', 'info');
+            e.preventDefault();
+            debugHeader.classList.remove('drag-over');
+            if (draggedModule) {
+                log('Calling handleModuleDropOnHeader (drop)', 'success');
+                handleModuleDropOnHeader(draggedModule);
+            } else {
+                log('Drop event but no draggedModule', 'error');
+            }
+        });
+        
+        // Mock drop handler
+        function handleModuleDropOnHeader(moduleElement) {
+            log('=== handleModuleDropOnHeader called ===', 'success');
+            
+            if (!moduleElement) {
+                log('ERROR: No module element provided', 'error');
+                return;
+            }
+            
+            // Position at top center (below header)
+            const headerHeight = debugHeader.offsetHeight;
+            const snapToTopY = headerHeight + 20;
+            const centerX = (window.innerWidth - moduleElement.offsetWidth) / 2;
+            
+            log(`Positioning module at (${centerX}, ${snapToTopY})`, 'info');
+            
+            moduleElement.style.left = centerX + 'px';
+            moduleElement.style.top = snapToTopY + 'px';
+            moduleElement.style.zIndex = '200';
+            
+            // Add feedback animation
+            moduleElement.style.transition = 'all 0.3s ease';
+            setTimeout(() => {
+                moduleElement.style.transition = '';
+            }, 300);
+            
+            log('Module successfully docked to header!', 'success');
+        }
+        
+        // Initialize
+        log('Debug tool initialized. Try dragging the module!', 'info');
+        log('='.repeat(50), 'info');
+        
+        // Add clear button
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = 'Clear Log';
+        clearBtn.style.position = 'fixed';
+        clearBtn.style.bottom = '20px';
+        clearBtn.style.right = '20px';
+        clearBtn.style.padding = '10px';
+        clearBtn.style.background = '#374151';
+        clearBtn.style.color = 'white';
+        clearBtn.style.border = '1px solid #4b5563';
+        clearBtn.style.borderRadius = '4px';
+        clearBtn.style.cursor = 'pointer';
+        clearBtn.addEventListener('click', clearLog);
+        document.body.appendChild(clearBtn);
+    </script>
+</body>
+</html>
