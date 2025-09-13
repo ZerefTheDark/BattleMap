@@ -4353,86 +4353,151 @@
         let isModuleBeingDragged = false;
         let draggedModule = null;
         
+        // Debug function for logging drag-drop events
+        function logDragEvent(event, details = '') {
+            const timestamp = new Date().toLocaleTimeString();
+            console.log(`[DRAG-DROP ${timestamp}] ${event}: ${details}`);
+            
+            // Optional: Add visual debug info to chat
+            if (typeof addChatMessage === 'function' && event.includes('ERROR')) {
+                addChatMessage(`Debug: ${event} ${details}`, 'system');
+            }
+        }
+        
         // Track when any module starts dragging
         document.addEventListener('mousedown', (e) => {
             const moduleHeader = e.target.closest('.module-header');
             if (moduleHeader) {
                 isModuleBeingDragged = true;
                 draggedModule = moduleHeader.closest('.module-window');
+                logDragEvent('MODULE_MOUSEDOWN', `Module: ${draggedModule?.id || 'unknown'}`);
             }
         });
         
-        // Track when module drag ends
-        document.addEventListener('mouseup', () => {
+        // Track when module drag ends - FIXED: Remove problematic delay
+        document.addEventListener('mouseup', (e) => {
             if (isModuleBeingDragged) {
-                setTimeout(() => {
+                logDragEvent('GLOBAL_MOUSEUP', `Before: dragged=${isModuleBeingDragged}, module=${draggedModule?.id || 'null'}`);
+                
+                // FIXED: Only reset state if we're not over the header
+                // This allows header mouseup to fire properly
+                const headerElement = document.getElementById('main-header');
+                const isOverHeader = headerElement && headerElement.contains(e.target);
+                
+                if (!isOverHeader) {
+                    // Immediate reset if not over header
+                    logDragEvent('STATE_RESET_IMMEDIATE', 'Not over header');
                     isModuleBeingDragged = false;
                     draggedModule = null;
-                }, 50); // Small delay to allow drop event to fire
+                } else {
+                    // Delayed reset only if over header, to allow header events to process
+                    logDragEvent('STATE_RESET_DELAYED', 'Over header - allowing header events');
+                    setTimeout(() => {
+                        logDragEvent('STATE_RESET_DELAYED_COMPLETE', '');
+                        isModuleBeingDragged = false;
+                        draggedModule = null;
+                    }, 100); // Increased delay for better reliability
+                }
             }
         });
         
         // Header drop target events
         if (mainHeader) {
+            // FIXED: Add debug info and ensure header has proper event handling
+            logDragEvent('HEADER_INIT', 'Setting up header event handlers');
+            
             // Handle dragover event (required for drop to work)
             mainHeader.addEventListener('dragover', (e) => {
                 e.preventDefault();
+                logDragEvent('HEADER_DRAGOVER', `isModuleBeingDragged: ${isModuleBeingDragged}`);
                 if (isModuleBeingDragged) {
                     mainHeader.classList.add('drag-over');
+                    logDragEvent('VISUAL_FEEDBACK', 'Added drag-over class (dragover)');
                 }
             });
             
             // Handle mouse enter during module drag (for mouse-based drag, not HTML5 drag)
             mainHeader.addEventListener('mouseenter', (e) => {
+                logDragEvent('HEADER_MOUSEENTER', `isModuleBeingDragged: ${isModuleBeingDragged}, draggedModule: ${draggedModule?.id || 'null'}`);
                 if (isModuleBeingDragged && draggedModule) {
                     mainHeader.classList.add('drag-over');
+                    logDragEvent('VISUAL_FEEDBACK', 'Added drag-over class (mouseenter)');
                 }
             });
             
             // Handle mouse leave
             mainHeader.addEventListener('mouseleave', (e) => {
+                logDragEvent('HEADER_MOUSELEAVE', `isModuleBeingDragged: ${isModuleBeingDragged}`);
                 if (isModuleBeingDragged) {
                     mainHeader.classList.remove('drag-over');
+                    logDragEvent('VISUAL_FEEDBACK', 'Removed drag-over class (mouseleave)');
                 }
             });
             
-            // Handle drop/mouse up over header
+            // FIXED: Handle drop/mouse up over header with improved logic
             mainHeader.addEventListener('mouseup', (e) => {
+                logDragEvent('HEADER_MOUSEUP', `isModuleBeingDragged: ${isModuleBeingDragged}, draggedModule: ${draggedModule?.id || 'null'}`);
                 if (isModuleBeingDragged && draggedModule) {
                     // Module was dropped on header
+                    logDragEvent('DROP_SUCCESS', `Calling handleModuleDropOnHeader for ${draggedModule.id}`);
                     handleModuleDropOnHeader(draggedModule);
                     mainHeader.classList.remove('drag-over');
+                    
+                    // FIXED: Immediately reset state after successful drop to prevent conflicts
+                    isModuleBeingDragged = false;
+                    draggedModule = null;
+                    logDragEvent('STATE_RESET_AFTER_DROP', 'Reset after successful header drop');
+                } else {
+                    logDragEvent('DROP_FAILED', `Conditions not met: dragged=${isModuleBeingDragged}, module=${draggedModule?.id || 'null'}`);
                 }
             });
             
             // Handle dragleave (for HTML5 drag-and-drop)
             mainHeader.addEventListener('dragleave', (e) => {
+                logDragEvent('HEADER_DRAGLEAVE', '');
                 mainHeader.classList.remove('drag-over');
             });
             
-            // Handle actual drop event (for HTML5 drag-and-drop)
+            // FIXED: Handle actual drop event (for HTML5 drag-and-drop) with better logic
             mainHeader.addEventListener('drop', (e) => {
                 e.preventDefault();
+                logDragEvent('HEADER_DROP', `draggedModule: ${draggedModule?.id || 'null'}`);
                 mainHeader.classList.remove('drag-over');
                 if (draggedModule) {
+                    logDragEvent('HTML5_DROP_SUCCESS', `Calling handleModuleDropOnHeader for ${draggedModule.id}`);
                     handleModuleDropOnHeader(draggedModule);
+                    
+                    // FIXED: Reset state after successful drop
+                    isModuleBeingDragged = false;
+                    draggedModule = null;
+                    logDragEvent('STATE_RESET_AFTER_HTML5_DROP', 'Reset after successful HTML5 drop');
+                } else {
+                    logDragEvent('HTML5_DROP_FAILED', 'No draggedModule available');
                 }
             });
         }
         
         // Function to handle what happens when a module is dropped on the header
         function handleModuleDropOnHeader(moduleElement) {
-            if (!moduleElement) return;
+            logDragEvent('HANDLE_DROP_START', `Module: ${moduleElement?.id || 'null'}`);
+            
+            if (!moduleElement) {
+                logDragEvent('HANDLE_DROP_ERROR', 'No module element provided');
+                return;
+            }
             
             // Get module name from ID
             const moduleName = moduleElement.id.replace('module-', '');
+            logDragEvent('HANDLE_DROP_MODULE', `Module name: ${moduleName}`);
             
-            // Option 1: Snap to top of screen (just below header)
-            const headerHeight = mainHeader.offsetHeight;
-            const snapToTopY = headerHeight + 10; // 10px buffer below header
+            // FIXED: Use header.getBoundingClientRect() for accurate positioning
+            const headerRect = mainHeader.getBoundingClientRect();
+            const snapToTopY = headerRect.bottom + 10; // 10px buffer below header
             
             // Position module at top-center of screen
             const centerX = (window.innerWidth - moduleElement.offsetWidth) / 2;
+            
+            logDragEvent('HANDLE_DROP_POSITION', `Positioning at (${centerX}, ${snapToTopY})`);
             
             moduleElement.style.left = centerX + 'px';
             moduleElement.style.top = snapToTopY + 'px';
@@ -4441,16 +4506,26 @@
             // Update module state
             if (moduleState[moduleName]) {
                 moduleState[moduleName].position = { x: centerX, y: snapToTopY };
+                logDragEvent('HANDLE_DROP_STATE', `Updated state for ${moduleName}`);
             }
             
             // Provide user feedback
-            addChatMessage(`${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)} module docked to header area`, 'system');
+            const feedbackMsg = `${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)} module docked to header area`;
+            addChatMessage(feedbackMsg, 'system');
+            logDragEvent('HANDLE_DROP_FEEDBACK', feedbackMsg);
             
-            // Optional: Add a subtle animation effect
-            moduleElement.style.transition = 'all 0.3s ease';
+            // FIXED: Add a subtle animation effect with improved transitions
+            moduleElement.style.transition = 'all 0.3s ease-out';
+            moduleElement.style.transform = 'scale(1.05)';
+            
             setTimeout(() => {
-                moduleElement.style.transition = '';
-            }, 300);
+                moduleElement.style.transform = 'scale(1)';
+                setTimeout(() => {
+                    moduleElement.style.transition = '';
+                }, 300);
+            }, 150);
+            
+            logDragEvent('HANDLE_DROP_COMPLETE', `Successfully docked ${moduleName}`);
         }
         
         // Initialize application
